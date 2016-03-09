@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+#
+# es-create-vos-index-templates
+#
+# Create the sar index templates, with explicit mappings found in
+# ../lib/mappings/*.json.
+
+
+from __future__ import print_function
+
+import os, sys
+
+#+
+# Version of mappings
+#
+# FIXME: this needs to be kept in sync with changes to the mapping files themselves.
+#-
+SOSREPORT_VERSION = '08'
+SAR_VERSION = '02'
+cfg_name = "/etc/sar-index.cfg"
+
+import configparser
+
+config = configparser.ConfigParser()
+config.read(cfg_name)
+try:
+    URL = config.get('ElasticSearch', 'server')
+except configparser.NoSectionError:
+    print("Need a [ElasticSearch] section with host and port defined in %s"
+          " configuration file" % cfg_name, file=sys.stderr)
+    sys.exit(1)
+except configparser.NoOptionError:
+    host = config.get('ElasticSearch', 'host')
+    port = config.get('ElasticSearch', 'port')
+else:
+    host, port = URL.rsplit(':', 1)
+hosts = [dict(host=host, port=port),]
+INDEX_PREFIX = config.get('Settings', 'index_prefix')
+NUMBER_OF_SHARDS = config.get('Settings', 'number_of_shards')
+NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
+
+# Since we are not using SSDs, set merge max thread count to 1 to avoid a drop
+# in performance using the default. See:
+#
+#     http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/index-modules-merge.html
+#
+# We also bump up the transaction log buffer size to 1gb on the recommendation
+# of this page:
+#
+#     http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
+settings = dict(
+    number_of_shards=NUMBER_OF_SHARDS,
+    number_of_replicas=NUMBER_OF_REPLICAS,
+    codec=dict(
+        bloom=dict(
+            load='false')),
+    gateway=dict(
+        local=dict(
+            sync='1m')),
+    merge=dict(
+        scheduler=dict(
+            max_thread_count=1)),
+    translog=dict(
+        flush_threshold_size='1g'),
+    )
+
+def fetch_mapping(mapping_fn):
+    with open(mapping_fn, "r") as mappingfp:
+        try:
+            mapping = json.load(mappingfp)
+        except ValueError as err:
+            print("%s: %s" % (mapping_fn, err), file=sys.stderr)
+            sys.exit(1)
+    keys = list(mapping.keys())
+    if len(keys) != 1:
+        print("Invalid mapping file: %s" % mapping_fn, file=sys.stderr)
+        sys.exit(1)
+    return keys[0], mapping
+
+import glob, json
+
+LIBDIR = config.get('Grafana', 'templates_path')
+
+key, mapping = fetch_mapping(os.path.join(LIBDIR, "sar.json"))
+
+sar_mappings = { key: mapping }
+sar_settings = settings
+sar_body = dict(
+    template='%s.sar-*' % (INDEX_PREFIX,),
+    settings=sar_settings,
+    mappings=sar_mappings)
+
+# Silence logging messages from the elasticsearch client library
+import logging
+try:
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def handle(self, record):
+            pass
+        def emit(self, record):
+            pass
+        def createLock(self):
+            self.lock = None
+
+logging.getLogger('elasticsearch').addHandler(NullHandler())
+
+from elasticsearch import Elasticsearch
+es = Elasticsearch(hosts)
+
+def create_template(tname, tbody):
+    if es.indices.exists_template(name=tname):
+        return
+    try:
+        res = es.indices.put_template(name=tname, body=tbody)
+    except Exception as err:
+        print(repr(err), file=sys.stderr)
+        sys.exit(1)
+    else:
+        try:
+            if not res['acknowledged']:
+                print('ERROR - Template creation was not acknowledged', file=sys.stderr)
+                sys.exit(1)
+        except KeyError:
+            print('ERROR - Template creation failed: %r' % res, file=sys.stderr)
+            sys.exit(1)
+        print("Created template %s" % tname)
+
+tname = '%s.sar-%s' % (INDEX_PREFIX, SAR_VERSION)
+sar_body['template'] = '%s.sar-*' % (INDEX_PREFIX,)
+create_template(tname, sar_body)

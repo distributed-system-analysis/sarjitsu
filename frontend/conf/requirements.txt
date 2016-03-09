@@ -1,0 +1,4 @@
+urllib3==1.12
+elasticsearch==2.1.0
+Flask==0.10.1
+requests==2.9.1

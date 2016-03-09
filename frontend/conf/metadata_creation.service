@@ -1,0 +1,11 @@
+[Unit]
+Description=Create indexing templates and grafana data source
+
+[Service]
+User=root
+ExecStart=/scripts/es-metadata-handler
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

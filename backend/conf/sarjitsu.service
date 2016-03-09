@@ -1,0 +1,13 @@
+[Unit]
+Description=sarjitsu
+
+[Service]
+User=root
+WorkingDirectory=/src
+#ExecStart=/usr/bin/grunt serve --force
+ExecStart=/src/nodeup start
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
