@@ -8,26 +8,37 @@ from create_dashboard import *
 
 app = Flask(__name__)
 
-cfg_name = "/etc/sar-index.cfg"
-config = configparser.ConfigParser()
-config.read(cfg_name)
+def _read_configs():
+    cfg_name = "/etc/sar-index.cfg"
+    config = configparser.ConfigParser()
+    config.read(cfg_name)
+    global SOURCE, TSTAMP_FIELD, TEMPLATES_PATH
+    SOURCE = config.get('Grafana', 'ds_name')
+    TSTAMP_FIELD = config.get('Grafana', 'timeField')
+    TEMPLATES_PATH = os.path.join(config.get('Grafana', 'templates_path'),
+                                'grafana', 'templates')
 
-_SOURCE = config.get('Grafana', 'ds_name')
-TSTAMP_FIELD = config.get('Grafana', 'timeField')
-GRAFANA_DB_PATH = config.get('Grafana', 'sqlite3_path')
-TEMPLATES_PATH = os.path.join(config.get('Grafana', 'templates_path'),
-                            'grafana', 'templates')
+    cfg_name = "/etc/grafana/grafana.ini"
+    config.read(cfg_name)
+    global db_credentials
+    db_credentials = {}
+    db_credentials['DB_HOST'] = config['database']['host']
+    db_credentials['DB_PASS'] = config['database']['password']
+    db_credentials['DB_NAME'] = config['database']['name']
+    db_credentials['DB_USER'] = config['database']['user']
 
-default_modes = ['block_device', 'cpu_all', 'hugepages',
-                 'interrupts', 'io_transfer_rate_stats',
-                 'kernel_inode', 'load_avg', 'memory_page_stats',
-                 'memory_util', 'network', 'paging_stats',
-                 'proc_cswitch', 'swap_page_stats', 'swap_util', 'network']
+    global default_modes
+    default_modes = ['block_device', 'cpu_all', 'hugepages',
+        'interrupts', 'io_transfer_rate_stats',
+        'kernel_inode', 'load_avg', 'memory_page_stats',
+        'memory_util', 'network', 'paging_stats',
+        'proc_cswitch', 'swap_page_stats', 'swap_util', 'network']
 
 
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({'api_test': 'OK'})
+
 
 @app.route('/test/client/', methods=['POST'])
 def test():
@@ -68,13 +79,13 @@ def create_db():
                                       nodename),
                                   _FROM=beg, _TO=end,
                                   _FIELDS=modes.split(','),
-                                  SQLITE3_DB_PATH=GRAFANA_DB_PATH,
                                   NODENAME=nodename,
                                   TIMEFIELD=TSTAMP_FIELD,
                                   TEMPLATES=TEMPLATES_PATH,
-                                  DATASOURCE=_SOURCE)
+                                  db_credentials=db_credentials,
+                                  DATASOURCE=SOURCE)
 
-            PP.push_data_to_sqlite3()
+            PP.store_dashboard()
             response = { "reply" : "SUCCESS",
                         "response": "dashboard created for %s" % (nodename)}
             status=200
@@ -99,8 +110,10 @@ def create_db():
                     mimetype='application/json')
     return resp
 
+
 if __name__ == '__main__':
     try:
+        _read_configs()
         app.run(host = '0.0.0.0',
                 #port = 80,
                 debug = False)

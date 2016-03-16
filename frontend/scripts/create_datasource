@@ -1,35 +1,46 @@
 #!/usr/bin/env python3
 
 import time
-import sqlite3
 import configparser
+# import sqlite3
+import psycopg2
 
-cfg_name = "/etc/sar-index.cfg"
 config = configparser.ConfigParser()
-config.read(cfg_name)
-
-GRAFANA_DB_PATH = config.get('Grafana', 'sqlite3_path')
-conn = sqlite3.connect(GRAFANA_DB_PATH)
-c = conn.cursor()
 
 def tstos(ts=None):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts))
 
+
 if __name__ == '__main__':
-	created = tstos(time.time())
-	updated = tstos(time.time())
-	ds_name = config.get('Grafana', 'ds_name')
-	pattern = config.get('Grafana', 'pattern')
-	ds_url = "%s://%s:%s" % (config.get('ElasticSearch', 'protocol'),
-			config.get('ElasticSearch', 'host'),
-			config.get('ElasticSearch', 'port'))
+    cfg_name = "/etc/grafana/grafana.ini"
+    config.read(cfg_name)
+    db_host = config['database']['host']
+    db_name = config['database']['name']
+    db_user = config['database']['user']
+    db_pass = config['database']['password']
 
-	interval = '{"interval":"Daily","timeField":"%s"}' % \
-					(config.get('Grafana', 'timeField'))
+    conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" %
+                            (db_name, db_user, db_host, db_pass))
+    c = conn.cursor()
 
-	values = "(1,1,0,'elasticsearch','%s','proxy','%s','','','%s',0,'','',0,'%s', '%s', '%s')" \
-				% (ds_name, ds_url, pattern, interval, created, updated)
+    created = tstos(time.time())
+    updated = tstos(time.time())
 
-	c.execute("INSERT INTO data_source VALUES %s" % (values))
-	conn.commit()
-	conn.close()
+    cfg_name = "/etc/sar-index.cfg"
+    config.read(cfg_name)
+
+    ds_name = config.get('Grafana', 'ds_name')
+    pattern = config.get('Grafana', 'pattern')
+    ds_url = "%s://%s:%s" % (config.get('ElasticSearch', 'protocol'),
+			     config.get('ElasticSearch', 'host'),
+			     config.get('ElasticSearch', 'port'))
+
+    interval = '{"interval":"Daily","timeField":"%s"}' % \
+	       (config.get('Grafana', 'timeField'))
+
+    values = "(1,1,0,'elasticsearch','%s','proxy','%s','','','%s',False,'','',False,'%s', '%s', '%s')" \
+	     % (ds_name, ds_url, pattern, interval, created, updated)
+
+    c.execute("INSERT INTO data_source VALUES %s" % (values))
+    conn.commit()
+    conn.close()

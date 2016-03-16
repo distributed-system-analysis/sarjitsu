@@ -4,7 +4,7 @@
 # docker build -t sarjitsu_backend .
 
 # To run using the container, refer the following command:
-# docker run --privileged -it -d -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_backend
+# docker run --privileged -it -d --name node_jitsu -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_backend
 
 # optionally, supply -p 9210:80 to map the backend
 # container's port 80 to your host at 9210

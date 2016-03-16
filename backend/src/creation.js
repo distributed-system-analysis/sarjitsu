@@ -20,7 +20,7 @@ module.exports = {
         grep('api_url', '/etc/sar-index.cfg', function(list){
           var _tmp = list[0].results[0];
           var line = _tmp.line_number + ":" + _tmp.line;
-          var api_endpoint = line.split('api_url=')[1];
+          var api_endpoint = line.split('api_url = ')[1];
 
           request.post(api_endpoint,
             { json: {

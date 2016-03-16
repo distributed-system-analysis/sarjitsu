@@ -4,14 +4,16 @@
 # docker build -t sarjitsu_grafana .
 
 # To run using the container, refer the following command:
-# docker run --privileged -it -d -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_grafana
+# docker run --privileged -it -d --name grafana_jitsu -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_grafana
 ###########################################################
 
 FROM fedora:23
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # install grafana
-RUN dnf -y install initscripts fontconfig python3-pip
+RUN dnf -y install initscripts fontconfig
+# needed for psycopg2 postgres library
+RUN dnf -y install python3-pip postgresql-devel gcc redhat-rpm-config python3-devel
 RUN rpm -Uvh https://grafanarel.s3.amazonaws.com/builds/grafana-2.5.0-pre1.x86_64.rpm
 COPY conf/requirements.txt /root/requirements.txt
 RUN pip3 install -r /root/requirements.txt
