@@ -115,8 +115,9 @@ class PrepareDashboard(object):
             try:
                 row = self.create_row(field)
                 self.data['rows'].append(row)
+                print("created row for: %s" % field)
             except Exception as err:
-                print("couldn't prepare row for: %s" % (field))
+                print("couldn't prepare row for: %s" % field)
                 print(err)
 
     def check_prev_metadata(self):
@@ -164,7 +165,7 @@ class PrepareDashboard(object):
         title = self.DB_TITLE
         org_id = 1
         created = updated = tstos(current=True)
-        self.c.execute("INSERT INTO dashboard VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        self.c.execute("INSERT INTO dashboard VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (_id, version, slug, title, json.dumps(self.data),
                          org_id,created, updated))
         self.end_db_conn()

@@ -11,8 +11,8 @@ MAINTAINER arcolife <archit.py@gmail.com>
 
 RUN dnf -y install java-1.8.0-openjdk initscripts
 
-RUN rpm -Uvh https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.3.noarch.rpm \
-    	&& /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
+RUN rpm -Uvh https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.3.noarch.rpm
+#	RUN /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
 
 RUN sed -i "s/# network.host:.*/network.host: 0.0.0.0/g" \
     	   /etc/elasticsearch/elasticsearch.yml  && \

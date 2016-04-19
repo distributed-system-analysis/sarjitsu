@@ -14,7 +14,7 @@ FROM fedora:23
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # install npm, grunt-cli and other utils
-RUN dnf -y install npm net-tools procps vim git tar wget bzip2
+RUN dnf -y install npm net-tools procps git tar wget bzip2
 RUN npm install -g grunt-cli forever
 
 ADD src/ /src
