@@ -10,15 +10,7 @@ trap user_interrupt SIGTSTP
 
 ROOT_DIR=`echo $PWD`
 
-CONTAINER_ID_ES='elastic_jitsu'
-CONTAINER_ID_FRONTEND='grafana_jitsu'
-CONTAINER_ID_BACKEND='node_jitsu'
-CONTAINER_ID_DASHBOARDS='postrgres_jitsu'
-
-GRAFANA_DB_TYPE='postgres'
-DB_USER='arco'
-DB_NAME='arco'
-DB_PASSWORD='test123'
+source conf/sarjitsu.conf
 
 cleanup(){
   CLEAN_IDS=$(docker ps -a | grep -P '^.*(\ssarjitsu.*|'$CONTAINER_ID_DASHBOARDS')$' | awk -F' ' '{print $1}')
@@ -27,13 +19,15 @@ cleanup(){
     docker stop $CLEAN_IDS
     docker rm $CLEAN_IDS
   fi
+  rm -f ${ROOT_DIR%/}/conf/dashboard/db_environment
 }
 
 main(){
   echo "building and running sarjitsu now"
   sleep 1
   cd ${ROOT_DIR%/}/datasource/elasticsearch/
-  docker build -t sarjitsu_elasticsearch .
+  echo "building sarjitsu_elasticsearch"
+  docker build -t sarjitsu_elasticsearch . > /dev/null
 
   docker run --name $CONTAINER_ID_DASHBOARDS -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_USER=$DB_USER -d postgres
   if [[ ! $? -eq 0 ]]; then
@@ -52,18 +46,22 @@ main(){
   DATASOURCE_IP=`docker inspect $CONTAINER_ID_ES | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
   DASHBOARD_SOURCE_IP=`docker inspect $CONTAINER_ID_DASHBOARDS | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
 
+  echo "storing credentials db_creds"
+  cd ${ROOT_DIR%/}/conf/dashboard
+  echo "DB_NAME=$DB_NAME" >> db_environment
+  echo "DB_USER=$DB_USER" >> db_environment
+  echo "DB_PASS=$DB_PASSWORD" >> db_environment
+  echo "DB_TYPE=$GRAFANA_DB_TYPE" >> db_environment
+  echo "DB_HOST=$DASHBOARD_SOURCE_IP" >> db_environment
+
   cd ${ROOT_DIR%/}/frontend/
   sed -i -r 's#^host\s?=.*#host = '$DATASOURCE_IP'#g' conf/sar-index.cfg
-  sed -i -r 's#^postgres_host\s?=.*#postgres_host = '$DASHBOARD_SOURCE_IP'#g' conf/sar-index.cfg
 
-  docker build -t sarjitsu_grafana .
+  echo "building sarjitsu_grafana"
+  docker build -t sarjitsu_grafana . > /dev/null
   docker run  --name $CONTAINER_ID_FRONTEND --privileged -p 9500:3000 -it -d \
-  -e DB_TYPE=$GRAFANA_DB_TYPE \
-  -e DB_HOST=$DASHBOARD_SOURCE_IP \
-  -e DB_NAME=$DB_NAME \
-  -e DB_USER=$DB_USER \
-  -e DB_PASSWORD=$DB_PASSWORD \
-  -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_grafana
+          -v ${ROOT_DIR%/}/conf/dashboard:/etc/sarjitsu \
+          -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_grafana
 
   if [[ ! $? -eq 0 ]]; then
     echo -e "\nunable to run container: $CONTAINER_ID_FRONTEND"
@@ -77,7 +75,9 @@ main(){
   sed -i -r 's#^host\s?=.*#host = '$DATASOURCE_IP'#g' conf/sar-index.cfg
   sed -i -r 's#^dashboard_url\s?=.*#dashboard_url = http://'$FRONTEND_IP':3000/#g' conf/sar-index.cfg
   sed -i -r 's#^api_url\s?=.*#api_url = http://'$FRONTEND_IP':5000/db/create/#g' conf/sar-index.cfg
-  docker build -t sarjitsu_backend .
+
+  echo "building sarjitsu_backend"
+  docker build -t sarjitsu_backend . > /dev/null
   docker run --name $CONTAINER_ID_BACKEND --privileged -p 9600:80 -it -d \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_backend
 

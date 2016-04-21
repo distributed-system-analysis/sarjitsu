@@ -43,20 +43,6 @@ var grep = function(what, where, callback){
 
 module.exports = {
     dashboard: function (_process, util, hostname, sar_params, ts_begin, ts_end) {
-        // var grafanaObj, grafanaCmd = ['/src/scripts/create_dashboard',
-        //                             '-b', ts_begin, '-e', ts_end,
-        //                             '-n', hostname.replace(/\n/g, ''), '-m',
-        //                             sar_params.join(' ')];
-        // util.log(grafanaCmd.join(' '));
-        // grafanaObj = _process.spawn('env', grafanaCmd);
-        // grafanaObj.stdout.on('data', function (data) {
-        //     util.log(data.toString());
-        // });
-        // grafanaObj.stdout.on('end', function(){});
-        // grafanaObj.stderr.on('data', function (data) {
-        //   util.log('stderr: ' + data);
-        // });
-        // grafanaObj.stdout.on('close', function(){});
         grep('api_url', '/etc/sar-index.cfg', function(list){
           var _tmp = list[0].results[0];
           var line = _tmp.line_number + ":" + _tmp.line;
@@ -73,7 +59,10 @@ module.exports = {
                 }
             },
             function (error, response, body) {
-              if (!error && response.statusCode == 200) {
+							if (!response.hasOwnProperty('statusCode')) {
+								util.log("no reponse.statusCode received from dashboard creation engine");
+								util.log(JSON.stringify(response));
+							} else if (!error && response.statusCode == 200) {
                 util.log(JSON.stringify(body));
               }
               else {

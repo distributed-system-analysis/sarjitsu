@@ -9,6 +9,29 @@ user_interrupt(){
 trap user_interrupt SIGINT
 trap user_interrupt SIGTSTP
 
+create_datasource() {
+  while :; do
+    status=`curl -s localhost:3000 | grep "Found"`
+    if [[ ! -z $status ]]; then
+      /scripts/create_datasource
+      wait
+      if [ $? -eq 0 ]; then
+        echo "created datasource.."
+        sleep 1
+        systemctl restart api_engine
+      else
+        echo "index template creation for sarjitsu failed."
+        exit -1
+      fi
+      break
+
+    else
+      echo "waiting for grafana to migrate database.."
+      sleep 2
+    fi
+  done
+}
+
 start_daemon() {
     echo "starting daemon.."
     ES_HOST=$(egrep '^(host)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
@@ -24,26 +47,20 @@ start_daemon() {
         		echo "index template creation for sarjitsu failed."
             exit -1
     	    fi
+          sleep 1
 
-          systemctl stop grafana-server
           /scripts/update_grafana_config
-          sleep 2
+          sleep 1
           wait
-          # sed -i -r 's#;type\s?=.*#type='$DB_TYPE'#g' /etc/grafana/grafana.ini
-          # sed -i -r 's#;host\s?=.*#host='$DB_HOST'#g' /etc/grafana/grafana.ini
-          # sed -i -r 's#;name\s?=.*#name='$DB_NAME'#g' /etc/grafana/grafana.ini
-          # sed -i -r 's#;user\s?=.*#user='$DB_USER'#g' /etc/grafana/grafana.ini
-          # sed -i -r 's#;password\s?=.*#password='$DB_PASSWORD'#g' /etc/grafana/grafana.ini
-          systemctl start grafana-server
-          systemctl restart api_engine
-    	    /scripts/create_datasource
-    	    if [ $? -eq 0 ]; then
-    	    	echo "created datasource.."
+
+          if [ $? -eq 0 ]; then
+            systemctl restart grafana-server
+            sleep 2
     	    else
-        		echo "index template creation for sarjitsu failed."
+        		echo "grafana config change attempt failed.."
             exit -1
     	    fi
-
+          create_datasource
     	    break
     	else
     	    echo "unable to contact Elasticsearch; sleeping for 2 secs"

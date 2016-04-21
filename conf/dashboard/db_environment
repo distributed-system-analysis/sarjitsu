@@ -1,0 +1,5 @@
+DB_NAME=arco
+DB_USER=arco
+DB_PASS=test123
+DB_TYPE=postgres
+DB_HOST=172.17.0.2

@@ -21,14 +21,15 @@ RUN pip3 install -r /root/requirements.txt
 ADD scripts/ /scripts
 ADD api_server/ /opt/api_server
 
-COPY conf/metadata_creation.service /lib/systemd/system/metadata_creation.service
-COPY conf/api_engine.service /lib/systemd/system/api_engine.service
+COPY conf/metadata_creation.service /usr/lib/systemd/system/metadata_creation.service
+COPY conf/api_engine.service /usr/lib/systemd/system/api_engine.service
 COPY conf/sar-index.cfg /etc/sar-index.cfg
 
 # expose ports for grafana and api server
 EXPOSE 3000 5000
 
-RUN systemctl enable grafana-server metadata_creation
+RUN systemctl enable grafana-server
+RUN systemctl enable metadata_creation
 RUN systemctl enable api_engine
 
 CMD ["/usr/sbin/init"]

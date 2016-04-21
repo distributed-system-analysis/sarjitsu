@@ -4,7 +4,6 @@ import os
 import json
 import psycopg2
 import random
-import configparser
 from datetime import datetime, timedelta
 
 
@@ -21,7 +20,6 @@ def tstos(ts_beg=None, ts_end=None, current=False):
             + timedelta(minutes=10)
         return (ts_beg.strftime("%Y-%m-%d %H:%M:%S.%fZ"),
                 ts_end.strftime("%Y-%m-%d %H:%M:%S.%fZ"))
-
 
 class PrepareDashboard(object):
     """

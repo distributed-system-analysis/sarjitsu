@@ -5,13 +5,19 @@ import configparser
 
 CONFIG_FILE='/etc/grafana/grafana.ini'
 
+with open('/etc/sarjitsu/db_environment', 'r') as f:
+    c = f.read().splitlines()
+    env_vars = dict([i.split('=') for i in c])
+
 config = configparser.ConfigParser()
 config.read(CONFIG_FILE)
-config['database']['type'] = os.environ.get('DB_TYPE')
-config['database']['host'] = os.environ.get('DB_HOST')
-config['database']['name'] = os.environ.get('DB_NAME')
-config['database']['user'] = os.environ.get('DB_USER')
-config['database']['password'] = os.environ.get('DB_PASSWORD')
+config['database']['type'] = env_vars['DB_TYPE']
+config['database']['host'] = env_vars['DB_HOST']
+config['database']['name'] = env_vars['DB_NAME']
+config['database']['user'] = env_vars['DB_USER']
+config['database']['password'] = env_vars['DB_PASS']
 
 with open(CONFIG_FILE, 'w') as configfile:
     config.write(configfile)
+
+print("updated grafana config..")

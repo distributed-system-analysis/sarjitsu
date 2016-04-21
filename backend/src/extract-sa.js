@@ -112,7 +112,7 @@ module.exports = {
                               grep('dashboard_url', '/etc/sar-index.cfg', function(list){
                                 var _tmp = list[0].results[0];
                                 var line = _tmp.line_number + ":" + _tmp.line;
-                                grafana_endpoint = line.split('dashboard_url=')[1];
+                                grafana_endpoint = line.split('dashboard_url = ')[1];
                                 // console.log('inside: ' + grafana_endpoint);
                                 ff();
                               });
