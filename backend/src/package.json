@@ -39,7 +39,6 @@
     "logfile-grunt": "^0.2.0",
     "request": "^2.69.0",
     "session-file-store": "0.0.18",
-    "simple-grep": "0.0.2",
     "time-grunt": "^1.2.2"
   },
   "devDependencies": {},

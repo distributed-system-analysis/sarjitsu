@@ -9,34 +9,63 @@ user_interrupt(){
 trap user_interrupt SIGINT
 trap user_interrupt SIGTSTP
 
+create_datasource() {
+  while :; do
+    status=`curl -s localhost:3000 | grep "Found"`
+    if [[ ! -z $status ]]; then
+      /scripts/create_datasource
+      wait
+      if [ $? -eq 0 ]; then
+        echo "created datasource.."
+        sleep 1
+        systemctl restart api_engine
+      else
+        echo "index template creation for sarjitsu failed."
+        exit -1
+      fi
+      break
+
+    else
+      echo "waiting for grafana to migrate database.."
+      sleep 2
+    fi
+  done
+}
+
 start_daemon() {
     echo "starting daemon.."
-    ES_HOST=$(egrep '^(host)\s?=.*$' /etc/sar-index.cfg  | awk -F' ' '{print $3}')
-    ES_PORT=$(egrep '^(port)\s?=.*$' /etc/sar-index.cfg  | awk -F' ' '{print $3}')
-    ES_PROTOCOL=$(egrep '^(protocol)\s?=.*$' /etc/sar-index.cfg  | awk -F' ' '{print $3}')
+    ES_HOST=$(egrep '^(host)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    ES_PORT=$(egrep '^(port)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    ES_PROTOCOL=$(egrep '^(protocol)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
     while :; do
-	
-	status=`curl -s $ES_PROTOCOL://$ES_HOST:$ES_PORT/_cluster/health | egrep "yellow|green"`
-	if [[ ! -z $status ]]; then
-	    /scripts/es-create-sarjitsu-templates
-	    if [ $? -eq 0 ]; then
-	    	echo "created templates.."
-	    else
-		echo "index template creation for sarjitsu failed."
-	    fi
+    	status=`curl -s $ES_PROTOCOL://$ES_HOST:$ES_PORT/_cluster/health | egrep "yellow|green"`
+    	if [[ ! -z $status ]]; then
+    	    /scripts/es-create-sarjitsu-templates
+    	    if [ $? -eq 0 ]; then
+    	    	echo "created templates.."
+    	    else
+        		echo "index template creation for sarjitsu failed."
+            exit -1
+    	    fi
+          sleep 1
 
-	    /scripts/create_datasource	    
-	    if [ $? -eq 0 ]; then
-	    	echo "created datasource.."
-	    else
-		echo "index template creation for sarjitsu failed."
-	    fi
+          /scripts/update_grafana_config
+          sleep 1
+          wait
 
-	    break
-	else
-	    echo "unable to contact Elasticsearch; sleeping for 2 secs"
-	    sleep 2
-	fi
+          if [ $? -eq 0 ]; then
+            systemctl restart grafana-server
+            sleep 2
+    	    else
+        		echo "grafana config change attempt failed.."
+            exit -1
+    	    fi
+          create_datasource
+    	    break
+    	else
+    	    echo "unable to contact Elasticsearch; sleeping for 2 secs"
+    	    sleep 2
+    	fi
     done
 }
 

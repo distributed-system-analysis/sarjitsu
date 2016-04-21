@@ -4,7 +4,7 @@
 # docker build -t sarjitsu_backend .
 
 # To run using the container, refer the following command:
-# docker run --privileged -it -d -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_backend
+# docker run --privileged -it -d --name node_jitsu -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_backend
 
 # optionally, supply -p 9210:80 to map the backend
 # container's port 80 to your host at 9210
@@ -14,7 +14,7 @@ FROM fedora:23
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # install npm, grunt-cli and other utils
-RUN dnf -y install npm net-tools procps vim git tar wget bzip2
+RUN dnf -y install npm net-tools procps git tar wget bzip2
 RUN npm install -g grunt-cli forever
 
 ADD src/ /src

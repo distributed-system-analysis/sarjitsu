@@ -2,15 +2,14 @@
 
 import os
 import json
-import sqlite3
+import psycopg2
 import random
-import configparser
 from datetime import datetime, timedelta
 
 
 def tstos(ts_beg=None, ts_end=None, current=False):
     """
-    receives list of index names and 
+    receives list of index names and
     guesses time range for dashboard."""
     if current:
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%fZ")
@@ -22,21 +21,19 @@ def tstos(ts_beg=None, ts_end=None, current=False):
         return (ts_beg.strftime("%Y-%m-%d %H:%M:%S.%fZ"),
                 ts_end.strftime("%Y-%m-%d %H:%M:%S.%fZ"))
 
-
 class PrepareDashboard(object):
     """
     pass dashboard metadata and prepare rows from
-    a pre-processed template. 
+    a pre-processed template.
     """
 
     def __init__(self, DB_TITLE='default', DB_TITLE_ORIG='default',
                  _FROM=None, _TO=None, _FIELDS=None,
-                 SQLITE3_DB_PATH=None, NODENAME=None,
                  TIMEFIELD='_timestamp', DATASOURCE=None,
-                 TEMPLATES=None):
+                 TEMPLATES=None, NODENAME=None, db_credentials={}):
         """
         Use the precprocessed templates to create the dashboard,
-        editing following parameters only: 
+        editing following parameters only:
         - fields to visualize
         - time range for the dashboard,
         - dashboard  title
@@ -44,12 +41,12 @@ class PrepareDashboard(object):
         - time field metric name for the datasource
         """
         self._FIELDS = _FIELDS
-        self.SQLITE3_DB_PATH = SQLITE3_DB_PATH
         self.NODENAME = NODENAME
         self.TEMPLATES = TEMPLATES
         self.TIMEFIELD = TIMEFIELD
         self.DATASOURCE = DATASOURCE
         self.DB_TITLE = DB_TITLE
+        self.db_credentials = db_credentials
         # make these changes in dashboard parent template
         self.variable_params_dict = dict([('id', 1),
                                           ('title', self.DB_TITLE),
@@ -61,11 +58,15 @@ class PrepareDashboard(object):
                                           ('version', 1)
                                           ])
 
-    def init_sqlite3_conn(self):
-        self.conn = sqlite3.connect(self.SQLITE3_DB_PATH)
+    def init_db_connection(self):
+        self.conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" %
+                                    (self.db_credentials['DB_NAME'],
+                                    self.db_credentials['DB_USER'],
+                                    self.db_credentials['DB_HOST'],
+                                    self.db_credentials['DB_PASS']))
         self.c = self.conn.cursor()
 
-    def end_sqlite3_conn(self):
+    def end_db_conn(self):
         self.conn.commit()
         self.conn.close()
 
@@ -102,7 +103,7 @@ class PrepareDashboard(object):
 
     def prepare_rows(self):
         """
-        for all fields passed, pickup the template, 
+        for all fields passed, pickup the template,
         and append to the 'rows' key of the json template
         """
         row = self.create_row('row_description', description=True)
@@ -112,13 +113,14 @@ class PrepareDashboard(object):
             try:
                 row = self.create_row(field)
                 self.data['rows'].append(row)
+                print("created row for: %s" % field)
             except Exception as err:
-                print("couldn't prepare row for: %s" % (field))
+                print("couldn't prepare row for: %s" % field)
                 print(err)
 
     def check_prev_metadata(self):
         """
-        check grafana db for existant dashboards, panel id's and 
+        check grafana db for existant dashboards, panel id's and
         return them for next iteration.
         """
         pass
@@ -138,21 +140,21 @@ class PrepareDashboard(object):
             self.data[k] = v
         self.prepare_rows()
 
-    def push_data_to_sqlite3(self):
+    def store_dashboard(self):
         """
-        Connect to sqlite3 db and push data
+        Connect to db and push data
 
-        @schema: 
-        [id, 
-        version, 
-        'slug', 
-        'title', 
-        'data', 
-        org_id, 
-        'created', 
+        @schema:
+        [id,
+        version,
+        'slug',
+        'title',
+        'data',
+        org_id,
+        'created',
         'updated']
         """
-        self.init_sqlite3_conn()
+        self.init_db_connection()
         self.prepare_dashboard()
         # TODO: obtain metadata from check_prev_metadata()
         _id = random.getrandbits(12)
@@ -161,7 +163,7 @@ class PrepareDashboard(object):
         title = self.DB_TITLE
         org_id = 1
         created = updated = tstos(current=True)
-        self.c.execute("INSERT INTO dashboard VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                        (_id, version, slug, title, json.dumps(self.data), 
+        self.c.execute("INSERT INTO dashboard VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        (_id, version, slug, title, json.dumps(self.data),
                          org_id,created, updated))
-        self.end_sqlite3_conn()
+        self.end_db_conn()

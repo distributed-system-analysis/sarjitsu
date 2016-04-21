@@ -3,7 +3,7 @@ Description=Create indexing templates and grafana data source
 
 [Service]
 User=root
-ExecStart=/scripts/es-metadata-handler
+ExecStart=/bin/bash -c /scripts/es-metadata-handler
 StandardOutput=syslog
 StandardError=syslog
 

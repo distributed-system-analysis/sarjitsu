@@ -1,8 +1,46 @@
 var output_line = '',
     result_ingestion = '',
-    grep = require('simple-grep'),
+    //grep = require('simple-grep'),
     fs = require('fs'),
+    exec = require('child_process').exec,
     grafana_endpoint='';
+
+var grep = function(what, where, callback){
+
+	exec("grep " + what + " " + where + " -nr", function(err, stdin, stdout){
+		var list = {}
+
+		var results = stdin.split('\n');
+
+	    // remove last element (it’s an empty line)
+	    results.pop();
+	    for (var i = 0; i < results.length; i++) {
+	    	var eachPart = results[i].split(':') //file:linenum:line
+	    	list[eachPart[0]] = []
+	    }
+	    for (var i = 0; i < results.length; i++) {
+	    	var eachPart = results[i].split(':') //file:linenum:line
+	    	var details = {}
+	    	var filename = eachPart[0]
+	    	details['line_number'] = eachPart[1]
+
+	    	eachPart.shift()
+	    	eachPart.shift()
+	    	details['line'] = eachPart.join(':')
+
+	    	list[filename].push(details)
+	    }
+
+
+	    var results = []
+	    var files = Object.keys(list)
+	    for(var i = 0; i < files.length; i++){
+	    	results.push({'file' : files[i], 'results' : list[files[i]]})
+	    }
+
+	    callback(results)
+	});
+}
 
 module.exports = {
     extract: function(req, res, _process, util, create, path, zcache, sa_file_path) {
@@ -74,7 +112,7 @@ module.exports = {
                               grep('dashboard_url', '/etc/sar-index.cfg', function(list){
                                 var _tmp = list[0].results[0];
                                 var line = _tmp.line_number + ":" + _tmp.line;
-                                grafana_endpoint = line.split('dashboard_url=')[1];
+                                grafana_endpoint = line.split('dashboard_url = ')[1];
                                 // console.log('inside: ' + grafana_endpoint);
                                 ff();
                               });
