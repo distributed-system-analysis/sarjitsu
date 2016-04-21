@@ -39,7 +39,8 @@ Your containers would be mapped to the ports on the host as per following defaul
 - Frontend, accessible at http://localhost:9500
 - Landing page (backend), accessible at http://localhost:9600
 
-Replace localhost with your <host IP>, if you need remote access. Be sure to
+Replace localhost with your `<host IP>`, if you need remote access. Be sure to
+>>>>>>> 57baa21... fix sarjitsu metadata_creation sync service. Also:
 run `# iptables -F` from the host, in case it's not accessible outside. Otherwise
 check your firewall settings.
 
@@ -164,13 +165,22 @@ Let ROOT_DIR be this project root containing the `setup.sh` script in this repo.
 
 NOTE: `-p 9600:80` when supplied to `docker run` command, maps container's internal port 80
       to host's port 9210 to facilitate remote access to the same.
+=======
+- Step 6: Access the application at `http://<backend container IP>` or at `http://localhost:9600` (or `<host IP>:9600`)
+
+
+NOTE: `-p 9600:80` when supplied to `docker run` command, maps container's internal port 80
+      to host's port 9600 to facilitate remote access to the same.
+>>>>>>> 57baa21... fix sarjitsu metadata_creation sync service. Also:
 
 ## APP FLOW
 
 ### Container connotations:
 
 1. datasources:
+
   a. sarjitsu_elasticsearch
+
   b. postgres
 
 2. frontend: sarjitsu_grafana
@@ -219,5 +229,4 @@ Description of those parameters could be obtained in detail by running the comma
 - Is it portable/scalable ?
 
   Sarjitsu is scalable since it keeps the datasource, frontend and backend separately
-  and is based on completely scalable and portable solution, i.e., Elasticsearch,
-  Grafana and NodeJs ..in their respective containerized environments using Docker.
+  and is based on completely scalable and portable solution, i.e., Elasticsearch, Postgres, Grafana and NodeJs ..in their respective containerized environments using Docker.

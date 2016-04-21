@@ -46,7 +46,7 @@ main(){
   DATASOURCE_IP=`docker inspect $CONTAINER_ID_ES | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
   DASHBOARD_SOURCE_IP=`docker inspect $CONTAINER_ID_DASHBOARDS | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
 
-  echo "storing credentials db_creds"
+  echo "storing db credentials to conf/dashboard/db_environment"
   cd ${ROOT_DIR%/}/conf/dashboard
   echo "DB_NAME=$DB_NAME" >> db_environment
   echo "DB_USER=$DB_USER" >> db_environment
