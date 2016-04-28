@@ -75,9 +75,10 @@ def create_db():
     if ts_beg and ts_end and nodename:
         try:
             beg, end = tstos(ts_beg=ts_beg, ts_end=ts_end)
-            PP = PrepareDashboard(DB_TITLE='%s__investigation' % (nodename),
-                                  DB_TITLE_ORIG='%s__investigation' % (
-                                      nodename),
+            date = beg.split()[0]
+            PP = PrepareDashboard(DB_TITLE='%s_%s_investigation' % (nodename, date),
+                                  DB_TITLE_ORIG='%s_%s_investigation' % (
+                                      nodename, date),
                                   _FROM=beg, _TO=end,
                                   _FIELDS=modes.split(','),
                                   NODENAME=nodename,
@@ -95,7 +96,8 @@ def create_db():
             response = { "reply" : "FAILED",
                         "response": txt}
             status=400
-        except:
+        except Exception as E:
+            print("ERROR: %s" % E)
             txt = "unknown exception encountered while processing"
             response = { "reply" : "FAILED",
                         "response": txt}

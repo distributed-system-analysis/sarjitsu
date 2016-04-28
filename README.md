@@ -40,10 +40,8 @@ Your containers would be mapped to the ports on the host as per following defaul
 - Landing page (backend), accessible at http://localhost:9600
 
 Replace localhost with your `<host IP>`, if you need remote access. Be sure to
->>>>>>> 57baa21... fix sarjitsu metadata_creation sync service. Also:
 run `# iptables -F` from the host, in case it's not accessible outside. Otherwise
 check your firewall settings.
-
 
 ### For the ones who've found inner peace:
 
@@ -87,16 +85,12 @@ Let ROOT_DIR be this project root containing the `setup.sh` script in this repo.
       -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_elasticsearch
   ```
 
-  Note down the IP address of these 2 datasource containers: `docker inspect <container ID/NAME>  | grep IP`
+  ..Note down the IP address of these 2 datasource containers:
 
-- Step 2: Change the IP noted in previous step, inside `frontend/conf/sar-index.cfg` as follows:
+  - DATASOURCE_IP for `$CONTAINER_ID_ES`: `docker inspect $CONTAINER_ID_ES | grep IP`
 
-	 ```
-	 [ElasticSearch]
-	 host = <datasource container IP>
-	 port = 9200
-	 protocol = http
-	 ```
+  - DASHBOARD_SOURCE_IP: `docker inspect $CONTAINER_ID_DASHBOARDS | grep IP`
+
 
 - Step 3: Build and run `frontend` container from `frontend/` directory:
 
@@ -109,7 +103,12 @@ Let ROOT_DIR be this project root containing the `setup.sh` script in this repo.
   echo "DB_USER=$DB_USER" >> db_environment
   echo "DB_PASS=$DB_PASSWORD" >> db_environment
   echo "DB_TYPE=$GRAFANA_DB_TYPE" >> db_environment
-  echo "DB_HOST=$DASHBOARD_SOURCE_IP" >> db_environment
+  ```
+  Note: replace `$` fields with the values specified in step 1.
+
+  Append this line at the end, once you have DASHBOARD_SOURCE_IP:
+  ```
+  echo "DB_HOST=<DASHBOARD_SOURCE_IP>" >> db_environment
   ```
 
   b. Change frontend config file `${ROOT_DIR%/}/frontend/conf/sar-index.cfg` as follows:
@@ -160,18 +159,11 @@ Let ROOT_DIR be this project root containing the `setup.sh` script in this repo.
 
   Note down the IP address of of `backend` container: `docker inspect <container ID>  | grep IP`
 
-- Step 6: Access the application at `http://<backend container IP>` or at `http://localhost:9600` (or <host IP>:9600)
-
-
-NOTE: `-p 9600:80` when supplied to `docker run` command, maps container's internal port 80
-      to host's port 9210 to facilitate remote access to the same.
-=======
 - Step 6: Access the application at `http://<backend container IP>` or at `http://localhost:9600` (or `<host IP>:9600`)
 
 
 NOTE: `-p 9600:80` when supplied to `docker run` command, maps container's internal port 80
       to host's port 9600 to facilitate remote access to the same.
->>>>>>> 57baa21... fix sarjitsu metadata_creation sync service. Also:
 
 ## APP FLOW
 

@@ -113,7 +113,7 @@ class PrepareDashboard(object):
             try:
                 row = self.create_row(field)
                 self.data['rows'].append(row)
-                print("created row for: %s" % field)
+                #print("created row for: %s" % field)
             except Exception as err:
                 print("couldn't prepare row for: %s" % field)
                 print(err)
