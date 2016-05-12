@@ -13,20 +13,21 @@ def _read_configs():
     cfg_name = "/etc/sar-index.cfg"
     config = configparser.ConfigParser()
     config.read(cfg_name)
-    global SOURCE, TSTAMP_FIELD, TEMPLATES_PATH
+
+    global SOURCE, TSTAMP_FIELD, TEMPLATES_PATH, API_PORT
     SOURCE = config.get('Grafana', 'ds_name')
     TSTAMP_FIELD = config.get('Grafana', 'timeField')
     TEMPLATES_PATH = os.path.join(config.get('Grafana', 'templates_path'),
                                 'grafana', 'templates')
+    API_PORT = config.get('Api','api_port')
 
-    cfg_name = "/etc/grafana/grafana.ini"
-    config.read(cfg_name)
     global db_credentials
     db_credentials = {}
-    db_credentials['DB_HOST'] = config['database']['host']
-    db_credentials['DB_PASS'] = config['database']['password']
-    db_credentials['DB_NAME'] = config['database']['name']
-    db_credentials['DB_USER'] = config['database']['user']
+    db_credentials['POSTGRES_DB_HOST'] = config.get('Postgres','db_host')
+    db_credentials['POSTGRES_DB_PASS'] = config.get('Postgres','db_password')
+    db_credentials['POSTGRES_DB_NAME'] = config.get('Postgres','db_name')
+    db_credentials['POSTGRES_DB_USER'] = config.get('Postgres','db_user')
+    db_credentials['POSTGRES_DB_PORT'] = config.get('Postgres','db_port')
 
     global default_modes
     default_modes = ['block_device', 'cpu_all', 'hugepages',
@@ -118,7 +119,7 @@ if __name__ == '__main__':
     try:
         _read_configs()
         app.run(host = '0.0.0.0',
-                #port = 80,
+                port = API_PORT,
                 debug = False)
     except:
         raise

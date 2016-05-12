@@ -1,0 +1,25 @@
+#!/bin/bash
+
+ROOT_DIR=`echo $PWD`
+
+source conf/sarjitsu.conf
+
+cleanup_host_info(){
+  sed -i -r 's#^'$1'=.*#'$1'=#g' ${ROOT_DIR%/}/conf/sarjitsu.conf
+}
+
+cleanup_containers(){
+  CLEAN_IDS=$(docker ps -a | grep -P '^.*(\ssarjitsu.*|'$METRICSTORE_CONTAINER_ID')$' | awk -F' ' '{print $1}')
+  if [[ ! -z $CLEAN_IDS ]]; then
+    echo "cleaning up previously created sarjitsu instances"
+    docker stop $CLEAN_IDS
+    docker rm $CLEAN_IDS
+  fi
+}
+
+cleanup_host_info DB_HOST
+cleanup_host_info ES_HOST
+cleanup_host_info GRAFANA_HOST
+cleanup_host_info MIDDLEWARE_HOST
+
+cleanup_containers

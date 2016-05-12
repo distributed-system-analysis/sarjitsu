@@ -16,7 +16,7 @@ RUN rpm -Uvh https://download.elastic.co/elasticsearch/elasticsearch/elasticsear
 
 RUN sed -i "s/# network.host:.*/network.host: 0.0.0.0/g" \
     	   /etc/elasticsearch/elasticsearch.yml  && \
-	   sed -i "s/#cluster.name: elasticsearch/cluster.name: elasticsearch$RANDOM/g" \
+	   sed -i "s/#cluster.name: elasticsearch/cluster.name: elasticsearch20189/g" \
 	   /etc/elasticsearch/elasticsearch.yml
 
 RUN systemctl enable elasticsearch

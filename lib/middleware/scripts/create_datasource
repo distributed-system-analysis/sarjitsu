@@ -12,22 +12,22 @@ def tstos(ts=None):
 
 
 if __name__ == '__main__':
-    cfg_name = "/etc/grafana/grafana.ini"
+    cfg_name = "/etc/sar-index.cfg"
     config.read(cfg_name)
-    db_host = config['database']['host']
-    db_name = config['database']['name']
-    db_user = config['database']['user']
-    db_pass = config['database']['password']
 
-    conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" %
-                            (db_name, db_user, db_host, db_pass))
+    db_host = config.get('Postgres','db_host')
+    db_port = config.get('Postgres','db_port')
+    db_name = config.get('Postgres','db_name')
+    db_user = config.get('Postgres','db_user')
+    db_pass = config.get('Postgres','db_password')
+
+    conn = psycopg2.connect("dbname='%s' user='%s' host='%s' port='%s' password='%s'" %
+                            (db_name, db_user, db_host, db_port, db_pass))
     c = conn.cursor()
 
     created = tstos(time.time())
     updated = tstos(time.time())
 
-    cfg_name = "/etc/sar-index.cfg"
-    config.read(cfg_name)
 
     ds_name = config.get('Grafana', 'ds_name')
     pattern = config.get('Grafana', 'pattern')

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source ../../conf/sarjitsu.conf
+
+echo -e "\nPulling and Running $METRICSTORE_CONTAINER_ID:"
+docker run --name $METRICSTORE_CONTAINER_ID \
+	-e POSTGRES_PASSWORD=$DB_PASSWORD \
+	-e POSTGRES_USER=$DB_USER \
+  -e POSTGRES_DB=$DB_NAME \
+	-d postgres

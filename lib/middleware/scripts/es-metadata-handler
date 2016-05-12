@@ -1,0 +1,45 @@
+#!/bin/bash
+
+user_interrupt(){
+    echo -e "\n\nKeyboard Interrupt detected."
+    echo -e "Stopping Task Manager..."
+    exit
+}
+
+trap user_interrupt SIGINT
+trap user_interrupt SIGTSTP
+
+start_daemon() {
+    echo "$(date +'%D %H:%M:%S %Z') - starting daemon.."
+    ES_HOST=$(egrep '^(host)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    ES_PORT=$(egrep '^(port)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    ES_PROTOCOL=$(egrep '^(protocol)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    while :; do
+    	status=`curl -s $ES_PROTOCOL://$ES_HOST:$ES_PORT/_cluster/health | egrep "yellow|green"`
+    	if [[ ! -z $status ]]; then
+    	    /scripts/es-create-sarjitsu-templates
+    	    if [ $? -eq 0 ]; then
+    	    	echo "$(date +'%D %H:%M:%S %Z') - created templates.."
+    	    else
+        		echo "$(date +'%D %H:%M:%S %Z') - index template creation for sarjitsu failed."
+            exit -1
+    	    fi
+
+          /scripts/create_datasource
+          if [ $? -eq 0 ]; then
+            echo "$(date +'%D %H:%M:%S %Z') - created datasource.."
+            sleep 1
+            systemctl restart api_engine
+          else
+            echo "$(date +'%D %H:%M:%S %Z') - index template creation for sarjitsu failed."
+            exit -1
+          fi
+    	    break
+    	else
+    	    echo "$(date +'%D %H:%M:%S %Z') - unable to contact Elasticsearch; sleeping for 2 secs"
+    	    sleep 2
+    	fi
+    done
+}
+
+start_daemon

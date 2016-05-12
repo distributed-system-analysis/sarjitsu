@@ -12,3 +12,6 @@ dumps/
 logs/
 *~
 *.pyc
+*.cfg
+*.ini
+

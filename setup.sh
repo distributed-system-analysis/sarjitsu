@@ -8,93 +8,80 @@ user_interrupt(){
 trap user_interrupt SIGINT
 trap user_interrupt SIGTSTP
 
-ROOT_DIR=`echo $PWD`
-
 source conf/sarjitsu.conf
 
-cleanup(){
-  CLEAN_IDS=$(docker ps -a | grep -P '^.*(\ssarjitsu.*|'$CONTAINER_ID_DASHBOARDS')$' | awk -F' ' '{print $1}')
-  if [[ ! -z $CLEAN_IDS ]]; then
-    echo "cleaning up previously created sarjitsu instances"
-    docker stop $CLEAN_IDS
-    docker rm $CLEAN_IDS
-  fi
-  rm -f ${ROOT_DIR%/}/conf/dashboard/db_environment
+ROOT_DIR=`echo $PWD`
+
+update_host_configs(){
+  # call this to update conf files, so that it could be used
+  sed -i -r 's#^'$1'=.*#'$1'='$2'#g' ${ROOT_DIR%/}/conf/sarjitsu.conf
+}
+
+get_container_IP(){
+  echo `docker inspect $1 | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
 }
 
 main(){
   echo "building and running sarjitsu now"
-  sleep 1
-  cd ${ROOT_DIR%/}/datasource/elasticsearch/
-  echo "building sarjitsu_elasticsearch"
-  docker build -t sarjitsu_elasticsearch . > /dev/null
 
-  docker run --name $CONTAINER_ID_DASHBOARDS -e POSTGRES_PASSWORD=$DB_PASSWORD -e POSTGRES_USER=$DB_USER -d postgres
+  if [[ -z $DB_HOST ]]; then
+    cd ${ROOT_DIR%/}/lib/metricstore/
+    ./launch_postgres
+    if [[ ! $? -eq 0 ]]; then
+      echo -e "\nunable to run container: $METRICSTORE_CONTAINER_ID"
+      exit -1
+    fi
+    DB_HOST=`get_container_IP $METRICSTORE_CONTAINER_ID`
+    update_host_configs DB_HOST $DB_HOST
+  fi
+
+  if [[ -z $ES_HOST ]]; then
+    cd ${ROOT_DIR%/}/lib/datasource/
+    ./launch_elastic
+    if [[ ! $? -eq 0 ]]; then
+      echo -e "\nunable to run container: $DATASOURCE_CONTAINER_ID"
+      exit -1
+    fi
+    ES_HOST=`get_container_IP $DATASOURCE_CONTAINER_ID`
+    update_host_configs ES_HOST $ES_HOST
+  fi
+
+  if [[ -z $GRAFANA_HOST ]]; then
+    cd ${ROOT_DIR%/}/lib/frontend/
+    ./launch_grafana
+    if [[ ! $? -eq 0 ]]; then
+      echo -e "\nunable to run container: $FRONTEND_CONTAINER_ID"
+      exit -1
+    fi
+    GRAFANA_HOST=`get_container_IP $FRONTEND_CONTAINER_ID`
+    update_host_configs GRAFANA_HOST $GRAFANA_HOST
+  fi
+
+  if [[ -z $MIDDLEWARE_HOST ]]; then
+    cd ${ROOT_DIR%/}/lib/middleware/
+    ./launch_api_server
+    if [[ ! $? -eq 0 ]]; then
+      echo -e "\nunable to run container: $MIDDLEWARE_CONTAINER_ID"
+      exit -1
+    fi
+    MIDDLEWARE_HOST=`get_container_IP $MIDDLEWARE_CONTAINER_ID`
+    update_host_configs MIDDLEWARE_HOST $MIDDLEWARE_HOST
+  fi
+
+  cd ${ROOT_DIR%/}/lib/backend/
+  ./launch_backend
   if [[ ! $? -eq 0 ]]; then
-    echo -e "\nunable to run container: $CONTAINER_ID_DASHBOARDS"
+    echo -e "\nunable to run container: $BACKEND_CONTAINER_ID"
     exit -1
   fi
 
-  docker run --name $CONTAINER_ID_ES --privileged -it -p 9400:9200 -d \
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_elasticsearch
-  if [[ ! $? -eq 0 ]]; then
-    echo -e "\nunable to run container: $CONTAINER_ID_ES"
-    exit -1
-  fi
-
-  # CONTAINER_ID=`docker ps --filter ancestor=sarjitsu_elasticsearch | tail -n 1 | awk -F' ' '{ print $NF}'`
-  DATASOURCE_IP=`docker inspect $CONTAINER_ID_ES | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
-  DASHBOARD_SOURCE_IP=`docker inspect $CONTAINER_ID_DASHBOARDS | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
-
-  echo "storing db credentials to conf/dashboard/db_environment"
-  cd ${ROOT_DIR%/}/conf/dashboard
-  echo "DB_NAME=$DB_NAME" >> db_environment
-  echo "DB_USER=$DB_USER" >> db_environment
-  echo "DB_PASS=$DB_PASSWORD" >> db_environment
-  echo "DB_TYPE=$GRAFANA_DB_TYPE" >> db_environment
-  echo "DB_HOST=$DASHBOARD_SOURCE_IP" >> db_environment
-
-  cd ${ROOT_DIR%/}/frontend/
-  sed -i -r 's#^host\s?=.*#host = '$DATASOURCE_IP'#g' conf/sar-index.cfg
-
-  echo "building sarjitsu_grafana"
-  docker build -t sarjitsu_grafana . > /dev/null
-  docker run  --name $CONTAINER_ID_FRONTEND --privileged -p 9500:3000 -it -d \
-          -v ${ROOT_DIR%/}/conf/dashboard:/etc/sarjitsu \
-          -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_grafana
-
-  if [[ ! $? -eq 0 ]]; then
-    echo -e "\nunable to run container: $CONTAINER_ID_FRONTEND"
-    exit -1
-  fi
-
-  # CONTAINER_ID=`docker ps --filter ancestor=sarjitsu_grafana | tail -n 1 | awk -F' ' '{ print $NF}'`
-  FRONTEND_IP=`docker inspect $CONTAINER_ID_FRONTEND | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
-
-  cd ${ROOT_DIR%/}/backend/
-  sed -i -r 's#^host\s?=.*#host = '$DATASOURCE_IP'#g' conf/sar-index.cfg
-  sed -i -r 's#^dashboard_url\s?=.*#dashboard_url = http://'$FRONTEND_IP':3000/#g' conf/sar-index.cfg
-  sed -i -r 's#^api_url\s?=.*#api_url = http://'$FRONTEND_IP':5000/db/create/#g' conf/sar-index.cfg
-
-  echo "building sarjitsu_backend"
-  docker build -t sarjitsu_backend . > /dev/null
-  docker run --name $CONTAINER_ID_BACKEND --privileged -p 9600:80 -it -d \
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_backend
-
-  if [[ ! $? -eq 0 ]]; then
-    echo -e "\nunable to run container: $CONTAINER_ID_BACKEND"
-    exit -1
-  fi
-
-  # CONTAINER_ID=`docker ps --filter ancestor=sarjitsu_backend | tail -n 1 | awk -F' ' '{ print $NF}'`
-  BACKEND_IP=`docker inspect $CONTAINER_ID_BACKEND | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
-
-  echo -e "\nDone! Go to http://$BACKEND_IP/ to access your application"
+  BACKEND_HOST=`get_container_IP $BACKEND_CONTAINER_ID`
+  echo -e "\nDone! Go to http://$BACKEND_HOST/ to access your application"
 }
 
 status=`docker --version`
 if [ $? -eq 0 ]; then
-  cleanup
+  ./cleanup_sarjitsu
   main
 else
   echo "You don't have docker installed."

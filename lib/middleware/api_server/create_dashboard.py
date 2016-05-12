@@ -59,11 +59,12 @@ class PrepareDashboard(object):
                                           ])
 
     def init_db_connection(self):
-        self.conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" %
-                                    (self.db_credentials['DB_NAME'],
-                                    self.db_credentials['DB_USER'],
-                                    self.db_credentials['DB_HOST'],
-                                    self.db_credentials['DB_PASS']))
+        self.conn = psycopg2.connect("dbname='%s' user='%s' host='%s' port='%s' password='%s'" %
+                                    (self.db_credentials['POSTGRES_DB_NAME'],
+                                    self.db_credentials['POSTGRES_DB_USER'],
+                                    self.db_credentials['POSTGRES_DB_HOST'],
+                                    self.db_credentials['POSTGRES_DB_PORT'],
+                                    self.db_credentials['POSTGRES_DB_PASS']))
         self.c = self.conn.cursor()
 
     def end_db_conn(self):

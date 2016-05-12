@@ -15,3 +15,13 @@ ds_name = vos-test
 pattern = [sarjitsu.sar-]YYYYMMDD
 timeField = _timestamp
 templates_path = /opt/api_server/lib/mappings/
+
+[Api]
+api_port = 80
+
+[Postgres]
+db_host = localhost
+db_password = grafana
+db_name = grafana
+db_user = grafana
+db_port = 5432

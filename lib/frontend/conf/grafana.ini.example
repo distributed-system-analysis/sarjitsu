@@ -1,0 +1,44 @@
+[paths]
+
+[server]
+
+[database]
+type = postgres
+host = 172.17.0.2:5432
+name = grafana
+user = grafana
+password = sarjitsu123
+
+[session]
+
+[analytics]
+
+[security]
+
+[users]
+
+[auth.anonymous]
+
+[auth.github]
+
+[auth.google]
+
+[auth.proxy]
+
+[auth.basic]
+
+[auth.ldap]
+
+[smtp]
+
+[emails]
+
+[log]
+
+[log.console]
+
+[log.file]
+
+[event_publisher]
+
+[dashboards.json]
