@@ -23,6 +23,8 @@ Application flow is explained in detail in the section `APP FLOW` below.
 
 ## INSTALLATION
 
+- Step 0: Make sure you have [docker](https://www.docker.com/) installed.
+
 ### For the impatient:
 
 - single step setup script  `$ ./setup.sh`
@@ -32,13 +34,11 @@ WARNING: This script would remove all previously running instances of sarjitsu.
 Be sure to run `# iptables -F` from the host, in case it's not accessible outside.
 Otherwise check your firewall settings.
 
+- To stop all running container instances and cleanup sarjitsu, run `$ ./cleanup_sarjitsu`
+
 ### For the ones who've found inner peace:
 
-#### Installing by customizing the modularized components, per say, having their own IPs:
-
-Let ROOT_DIR be this project root containing the `setup.sh` script in this repo.
-
-- Step 0: Make sure you have [docker](https://www.docker.com/) installed.
+Installing by customizing the modularized components, per say, having their own IPs. 
 
 - Step 1: open `conf/sarjitsu.conf` and edit the params as required. If for example,
           you don't want to spawn containers for postgres, grafana or elasticsearch,
@@ -74,7 +74,14 @@ Let ROOT_DIR be this project root containing the `setup.sh` script in this repo.
   $ ./setup.sh
   ```
 
-This should print a message at the end, with the IP address of landing page app.
+Building this first time would take some time, as docker images are pulled from dockerhub,
+customized and built, packages are installed and so on..
+
+At the end, though, it should output a message like:
+```
+Done! Go to http://172.17.0.6:80/ to access your application
+```
+
 If it fails in between, you might wanna take a look at your configurations / environment.
 If you think it's a bug, you're welcome to open an issue here on github.
 

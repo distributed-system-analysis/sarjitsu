@@ -76,7 +76,7 @@ main(){
   fi
 
   BACKEND_HOST=`get_container_IP $BACKEND_CONTAINER_ID`
-  echo -e "\nDone! Go to http://$BACKEND_HOST/ to access your application"
+  echo -e "\nDone! Go to http://$BACKEND_HOST:$BACKEND_SERVER_PORT/ to access your application"
 }
 
 status=`docker --version`
