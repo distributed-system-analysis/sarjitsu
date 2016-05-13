@@ -101,7 +101,9 @@ If you think it's a bug, you're welcome to open an issue here on github.
 
 ### Architecture
 
-Refer to `docs/sarjitsu_architecture.png`.
+From `docs/sarjitsu_architecture.png`:
+
+![arch](https://raw.githubusercontent.com/arcolife/sarjitsu/master/docs/sarjitsu_architecture.png)
 
 ### Control Flow
 
