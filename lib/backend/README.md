@@ -1,16 +1,10 @@
 #DEPLOYMENT INSTRUCTIONS
 
-NOTE: Before building, ensure that you have set the correct URLs of
-      ElasticSearch and Grafana instances under backend/conf/sar-index.cfg
-      
-- To build the image, refer:
+1. Configure ../../conf/sarjitsu.conf. Refer to project's main README.md
 
-```
-docker build -t sarjitsu_backend .
-```
+2. Make sure no previous running/stopped instance of this container ID exists. 
+   Container id for this could be configured from ../../conf/sarjitsu.conf
 
-- To run using the container, refer the following command:
+3. Run: `$ ./launch_backend`
 
-```
-docker run --privileged -it -d -v /sys/fs/cgroup:/sys/fs/cgroup:ro sarjitsu_backend
-```
+

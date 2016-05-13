@@ -1,10 +1,9 @@
 #DEPLOYMENT INSTRUCTIONS
 
-- To run using the container, refer the following command:
-```
-docker run --name <postgres_jistu> \
-       -e POSTGRES_PASSWORD=<psql_password> \
-       -e POSTGRES_USER=<psql_username> \
-       -e POSTGRES_DB=<psql_db_name> \
-       -d postgres
-```
+1. Configure ../../conf/sarjitsu.conf. Refer to project's main README.md
+
+2. Make sure no previous running/stopped instance of this container ID exists. 
+   Container id for this could be configured from ../../conf/sarjitsu.conf
+
+3. Run: `$ ./launch_postgres`
+
