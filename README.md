@@ -9,16 +9,11 @@ The app is split in 5 container instances as follows:
 
 1) `datasource`: Used to store timeseries data and metadata. A full-text search engine powered by elasticsearch
 
-2) `metricstore`: Postgres powered, used by the frontend (grafana in our case)
-                  to store metadata about dashboards, datasource and users.
+2) `metricstore`: Postgres powered, used by the frontend (grafana in our case) to store metadata about dashboards, datasource and users.
 
-3) `frontend`: Powered by Grafana, a dynamic visualization frontend, which performs 2 duties:
+3) `frontend`: Powered by Grafana, a dynamic visualization frontend, which performs 2 duties; sources data from elasticsearch
 
-  - sourcing indexed data from elasticsearch
-
-  - building visualization dashboards from an API endpoint, hosted on this container
-
-4) `middleware`: A Python-Flask powered API that talks to backend and metricstore
+4) `middleware`: A Python-Flask powered API that talks to backend and metricstore; builds scriped dashboards
 
 5) `backend`: A NodeJS based web app, which runs the web interface
               for users to upload a SA binary file and obtain visualizations.
