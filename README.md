@@ -88,7 +88,7 @@ If you think it's a bug, you're welcome to open an issue here on github.
 ### Additional Note
 
 - Below mentioned ports will be used for port mapping from container to host, and
-  could be configured in `sarjitsu.conf`. Default bindings are:
+  could be configured in `conf/sarjitsu.conf`. Default bindings are:
 
   ```sh
   METRICSTORE_PORT_MAPPING=9600
