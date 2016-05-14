@@ -38,7 +38,7 @@ Otherwise check your firewall settings.
 
 ### For the ones who've found inner peace:
 
-Installing by customizing the modularized components, per say, having their own IPs. 
+Installing by customizing the modularized components, per say, having their own IPs.
 
 - Step 1: open `conf/sarjitsu.conf` and edit the params as required. If for example,
           you don't want to spawn containers for postgres, grafana or elasticsearch,
@@ -74,30 +74,40 @@ Installing by customizing the modularized components, per say, having their own 
   $ ./setup.sh
   ```
 
-Building this first time would take some time, as docker images are pulled from dockerhub,
-customized and built, packages are installed and so on..
+TBD: Add service discovery
 
-At the end, though, it should output a message like:
+### Additional Note
+
+Below mentioned ports will be used for port mapping from container to host, and could be configured in `conf/sarjitsu.conf`. Default bindings are:
+
+```sh
+METRICSTORE_PORT_MAPPING=9600
+DATASOURCE_PORT_MAPPING=9601
+FRONTEND_PORT_MAPPING=9602
+MIDDLEWARE_PORT_MAPPING=9603
+BACKEND_PORT_MAPPING=9604
+```
+
+..This is when all components are containerized.
+
+----
+
+Building this first time would take some time, as docker images are pulled from dockerhub, customized & built; packages are installed and so on..
+
+At the end though, it should output a message like:
 ```
 Done! Go to http://172.17.0.6:80/ to access your application
 ```
 
-If it fails in between, you might wanna take a look at your configurations / environment.
-If you think it's a bug, you're welcome to open an issue here on github.
+If it fails in between, you might wanna take a look at your configurations / environment. If you think it's a bug, you're welcome to open an issue here on github.
 
-### Additional Note
+Also be sure that if you have custom HOST(s) configured, they should match the following versions (for sarjitsu compatibility reasons):
 
-- Below mentioned ports will be used for port mapping from container to host, and
-  could be configured in `conf/sarjitsu.conf`. Default bindings are:
+- Elasticsearch < 2.0 and > 1.5 (containerized version: 1.7.3)
+- Grafana > 2.5 and <= 3.0 (containerized version: 3.0.1-1)
+- Postgres == 9.5 (containerized version: 9.5 (dockerhub latest))
 
-  ```sh
-  METRICSTORE_PORT_MAPPING=9600
-  DATASOURCE_PORT_MAPPING=9601
-  FRONTEND_PORT_MAPPING=9602
-  MIDDLEWARE_PORT_MAPPING=9603
-  BACKEND_PORT_MAPPING=9604
-  ```
-  This is when all components are containerized.
+TBD: an update to sarjitsu soon, for nested docs. Refer to [PR #4694 of grafana](https://github.com/grafana/grafana/pull/4694) for more.
 
 ## APP FLOW
 
