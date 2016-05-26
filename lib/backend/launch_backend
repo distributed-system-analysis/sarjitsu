@@ -1,6 +1,20 @@
 #!/bin/bash
 
-source ../../conf/sarjitsu.conf
+log(){
+  echo -e "[$(date +'%D %H:%M:%S %Z')] - $*"
+}
+
+APP_CONF=$1
+if [[ -z $APP_CONF ]]; then
+	APP_CONF=../../conf/sarjitsu.conf
+fi
+
+if [ ! -f $APP_CONF ]; then
+	log "sarjitsu.conf: file does not exist. Supply it's path as 1st argument"
+	exit -1
+fi
+
+source $APP_CONF
 
 cp conf/sar-index.cfg.example conf/sar-index.cfg
 
@@ -10,19 +24,17 @@ sed -i -r 's#^port\s?=.*#port = '$ES_PORT'#g' conf/sar-index.cfg
 sed -i -r 's#^index_prefix\s?=.*#index_prefix = '$INDEX_PREFIX'#g' conf/sar-index.cfg
 sed -i -r 's#^index_version\s?=.*#index_version = '$INDEX_VERSION'#g' conf/sar-index.cfg
 sed -i -r 's#^bulk_action_count\s?=.*#bulk_action_count = '$BULK_ACTION_COUNT'#g' conf/sar-index.cfg
-sed -i -r 's#^number_of_shards\s?=.*#number_of_shards = '$SHARD_COUNT'#g' conf/sar-index.cfg
-sed -i -r 's#^number_of_replicas\s?=.*#number_of_replicas = '$REPLICAS_COUNT'#g' conf/sar-index.cfg
 
 sed -i -r 's#^dashboard_url\s?=.*#dashboard_url = http://'$GRAFANA_HOST':'$GRAFANA_PORT'/#g' conf/sar-index.cfg
 sed -i -r 's#^api_url\s?=.*#api_url = http://'$MIDDLEWARE_HOST:$MIDDLEWARE_PORT$MIDDLEWARE_ENDPOINT'#g' conf/sar-index.cfg
 
-echo "building sarjitsu_backend"
+log "building sarjitsu_backend"
 
 sed -i -r 's#^EXPOSE.*#EXPOSE '$BACKEND_SERVER_PORT'#g' Dockerfile
 
 docker build -t sarjitsu_backend . > /dev/null
 
-echo -e "\nRunning $BACKEND_CONTAINER_ID:"
+log "Running $BACKEND_CONTAINER_ID:"
 
 docker run --name $BACKEND_CONTAINER_ID \
 	-p $BACKEND_PORT_MAPPING:$BACKEND_SERVER_PORT \

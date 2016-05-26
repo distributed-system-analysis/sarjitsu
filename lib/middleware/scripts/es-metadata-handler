@@ -17,14 +17,6 @@ start_daemon() {
     while :; do
     	status=`curl -s $ES_PROTOCOL://$ES_HOST:$ES_PORT/_cluster/health | egrep "yellow|green"`
     	if [[ ! -z $status ]]; then
-    	    /scripts/es-create-sarjitsu-templates
-    	    if [ $? -eq 0 ]; then
-    	    	echo "$(date +'%D %H:%M:%S %Z') - created templates.."
-    	    else
-        		echo "$(date +'%D %H:%M:%S %Z') - index template creation for sarjitsu failed."
-            exit -1
-    	    fi
-
           /scripts/create_datasource
           if [ $? -eq 0 ]; then
             echo "$(date +'%D %H:%M:%S %Z') - created datasource.."

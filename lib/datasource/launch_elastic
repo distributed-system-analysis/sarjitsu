@@ -1,12 +1,26 @@
 #!/bin/bash
 
-source ../../conf/sarjitsu.conf
+log(){
+  echo -e "[$(date +'%D %H:%M:%S %Z')] - $*"
+}
 
-echo "building sarjitsu_elasticsearch"
+APP_CONF=$1
+if [[ -z $APP_CONF ]]; then
+	APP_CONF=../../conf/sarjitsu.conf
+fi
+
+if [ ! -f $APP_CONF ]; then
+	log "sarjitsu.conf: file does not exist. Supply it's path as 1st argument"
+	exit -1
+fi
+
+source $APP_CONF
+
+log "building sarjitsu_elasticsearch"
 sed -i -r 's#elasticsearch\$RANDOM#'$ES_CLUSTER_NAME'#g' Dockerfile
 docker build -t sarjitsu_elasticsearch . > /dev/null
 
-echo -e "\nRunning $DATASOURCE_CONTAINER_ID:"
+log "Running $DATASOURCE_CONTAINER_ID:"
 
 docker run --name $DATASOURCE_CONTAINER_ID \
 	-p $DATASOURCE_PORT_MAPPING:9200 \

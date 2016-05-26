@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
-# es-create-vos-index-templates
+# usage:
+# $ es-create-vos-index-templates <config path>
 #
 # Create the sar index templates, with explicit mappings found in
 # ../lib/mappings/*.json.
@@ -10,19 +11,13 @@ from __future__ import print_function
 
 import os, sys
 
-#+
-# Version of mappings
-#
-# FIXME: this needs to be kept in sync with changes to the mapping files themselves.
-#-
-SOSREPORT_VERSION = '08'
-SAR_VERSION = '02'
-cfg_name = "/etc/sar-index.cfg"
+cfg_name = sys.argv[1]
 
 import configparser
 
 config = configparser.ConfigParser()
 config.read(cfg_name)
+
 try:
     URL = config.get('ElasticSearch', 'server')
 except configparser.NoSectionError:
@@ -36,8 +31,7 @@ else:
     host, port = URL.rsplit(':', 1)
 hosts = [dict(host=host, port=port),]
 INDEX_PREFIX = config.get('Settings', 'index_prefix')
-NUMBER_OF_SHARDS = config.get('Settings', 'number_of_shards')
-NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
+SAR_VERSION = config.get('Settings', 'sar_template_version')
 
 # Since we are not using SSDs, set merge max thread count to 1 to avoid a drop
 # in performance using the default. See:
@@ -49,8 +43,6 @@ NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
 #
 #     http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
 settings = dict(
-    number_of_shards=NUMBER_OF_SHARDS,
-    number_of_replicas=NUMBER_OF_REPLICAS,
     codec=dict(
         bloom=dict(
             load='false')),
@@ -63,6 +55,15 @@ settings = dict(
     translog=dict(
         flush_threshold_size='1g'),
     )
+
+
+NUMBER_OF_SHARDS = config.get('Settings', 'number_of_shards')
+if NUMBER_OF_SHARDS:
+    settings['number_of_shards'] = NUMBER_OF_SHARDS
+
+NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
+if NUMBER_OF_REPLICAS:
+    settings['number_of_replicas'] = NUMBER_OF_REPLICAS
 
 def fetch_mapping(mapping_fn):
     with open(mapping_fn, "r") as mappingfp:
@@ -79,7 +80,7 @@ def fetch_mapping(mapping_fn):
 
 import glob, json
 
-LIBDIR = config.get('Grafana', 'templates_path')
+LIBDIR = sys.argv[2]
 
 key, mapping = fetch_mapping(os.path.join(LIBDIR, "sar.json"))
 

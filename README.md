@@ -87,11 +87,26 @@ Installing by customizing the modularized components, per say, having their own 
 
 ### Additional Note
 
-Be sure to run `# iptables -F` from the host, in case it's not accessible outside. Otherwise check your firewall settings.
+##### TIPS: 
 
-- To stop all running container instances and cleanup sarjitsu, run `$ ./cleanup_sarjitsu`
+1. You could use curl and upload files through commandline as follows:
 
-Below mentioned ports will be used for port mapping from container to host, and could be configured in `conf/sarjitsu.conf`. Default bindings are:
+```sh
+curl -F 'file=@/tmp/sa binaries/datafile_f19'  -F 'check_all=check_all' 172.17.0.6/upload
+```
+
+  Be sure to add POST request form option `-F 'check_all=check_all'` in addition to 
+  supplying the file path as illustrated above.
+
+2. Be sure to run `# iptables -F` from the host, in case it's not accessible outside. Otherwise check your firewall settings.
+
+3.  To stop all running container instances and cleanup sarjitsu, run `$ ./cleanup_sarjitsu`
+
+----
+
+##### NOTES
+
+1. Below mentioned ports will be used for port mapping from container to host, and could be configured in `conf/sarjitsu.conf`. Default bindings are:
 
 ```sh
 METRICSTORE_PORT_MAPPING=9600
@@ -103,18 +118,19 @@ BACKEND_PORT_MAPPING=9604
 
 ..This is when all components are containerized.
 
-----
+2. Building this first time would take some time, as docker images are pulled from dockerhub, 
+   customized & built; packages are installed and so on.. 
 
-Building this first time would take some time, as docker images are pulled from dockerhub, customized & built; packages are installed and so on..
+	a.  At the end though, it should output a message like:
 
-At the end though, it should output a message like:
 ```
 Done! Go to http://172.17.0.6:80/ to access your application
 ```
 
-If it fails in between, you might wanna take a look at your configurations / environment. If you think it's a bug, you're welcome to open an issue here on github.
+	b. If it fails in between, you might wanna take a look at your configurations / environment. 
+	   If you think it's a bug, you're welcome to open an issue here on github.
 
-Also be sure that if you have custom HOST(s) configured, they should match the following versions (for sarjitsu compatibility reasons):
+3. Also be sure that if you have custom HOST(s) configured, they should match the following versions (for sarjitsu compatibility reasons):
 
 - Elasticsearch < 2.0 and > 1.5 (containerized version: 1.7.3)
 - Grafana > 2.5 and <= 3.0 (containerized version: 3.0.1-1)

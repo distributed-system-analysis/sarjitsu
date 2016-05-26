@@ -1,6 +1,20 @@
 #!/bin/bash
 
-source ../../conf/sarjitsu.conf
+log(){
+  echo -e "[$(date +'%D %H:%M:%S %Z')] - $*"
+}
+
+APP_CONF=$1
+if [[ -z $APP_CONF ]]; then
+	APP_CONF=../../conf/sarjitsu.conf
+fi
+
+if [ ! -f $APP_CONF ]; then
+	log "sarjitsu.conf: file does not exist. Supply it's path as 1st argument"
+	exit -1
+fi
+
+source $APP_CONF
 
 cp conf/sar-index.cfg.example conf/sar-index.cfg
 
@@ -22,15 +36,16 @@ sed -i -r 's#^db_host\s?=.*#db_host = '$DB_HOST'#g' conf/sar-index.cfg
 sed -i -r 's#^db_name\s?=.*#db_name = '$DB_NAME'#g' conf/sar-index.cfg
 sed -i -r 's#^db_user\s?=.*#db_user = '$DB_USER'#g' conf/sar-index.cfg
 sed -i -r 's#^db_password\s?=.*#db_password = '$DB_PASSWORD'#g' conf/sar-index.cfg
-
+sed -i -r 's#^db_port\s?=.*#db_port = '$DB_PORT'#g' conf/sar-index.cfg
 
 sed -i -r 's#^api_port\s?=.*#api_port = '$MIDDLEWARE_PORT'#g' conf/sar-index.cfg
+
 sed -i -r 's#^EXPOSE.*#EXPOSE '$MIDDLEWARE_PORT'#g' Dockerfile
 
-echo "building sarjitsu_api"
+log "building sarjitsu_api"
 docker build -t sarjitsu_api . > /dev/null
 
-echo -e "\nRunning $MIDDLEWARE_CONTAINER_ID:"
+log "Running $MIDDLEWARE_CONTAINER_ID:"
 
 docker run --name $MIDDLEWARE_CONTAINER_ID \
 	-p $MIDDLEWARE_PORT_MAPPING:$MIDDLEWARE_PORT \

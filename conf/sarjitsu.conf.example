@@ -42,8 +42,6 @@ ES_CLUSTER_NAME=elasticsearch$RANDOM
 INDEX_PREFIX=sarjitsu
 BULK_ACTION_COUNT=2000
 INDEX_VERSION=1
-SHARD_COUNT=1
-REPLICAS_COUNT=1
 
 ###########################################################
 # frontend config (grafana) - visualization framework
