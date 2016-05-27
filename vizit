@@ -1,0 +1,85 @@
+#!/bin/bash
+
+APP_CONF=conf/sarjitsu.conf
+
+log(){
+  echo -e "[$(date +'%D %H:%M:%S %Z')] - $*"
+}
+
+user_interrupt(){
+  log "\nKeyboard Interrupt detected."
+  exit 1
+}
+
+trap user_interrupt SIGINT
+
+if [ ! -f $APP_CONF ]; then
+  log "path: $APP_CONF ..does not exist."
+  exit -1
+fi
+
+source $APP_CONF
+
+usage(){
+  echo "Usage: vizit [ options ] [ <datafile/dir path> ]"
+  echo -e "\nDefault: $ vizit <sa01 path> <sa02 path> ..\n"
+  echo "Options are:"
+  echo -e "\t[-f path to a single SA binary file.]"
+  echo -e "\t[-d path to directory with a bunch of sar files in it.]"
+  echo -e "\t[-r path to pbench results dir. Recursively locates all sar.data]"
+}
+
+[ $# = 0 ] && {
+  usage
+  exit -1
+}
+
+while getopts "h?d:f:r:" opt; do
+    case "$opt" in
+      h|\?)
+        usage
+        exit 0
+        ;;
+      r) PBENCH_RESULTS_DIR=$OPTARG
+        ;;
+      d) UPLOAD_DIR=$OPTARG
+        ;;
+      f) FILE_PATH=$OPTARG
+        ;;
+    esac
+done
+
+upload_em_all(){
+  SUCCESS=0
+  APP_URL=$BACKEND_HOST:$BACKEND_SERVER_PORT/upload
+  echo "$*" | while read -r line; do
+    log "attempting to upload $line"
+    OUPUT="$(curl -s -F 'file=@'"$line" -F 'check_all=check_all' $APP_URL)"
+    NODENAME=$(echo -e "$OUPUT" | grep -i Success | awk -F'<b>' '{print $NF}')
+    if [[ $NODENAME ]]; then
+      SUCCESS=1
+      log "\e[1;42m Success! Nodename: $NODENAME \e[0m"
+    else
+      log "\e[1;31m FAILED to upload $(basename "$line") \e[0m"
+      log $OUPUT
+    fi
+    echo
+  done
+
+  if [[ $SUCCESS -eq 1 ]]; then
+    echo -e "\e[1;36m Successful results uploaded to http://$GRAFANA_HOST:$GRAFANA_PORT/ [Grafana]. Login w/ [admin/admin] \e[0m"
+  fi
+
+}
+
+if [[ -z $FILE_PATH && -z $UPLOAD_DIR && -z $PBENCH_MODE ]]; then
+  upload_em_all $*
+else
+  if [[ $UPLOAD_DIR ]]; then
+    upload_em_all "$(find "$UPLOAD_DIR" -maxdepth 1 -not -type d)"
+  elif [[ $PBENCH_RESULTS_DIR ]]; then
+    upload_em_all "$(find "$PBENCH_RESULTS_DIR" -name sar.data)"
+  elif [[ $FILE_PATH ]]; then
+    upload_em_all "$FILE_PATH"
+  fi
+fi

@@ -30,9 +30,10 @@ fi
 while getopts "h?r:" opt; do
     case "$opt" in
         h|\?)
-            echo "Usage: # $0 [OPTIONS]"
-            echo "[-r deploy fresh instances of all containers. Default 0] [0/1]"
-            echo -e "\t -r=1 would override all IP addresses provided in config file"
+            echo "Usage: $0 [ options ]"
+            echo "Options are:"
+            echo -e "\t[-r deploy fresh instances of all containers. Default 0 (1 is for fresh)]"
+            echo -e "\tNote that [-r 1] would override all IP addresses provided in config file\n"
             exit 0
             ;;
         r)  FRESH=$OPTARG
@@ -146,6 +147,7 @@ main(){
   fi
 
   BACKEND_HOST=`get_container_IP $BACKEND_CONTAINER_ID`
+  update_sarjitsu_config BACKEND_HOST $BACKEND_HOST
   log "Done! Go to http://$BACKEND_HOST:$BACKEND_SERVER_PORT/ to access your application"
 }
 

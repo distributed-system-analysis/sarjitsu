@@ -104,7 +104,7 @@ Installing by customizing the modularized components, per say, having their own 
 
 ##### TIPS:
 
-1. You could use curl and upload files through commandline as follows:
+- You could use curl and upload files through commandline as follows:
 
 ```sh
 curl -F 'file=@/tmp/sa binaries/datafile_f19'  -F 'check_all=check_all' 172.17.0.6/upload
@@ -113,9 +113,21 @@ curl -F 'file=@/tmp/sa binaries/datafile_f19'  -F 'check_all=check_all' 172.17.0
   Be sure to add POST request form option `-F 'check_all=check_all'` in addition to
   supplying the file path as illustrated above.
 
-2. Be sure to run `# iptables -F` from the host, in case it's not accessible outside. Otherwise check your firewall settings.
+- Be sure to run `# iptables -F` from the host, in case it's not accessible outside. Otherwise check your firewall settings.
 
-3.  To stop all running container instances and cleanup sarjitsu, run `$ ./cleanup_sarjitsu`
+-  To stop all running container instances and cleanup sarjitsu, run `$ ./cleanup_sarjitsu`
+
+- To upload files from commandline without using web interface, supply sa binary
+  files using one of following combinations:
+
+```
+$ ./vizit -f <path to sa binary file>"
+$ ./vizit -d <path to dir w/ sa binaries>"
+$ ./vizit -r <pbench latest results dir>
+```
+
+  You could make this tool handy by copying it to `/usr/local/bin`. Before that,
+  copy `conf/sarjitsu.conf` somewhere suitable and edit it's path in `vizit` script under `APP_CONF`.
 
 ----
 
