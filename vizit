@@ -51,7 +51,7 @@ done
 
 upload_em_all(){
   SUCCESS=0
-  APP_URL=$BACKEND_HOST:$BACKEND_SERVER_PORT/upload
+  APP_URL=$BACKEND_HOST:$BACKEND_SERVER_PORT/$MIDDLEWARE_UPLOAD_ENDPOINT
   echo "$*" | while read -r line; do
     log "attempting to upload $line"
     OUPUT="$(curl -s -F 'file=@'"$line" -F 'check_all=check_all' $APP_URL)"
