@@ -11,7 +11,8 @@
 - [ ] add condition in vizit for checking whether connection was reset by peer (in which case, the nodejs app restarts)
 	and if so, re-upload the file 
 
-- [ ] add backward compatibility for UPSERT in postgreSQL < 9.5
+- [x] add backward compatibility for UPSERT in postgreSQL < 9.5
+      otherwise we get: psycopg2.ProgrammingError: syntax error at or near "ON"
 
 - [ ] add requirements.txt for elasticsearch python plugin
 

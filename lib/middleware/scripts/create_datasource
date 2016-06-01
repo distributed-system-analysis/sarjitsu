@@ -2,18 +2,16 @@
 
 import time
 import configparser
-# import sqlite3
 import psycopg2
 
 config = configparser.ConfigParser()
+CFG_PATH = "/etc/sar-index.cfg"
 
 def tstos(ts=None):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts))
 
-
-if __name__ == '__main__':
-    cfg_name = "/etc/sar-index.cfg"
-    config.read(cfg_name)
+def main():
+    config.read(CFG_PATH)
 
     db_host = config.get('Postgres','db_host')
     db_port = config.get('Postgres','db_port')
@@ -38,23 +36,44 @@ if __name__ == '__main__':
     interval = '{"interval":"Daily","timeField":"%s"}' % \
 	       (config.get('Grafana', 'timeField'))
 
-    values = "(1,1,0,'elasticsearch','%s','proxy','%s','','','%s',False,'','',False,'%s', '%s', '%s')" \
-                % (ds_name, ds_url, pattern, interval, created, updated)
-
     # Columns and their example values are as follows ():
-
     # ['id', 'org_id', 'version', 'type', 'name', 'access', 'url', 'password',
     #  (3, 1, 0, 'elasticsearch', 'elastic', 'proxy', 'http://172.17.0.3:9200', '',
-
     # 'user', 'database', 'basic_auth', 'basic_auth_user', 'basic_auth_password',
     #  '', '[sarjitsu.sar-]YYYYMMDD', False, '', '',
-
     # 'is_default', 'json_data', 'created', 'updated', 'with_credentials']
     #  False, '{"interval":"Daily","timeField":"_timestamp"}',  '2016-05-27 06:50:15', '2016-05-27 06:50:15', False)
 
-    # FIXME: Refactor this to elegantly handle unique keys / version updates to rows
-    c.execute("DELETE FROM data_source WHERE org_id = 1 AND name = '%s'" % (ds_name))
-    c.execute("INSERT INTO data_source VALUES %s ON CONFLICT (id) DO UPDATE SET id = data_source.id+1" % (values))
+    # for now, we are logging in through default admin user whose org_id is 1
+    org_id = 1
+
+    # we now have to take care of following unique tuple cases:
+    # (id), (org_id, name),
+
+    # if (org_id, name) clash: delete it add new data for the same later
+    c.execute("DELETE FROM data_source WHERE org_id = %s AND name = '%s'" % (org_id, ds_name))
+
+    row_id = 1
+    # check for UPSERT feature compatibility
+    if conn.server_version < 90501:
+        c.execute("SELECT MAX(id) FROM data_source")
+        max_row_id = c.fetchone()[0]
+        if max_row_id:
+            row_id = max_row_id + 1
+
+        values = "(%s,%s,0,'elasticsearch','%s','proxy','%s','','','%s',False,'','',False,'%s', '%s', '%s')" \
+                    % (row_id, org_id, ds_name, ds_url, pattern, interval, created, updated)
+
+        c.execute("INSERT INTO data_source VALUES %s" % (values))
+    else:
+        c.execute("INSERT INTO data_source VALUES %s ON CONFLICT (id) DO UPDATE SET id = data_source.id+1" % (values))
 
     conn.commit()
     conn.close()
+    return "created datasource.."
+
+if __name__ == '__main__':
+    try:
+        print(main())
+    except:
+        raise
