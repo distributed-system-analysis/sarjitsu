@@ -53,25 +53,24 @@ def main():
     # if (org_id, name) clash: delete it add new data for the same later
     c.execute("DELETE FROM data_source WHERE org_id = %s AND name = '%s'" % (org_id, ds_name))
 
+    row_id = 1
     # check for UPSERT feature compatibility
     if conn.server_version < 90501:
         c.execute("SELECT MAX(id) FROM data_source")
         max_row_id = c.fetchone()[0]
         if max_row_id:
             row_id = max_row_id + 1
-
-        values = "(%s,%s,0,'elasticsearch','%s','proxy','%s','','','%s',False,'','',False,'%s', '%s', '%s')" \
-                    % (row_id, org_id, ds_name, ds_url, pattern, interval, created, updated)
-
-        c.execute("INSERT INTO data_source VALUES %s" % (values))
+        CMD = "INSERT INTO data_source VALUES %s"
     else:
-        row_id = 1
-        values = "(%s,%s,0,'elasticsearch','%s','proxy','%s','','','%s',False,'','',False,'%s', '%s', '%s')" \
-                    % (row_id, org_id, ds_name, ds_url, pattern, interval, created, updated)
-        c.execute("INSERT INTO data_source VALUES %s ON CONFLICT (id) DO UPDATE SET id = data_source.id+1" % (values))
+        CMD = "INSERT INTO data_source VALUES %s ON CONFLICT (id) DO UPDATE SET id = data_source.id+1"
 
+    values = "(%s,%s,0,'elasticsearch','%s','proxy','%s','','','%s',False,'','',False,'%s', '%s', '%s')" \
+                    % (row_id, org_id, ds_name, ds_url, pattern, interval, created, updated)
+
+    c.execute(CMD % (values))
     conn.commit()
     conn.close()
+    
     return "created datasource.."
 
 if __name__ == '__main__':
