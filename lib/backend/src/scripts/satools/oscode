@@ -8,26 +8,34 @@ from __future__ import print_function
 import sys, os
 from sysstat import fetch_fileheader, fetch_os_code, Invalid
 
-if os.path.getsize(sys.argv[1]) == 0:
-    print("Invalid - %s: empty data file" % sys.argv[1], file=sys.stderr)
-    sys.exit(1)
+def determine_version(file_path=sys.argv[1]):
+    if os.path.getsize(file_path) == 0:
+        return (False, "Invalid - %s: empty data file" % file_path)
 
-try:
-    fm, fh, fa, magic = fetch_fileheader(sys.argv[1])
-except Invalid as e:
-    print("Invalid - %s: %s" % (sys.argv[1], e), file=sys.stderr)
-    sys.exit(1)
-except Exception as e:
-    print("Error - %s: %s" % (sys.argv[1], e), file=sys.stderr)
-    sys.exit(1)
+    try:
+        fm, fh, fa, magic = fetch_fileheader(file_path)
+    except Invalid as e:
+        return (False, "Invalid - %s: %s" % (file_path, e))
 
-try:
-    val = fetch_os_code(magic)
-except Invalid as e:
-    print("Invalid - %s: %s" % (sys.argv[1], e), file=sys.stderr)
-    sys.exit(1)
-except Exception as e:
-    print("Error - %s: %s" % (sys.argv[1], e), file=sys.stderr)
-    sys.exit(1)
-else:
-    print(val)
+    except Exception as e:
+        return (False, "Error - %s: %s" % (file_path, e))
+
+
+    try:
+        val = fetch_os_code(magic)
+    except Invalid as e:
+        return (False, "Invalid - %s: %s" % (file_path, e))
+
+    except Exception as e:
+        return (False, "Error - %s: %s" % (file_path, e))
+
+    else:
+        return (True, val)
+
+if __name__ == '__main__':
+    res = determine_version()
+    if res(0):
+        print(res(1))
+    else:
+        print(res(1), file=sys.stderr)
+        sys.exit(1)

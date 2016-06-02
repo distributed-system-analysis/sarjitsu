@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+{% from "forms/macros.html" import render_field %}
+<div class="jumbotron">
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <h4 align="center" class="panel-title">Upload SoS report and corresponding MD5 file</h4>
+    </div>
+    <div class="panel-body">
+      <form method="POST" action="." class="form-horizontal">
+	{{ form.csrf_token }}
+	<div align="center">
+	  <table>
+	    <tr>
+	      <td>{{ render_field(form.email, class="input text") }}</td>
+	      <td>{{ render_field(form.password, class="input text") }}</td>
+	    </tr>
+	    <tr>
+	      <td><input type="submit" value="Login" class="btn btn-warning green"></td>
+	      <td>
+	  </table>
+      </form>
+      <p>
+	<a href="{{ url_for('users.register') }}">Register</a>
+      </p>
+	</div>
+	{% endblock %}

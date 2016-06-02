@@ -6,6 +6,8 @@ port = 9200
 index_prefix = sarjitsu
 index_version = 1
 bulk_action_count = 2000
+number_of_shards = 1
+number_of_replicas = 1
 
 [Grafana]
 dashboard_url = http://172.17.0.4:3000/

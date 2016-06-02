@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+
+{% block upload %}
+<form method="post" id="submission" enctype="multipart/form-data" action="/upload/">
+  <input type="file" name="sarbin"/>
+
+  <input id="check_all" type="checkbox" name="check_all" value="check all">check all</input>
+  <select name="graph_types" id="sarOptions" multiple="multiple">
+  </select>
+  <input type="submit"/>
+</form>
+
+<script type="text/javascript">
+$.getJSON('/static/sar_args_mapping.json', function(jsonData) {
+  console.log("2. reached here");
+  var $select = $('#sarOptions');
+  for (o in jsonData.single) {
+    var $option = $("<option>").attr("value", o).text(o);
+    $select.append($option);
+  };
+});
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% from "forms/macros.html" import render_field %}
+<div class="jumbotron">
+  <div class="panel panel-info">
+
+    <div class="panel-heading">
+      <h4 align="center" class="panel-title">Regular User Register</h4>
+    </div>
+
+    {% if duplicate %}
+    <div class="alert alert-dismissable alert-warning">
+      Username has to be unique
+    </div>
+    {% endif %}
+
+    <div class="panel-body" align="center">
+      <form method="POST" action="." class="form-horizontal">
+	{{ form.csrf_token }}
+	  <table class="table table-striped table-hover">
+            <tr>
+	      {{ render_field(form.name, class="input text") }}
+	    </tr>
+            <tr>
+	      {{ render_field(form.email, class="input text") }}
+	    </tr>
+	    <tr>
+              {{ render_field(form.password, class="input text") }}
+            </tr>
+            <tr>
+              {{ render_field(form.confirm, class="input text") }}
+            </tr>
+            <tr>
+              {{ render_field(form.accept_tos, class="input text") }}
+            </tr>
+	    <tr>
+	      <td>
+		<label>ReCaptcha</label>
+		{{ form.recaptcha }}  
+	      </td>
+	      <td>
+		<input type="submit" value="Submit" class="btn btn-warning green">
+	      </td>
+	    </tr>
+          </table>
+      </form>
+      <p align="center"> 
+        or
+        <a href="{{ url_for('users.login') }}">
+          <button type="button" class="btn btn-primary btn-sm">
+            Login
+          </button>
+        </a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

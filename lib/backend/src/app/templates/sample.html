@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block head_scripts %}
+<title>{{title}}</title>
+{% endblock %}
+
+{% block dashboard %}
+
+
+<div align="center">
+  <table class="table table-striped table-hover">  
+    <tr>
+      <span>      
+	<form action="/upload/md/" class="form-horizontal">
+	  <button class="btn btn-success">Generate Report [MarkDown to HTML]</button>
+	</form>
+      </span>
+    </tr>
+    OR <tr>
+      <form action="/upload/rtf/" class="form-horizontal">
+	<button class="btn btn-success">Upload Report [RTF to PDF]</button> 
+      </form>
+    </tr>
+  </table>
+  <hr />
+</div>
+
+{% if user %}
+<div style="padding-left: 10em; padding-right: 10em;">
+  
+  {% if machines %}
+  <strong>Following dumps were found for <u>{{machine_id}}</u>:</strong>
+  <ol>
+    {% for name in machines %}
+    <li>{{name}} -- <a href="/build/summary/{{machine_id}}/{{name}}">
+      <button type="button" id="rep_edit" class="btn btn-success btn-xs">
+	SUMMARY
+      </button></a>
+      <a href="/build/images/{{machine_id}}/{{name}}">
+	<button type="button" id="rep_edit" class="btn btn-warning btn-xs">
+	  IMAGES
+	</button></a>
+      <a href="/build/public/{{machine_id}}/{{name}}">
+	<button type="button" id="rep_edit" class="btn btn-danger btn-xs">
+	  GENERATE PUBLIC LINK
+	</button></a>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <form class="form-horizontal" action="/" method="POST" enctype="multipart/form-data">
+    <label><i>Summarize pbench dumps</i></label>
+    <div class="input-group">
+      <span class="input-group-addon">Path to pbench dump:</span>
+      <input class="form-control" type="text" name="mass_dump" 
+             placeholder="parent folder contains multiple machine result folders">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="submit"">Submit</button>
+      </span>
+    </div>
+  </form>
+  <span class="help-block">
+    sample link: http://perf14.perf.lab.eng.bos.redhat.com:8000/incoming/dell-r620-01/
+  </span>
+  {% endif %}
+  <hr />
+</div>
+
+<div class="column">
+  <div class="span4">
+    <div class="well sidebar-nav">
+      <label><i>Recently accessed PDF reports</i></label>
+      <div class="panel panel-info">
+	<div class="panel-heading" align="center">
+	  History
+	</div>
+	<div class="panel-body">
+	  <ol>
+	    {% for report_id in order|arrange(5) %}
+	    <li><a href="/pdf/{{report_id}}">{{report_id}}</a></li>
+	    {% endfor %}
+	  </ol>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero-unit">
+    <div class="span8">
+      <div class="row-fluid well">
+      <label><i>Index of PDF reports in database</i></label>
+	<table id="dataTable" class="table table-striped table-hover">
+	  <thead>
+	    <tr>
+	      <td><span class="label label-default">#</span></td>
+	      <td><span class="label label-default">TITLE</span></td>
+	      <td><span class="label label-default">MODIFIED</span></td>
+	      <td><span class="label label-default">CREATED</span></td>
+	      <td><span class="label label-default">OPTIONS</span></td>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% set count=1 %}
+	    {% for report_id in order %}
+	    <tr>
+	      <td>{{count}}</td>
+	      <td>
+		{{report_id}}
+	      </td>
+	      <td>
+		{{reports[report_id].modified|datetime}}
+	      </td>
+	      <td>
+		{{reports[report_id].created.strftime('%Y-%m-%d')}}
+		<td>
+		  <a href="/pdf/{{report_id}}">
+		    <button type="button" id="rep_edit" class="btn btn-success btn-xs">
+		      DOWNLOAD
+		    </button>
+		  </a>
+
+		  <a href="/edit/{{report_id}}">
+		    <button type="button" id="rep_edit" class="btn btn-warning btn-xs">
+		      EDIT
+		    </button>
+		  </a>
+		  
+		  <!-- <a href="/delete/{{report_id}}/"> -->  
+		  <button type="button" id="{{report_id}}" class="btn btn-danger btn-xs rep_del" >
+		    <!-- onClick="confirmDelete({{report_id}})"> -->
+		    DELETE
+		  </button>
+
+		  <script type="text/javascript">
+		   /* function confirmDelete(delete_this) {
+		      } */
+		   $('.rep_del').on("click", function(e) {
+		     e.preventDefault();
+		     var answer = confirm ("Are you sure you want to DELETE '" + this.id + "' ?");
+		     if (answer) {
+		       window.location="/delete/"+this.id;
+		     }
+		     else {
+		       window.location="/";
+		     }
+		   });
+		  </script>
+
+		</td>
+	    </tr>
+	    {% set count = count + 1 %}
+	    {% endfor %}	  
+	  </tbody>
+	</table>
+      </div>
+    </div>    
+  </div>
+</div>
+
+
+{% else %}
+<div align="center">
+  <div class="row-fluid" >	
+    <div class="alert alert-dismissable alert-warning">
+      <button type="button" class="close" data-dismiss="alert">×</button>
+      <h4>Note:</h4>
+      <p>To upload a new report OR to access your dashboard....
+	<a href="/users/login" class="alert-link">Sign In Here.</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

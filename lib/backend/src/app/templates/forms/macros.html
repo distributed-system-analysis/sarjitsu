@@ -1,0 +1,20 @@
+{% macro render_field(field) %}
+<div class="form-horizontal">
+    <td>
+      {{ field.label(class="label label-success") }}
+    </td>
+    <td>
+      {% if field.errors %}
+      {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
+      {{ field(class=css_class, **kwargs) }}
+      <ul class="alert alert-dismissable alert-danger">
+	{% for error in field.errors %}
+	<li>{{ error|e }}</li>
+	{% endfor %}
+      </ul>
+      {% else %}
+      {{ field(**kwargs) }}
+      {% endif %}
+    </td>
+</div>
+{% endmacro %}

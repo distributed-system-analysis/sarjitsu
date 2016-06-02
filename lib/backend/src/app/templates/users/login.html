@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+{% from "forms/macros.html" import render_field %}
+<div class="jumbotron">
+  <div class="panel panel-info">
+
+    <div class="panel-heading">
+      <h4 align="center" class="panel-title">Regular User Login</h4>
+    </div>
+
+    {% if doesnt_exist %}
+    <div class="alert alert-dismissable alert-danger">
+      User Does Not Exist!
+    </div>
+    {% endif %}
+
+    <div class="panel-body">
+      <form method="POST" action="." class="form-horizontal">
+	{{ form.csrf_token }}
+	<div align="center">
+	  <table class="table table-striped table-hover">
+	    <tr>
+              {{ render_field(form.username, class="input text") }}
+	    </tr>
+	    <tr>
+              {{ render_field(form.password, class="input text") }}
+	    </tr>
+	  </table>
+	</div>
+	<p align="center">
+          <input type="submit" value="Login" class="btn btn-warning green">	
+	</p>
+      </form>
+      <p align="center"> 
+	or
+	<a href="/users/register/">
+          <button type="button" class="btn btn-primary btn-sm">
+	    Register
+	  </button>
+	</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
