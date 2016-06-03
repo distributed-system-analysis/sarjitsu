@@ -30,6 +30,7 @@ def _read_configs():
     db_credentials['POSTGRES_DB_PORT'] = config.get('Postgres','db_port')
 
     global default_modes
+    #FIXME: handle nested docs options in future
     default_modes = ['block_device', 'cpu_all', 'hugepages',
         'interrupts', 'io_transfer_rate_stats',
         'kernel_inode', 'load_avg', 'memory_page_stats',
@@ -56,10 +57,18 @@ def create_db():
         nodename = request.args.get('nodename')
         modes = request.args.get('modes')
     elif request.method  == 'POST':
-        ts_beg = request.json.get('ts_beg', '')
-        ts_end = request.json.get('ts_end', '')
-        nodename = request.json.get('nodename', '')
-        modes = request.json.get('modes', '')
+        try:
+            # maybe the upload was not from a form
+            # FIXME: check if this could be the case
+            ts_beg = request.json.get('ts_beg', '')
+            ts_end = request.json.get('ts_end', '')
+            nodename = request.json.get('nodename', '')
+            modes = request.json.get('modes', '')
+        except:
+            ts_beg = request.form.get('ts_beg', '')
+            ts_end = request.form.get('ts_end', '')
+            nodename = request.form.get('nodename', '')
+            modes = request.form.get('modes', '')
     else:
         txt = "only GET/POST requests are allowed on this endpoint"
         response = { "reply" : "FAILED",
@@ -119,7 +128,7 @@ if __name__ == '__main__':
     try:
         _read_configs()
         app.run(host = '0.0.0.0',
-                port = API_PORT,
+                port = int(API_PORT),
                 debug = False)
     except:
         raise
