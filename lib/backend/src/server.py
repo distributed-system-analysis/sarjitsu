@@ -75,20 +75,27 @@ def uploader():
     # reset_cache(session.sid)
     app.logger.info("current user <%s> for session ID: %s" %
                                     (session['user'], session.sid))
+    #FIXME: handle curl requests (request.json)
     if request.method == 'POST':
-        # import pdb; pdb.set_trace()
         form = UploadForm(request.form)
         form.datafile = request.files.getlist("datafile")
         if form.validate_on_submit():
             target =  os.path.join(app.cache.get('saDir').decode('utf-8'),
                                     session.sid)
-            result = upload_processor.begin(target, session.sid, form)
-            if result == 500:
-                abort(500)
-            return jsonify(result)
+            response = upload_processor.begin(target, session.sid, form)
         else:
             return jsonify({'form data': 'INVALID'})
-        abort(405)
+
+        # import pdb; pdb.set_trace()
+        return render_template('results.html',
+            user=session['user'],
+            data=response["nodenames_info"],
+            form=form,
+            # success=response["meta"]["status"],
+            progress=100,
+            **TEMPLATE_CONFIGURATION)
+
+    abort(405)
 
 
 @app.route('/login', methods=['GET', 'POST'])

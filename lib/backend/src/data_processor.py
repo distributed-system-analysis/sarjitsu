@@ -14,9 +14,7 @@ def prepare(sessionID, target, sa_filename):
         app.logger.info('sysstat version found for: %s' % sadf_type_res)
         app.cache.hset(file_metadata, "sa_file_path", SA_FILEPATH)
     else:
-        sadf_type_res = "f23"
-        app.logger.error(sadf_type_res)
-
+        app.logger.warn("couldn't determine sysstat version for file..")
         SA_FILEPATH_CONV = "%s_conv" % SA_FILEPATH
         CMD_CONVERT = ['scripts/vos/analysis/bin/sadf-f23-64',
                         '-c', SA_FILEPATH]
@@ -25,13 +23,22 @@ def prepare(sessionID, target, sa_filename):
                                 stderr=subprocess.PIPE, env={'LC_ALL': 'C'})
         err = p2.stderr
         if err:
+            err = err.read().decode()
             app.logger.error(err)
-            return False
+            if "Invalid" in err:
+                app.logger.error("SAR data extraction *failed*!")
+                return (None, "Invalid system activity file", None)
 
-        sadf_type_res = p2.communicate()[0].decode().replace("\n", "")
+        # import pdb; pdb.set_trace()
+        sadf_type_res = "f23"
+        _tmp = p2.communicate()[0]
+        app.logger.warn(_tmp)
+
         app.logger.info('sysstat version was incompatible but dealt with')
         app.cache.hset(file_metadata, "sa_file_path_conv", SA_FILEPATH_CONV)
 
+    app.logger.info("SAR data extraction *completed*!")
     app.cache.hset(file_metadata, "sadf_type_det", sadf_type_res)
+
     #FIXME: handle exceptons
     return extract_sa.extract(sessionID, target, sa_filename)

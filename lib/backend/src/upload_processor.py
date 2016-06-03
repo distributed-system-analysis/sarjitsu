@@ -1,8 +1,8 @@
 # zcache["session_data"][req.sessionID]["file_ops_blob"][counter] = {
 #   "datafile_path": datafile_path,
 #   "sa_file_path": path.join(datafile_path, path.basename(filename)),
-#   "sadf_type_det": null,
-#   "sa_file_path_conv": null,
+#   "sadf_type_det": None,
+#   "sa_file_path_conv": None,
 #   "nodename": ''
 # };
 import os
@@ -15,26 +15,28 @@ MULTI_MODE = list(enumerate(sar_modes['multiple'], start=1))
 
 def update_cache(sessionID, flag=True, args='A'):
     #FIXME
+    params = ','.join(list(sar_modes['single'].keys()))
     if flag:
         arg_data = {
             'argOfsar': args,
-            'fields': list(sar_modes['single'].keys())
+            'fields': params
         }
     else:
         arg_data = {
             'argOfsar': 'A',
-            'fields': list(sar_modes['single'].keys())
+            'fields': params
         }
     app.cache.hmset("sar_args:%s" % sessionID, arg_data)
 
 def update_file_metadata(sessionID, safile):
     file_metadata = {
           "filename": safile,
-          "sadf_type_det": null,
-          "sa_file_path_conv": null,
+          "sadf_type_det": None,
+          "sa_file_path_conv": None,
           "nodename": ''
     }
-    app.cache.hmset("file_metadata:%s:%s" % (sessionID, safile), _blob)
+    app.cache.hmset("file_metadata:%s:%s" %
+                        (sessionID, safile), file_metadata)
 
 def begin(target, sessionID, form):
 
@@ -56,21 +58,29 @@ def begin(target, sessionID, form):
     filename_list = []
     for upload in form.datafile:
         filename = upload.filename.rsplit("/")[0]
+        update_file_metadata(sessionID, filename)
         filename_list.append(filename)
         destination = os.path.join(target, filename)
-        app.logger.info("Accept incoming file: %s" % filename)
-        app.logger.info("Save it to: %s" % destination)
+        app.logger.info("Accepting incoming file: %s" % filename)
+        app.logger.info("Saving it to: %s" % destination)
         upload.save(destination)
 
     app.cache.set("filenames:%s" % sessionID, filename_list)
     response = {"nodenames_info": []}
 
-    #FIXME: single file upload error: null timestamp (fix for threading.....
+    #FIXME: single file upload error: None timestamp (fix for threading.....
     #FIXME: ......wait for file upload, add timeouts to Popen, check close_fds)
     #FIXME: multifile upload not working
     for filename in filename_list:
-        nodename, tstamps = data_processor.prepare(sessionID, target, filename)
-        response["nodenames_info"].append([nodename, tstamps])
+        nodename, meta, sadf = data_processor.prepare(sessionID,
+                                                target, filename)
+        result = [filename, sadf, nodename, meta]
+        if not nodename:
+            #FIXME: on failure, delete all uploaded files
+            result.insert(0, False)
+        else:
+            result.insert(0, True)
+        response["nodenames_info"].append(result)
 
     #FIXME
-    return {'upload status': 'OK', "results" : response}
+    return response

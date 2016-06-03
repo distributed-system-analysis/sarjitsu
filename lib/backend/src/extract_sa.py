@@ -5,7 +5,8 @@ import creation
 from app import app
 from scripts.vos.analysis.lib import index_sar
 
-def extract(sessionID, target, sa_filename, TSTAMPS={}):
+def extract(sessionID, target, sa_filename):
+    TSTAMPS={}
     CMD_CONVERT = ['-x', "--", "-A"]
     SAR_XML_FILEPATH = os.path.join(target, "%s.%s" % (sa_filename, "sar.xml"))
     file_metadata = "file_metadata:%s:%s" % (sessionID, sa_filename)
@@ -24,6 +25,7 @@ def extract(sessionID, target, sa_filename, TSTAMPS={}):
 
     CMD_CONVERT.insert(-2, target_file)
 
+    #FIXME: check if env in Popen is working fine
     p1 = subprocess.Popen(CMD_CONVERT, env={'LC_ALL': 'C'},
                             stdout=open(SAR_XML_FILEPATH, 'w'))
     app.logger.info("spawned..");
@@ -33,9 +35,10 @@ def extract(sessionID, target, sa_filename, TSTAMPS={}):
     NODENAME = p2.communicate()[0].decode().replace("\n", "")
 
     # import pdb; pdb.set_trace()
-    # FIXME: check if call_indexer works everytime. And if it handles errors
+    #FIXME: check if call_indexer works everytime. And if it handles errors
     try:
-        # FIXME: bad XML ExpatError
+        #FIXME: bad XML ExpatError
+        raise
         state, beg, end = index_sar.call_indexer(file_path=SAR_XML_FILEPATH,
                                _nodename=NODENAME,
                                cfg_name=app.config.get('CFG_PATH'),
@@ -45,8 +48,9 @@ def extract(sessionID, target, sa_filename, TSTAMPS={}):
             TSTAMPS['grafana_range_begin'] = beg
             TSTAMPS['grafana_range_end'] = end
     except Exception as E:
-        # FIXME: remove if we use the try: approach in future.
-        app.logger.error(E)
+        #FIXME: remove if we use the try: approach in future.
+        app.logger.warn("=====Running alternate ES indexing script======")
+        app.logger.warn(E)
         CMD_INDEXING = ['scripts/vos/analysis/bin/index-sar',
                         SAR_XML_FILEPATH, NODENAME]
         app.logger.info('ES indexing cmd: ' + " ".join(CMD_INDEXING))
@@ -64,10 +68,8 @@ def extract(sessionID, target, sa_filename, TSTAMPS={}):
         app.logger.info('end: %s' % TSTAMPS['grafana_range_end'])
 
         GRAPHING_OPTIONS = app.cache.hget("sar_args:%s" % sessionID, "fields").decode()
-        creation.dashboard(NODENAME, GRAPHING_OPTIONS,
-                            TSTAMPS['grafana_range_begin'],
-                            TSTAMPS['grafana_range_end'])
+        creation.dashboard(NODENAME, GRAPHING_OPTIONS, TSTAMPS)
 
-        return (NODENAME, TSTAMPS)
+        return (NODENAME, TSTAMPS, sadf_type_det)
     else:
-        return (NODENAME, None)
+        return (NODENAME, "Elasticsearch Indexing Failed", sadf_type_det)
