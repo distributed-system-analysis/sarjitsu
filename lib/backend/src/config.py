@@ -11,6 +11,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 LOG_FILENAME = 'sarjitsu_app.log'
 LOG_FILESIZE = 10000 # in Bytes
 
+CFG_PATH = "/etc/sar-index.cfg"
+
 # Application threads. A common general assumption is
 # using 2 per available processor cores - to handle
 # incoming requests using one and performing background

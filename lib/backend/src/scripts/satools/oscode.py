@@ -5,10 +5,15 @@
 
 from __future__ import print_function
 
-import sys, os
-from sysstat import fetch_fileheader, fetch_os_code, Invalid
+import os
+import sys
 
-def determine_version(file_path=sys.argv[1]):
+try:
+    from sysstat import fetch_fileheader, fetch_os_code, Invalid
+except:
+    from .sysstat import fetch_fileheader, fetch_os_code, Invalid
+
+def determine_version(file_path=None):
     if os.path.getsize(file_path) == 0:
         return (False, "Invalid - %s: empty data file" % file_path)
 
@@ -33,9 +38,9 @@ def determine_version(file_path=sys.argv[1]):
         return (True, val)
 
 if __name__ == '__main__':
-    res = determine_version()
-    if res(0):
-        print(res(1))
+    res = determine_version(file_path=sys.argv[1])
+    if res[0]:
+        print(res[1])
     else:
-        print(res(1), file=sys.stderr)
+        print(res[1], file=sys.stderr)
         sys.exit(1)

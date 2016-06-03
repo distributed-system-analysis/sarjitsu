@@ -1,22 +1,24 @@
+import ast
 import requests
 import configparser
 from app import app
 
 config = configparser.ConfigParser()
-CFG_PATH = "/etc/sar-index.cfg"
 
 def dashboard(hostname, sar_params, ts_beg, ts_end):
-    config.read(CFG_PATH)
+    config.read(app.config.get('CFG_PATH'))
     api_endpoint = config.get('Grafana','api_url')
+    # import pdb; pdb.set_trace()
+
     payload = {
-        "ts_beg": ts_begin,
+        "ts_beg": ts_beg,
         "ts_end": ts_end,
-        "nodename": hostname.replace("\n", ""),
-        "modes": ','.join(sar_params)
+        "nodename": hostname,
+        "modes": ast.literal_eval(sar_params)
     }
 
     try:
-        requests.post(api_endpoint, data=payload)
+        res = requests.post(api_endpoint, data=payload)
     except ConnectionError:
         app.logger.error("endpoint not active. Couldn't connect.")
     except:

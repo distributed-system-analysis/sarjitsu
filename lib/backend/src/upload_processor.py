@@ -14,15 +14,16 @@ SINGLE_MODE = list(enumerate(sar_modes['single'], start=1))
 MULTI_MODE = list(enumerate(sar_modes['multiple'], start=1))
 
 def update_cache(sessionID, flag=True, args='A'):
+    #FIXME
     if flag:
         arg_data = {
             'argOfsar': args,
-            'fields': sar_modes.values()
+            'fields': list(sar_modes['single'].keys())
         }
     else:
         arg_data = {
             'argOfsar': 'A',
-            'fields': sar_modes.values()
+            'fields': list(sar_modes['single'].keys())
         }
     app.cache.hmset("sar_args:%s" % sessionID, arg_data)
 
@@ -35,19 +36,20 @@ def update_file_metadata(sessionID, safile):
     }
     app.cache.hmset("file_metadata:%s:%s" % (sessionID, safile), _blob)
 
-def begin(target, sid, form):
+def begin(target, sessionID, form):
 
     if form.data['check_all']:
-        update_cache(sid, flag=True, args='A')
+        update_cache(sessionID, flag=True, args='A')
     else:
         _tmp = form.data['graph_types']
-        update_cache(sid, flag=False, args=_tmp)
+        update_cache(sessionID, flag=False, args=_tmp)
 
     try:
         os.makedirs(target)
     except FileExistsError:
         app.logger.info("Folder %s exists.." % target)
     except Exception as E:
+        #FIXME check this part and confirm it
         import pdb; pdb.set_trace()
         return 500
 
@@ -61,7 +63,14 @@ def begin(target, sid, form):
         upload.save(destination)
 
     app.cache.set("filenames:%s" % sessionID, filename_list)
-    for filename in filename_list:
-        data_processor.prepare(sid, target, filename)
+    response = {"nodenames_info": []}
 
-    return {'upload status': 'OK'}
+    #FIXME: single file upload error: null timestamp (fix for threading.....
+    #FIXME: ......wait for file upload, add timeouts to Popen, check close_fds)
+    #FIXME: multifile upload not working
+    for filename in filename_list:
+        nodename, tstamps = data_processor.prepare(sessionID, target, filename)
+        response["nodenames_info"].append([nodename, tstamps])
+
+    #FIXME
+    return {'upload status': 'OK', "results" : response}
