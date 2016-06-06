@@ -31,8 +31,8 @@ def update_cache(sessionID, flag=True, args='A'):
 def update_file_metadata(sessionID, safile):
     file_metadata = {
           "filename": safile,
-          "sadf_type_det": None,
-          "sa_file_path_conv": None,
+          "sadf_type_det": "",
+          "sa_file_path_conv": "",
           "nodename": ''
     }
     app.cache.hmset("file_metadata:%s:%s" %

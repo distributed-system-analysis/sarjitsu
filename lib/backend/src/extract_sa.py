@@ -8,11 +8,13 @@ from scripts.vos.analysis.lib import index_sar
 def extract(sessionID, target, sa_filename):
     TSTAMPS={}
     CMD_CONVERT = ['-x', "--", "-A"]
+
     SAR_XML_FILEPATH = os.path.join(target, "%s.%s" % (sa_filename, "sar.xml"))
     file_metadata = "file_metadata:%s:%s" % (sessionID, sa_filename)
 
     sadf_type_det = app.cache.hget(file_metadata, "sadf_type_det").decode()
-    app.logger.info("sadf type determined: %s" % sadf_type_det)
+    # app.logger.info("sadf type determined: %s" % sadf_type_det)
+    app.logger.info('sysstat version found for: %s' % sadf_type_det)
 
     _SCRIPT = "%s-%s-64" % ('scripts/vos/analysis/bin/sadf', sadf_type_det)
     CMD_CONVERT.insert(0, _SCRIPT)
@@ -26,12 +28,15 @@ def extract(sessionID, target, sa_filename):
     CMD_CONVERT.insert(-2, target_file)
 
     #FIXME: check if env in Popen is working fine
+    app.logger.info("spawned CMD: %s" % " ".join(CMD_CONVERT));
     p1 = subprocess.Popen(CMD_CONVERT, env={'LC_ALL': 'C'},
                             stdout=open(SAR_XML_FILEPATH, 'w'))
-    app.logger.info("spawned..");
+    p1.wait()
+    app.logger.info("SAR data extraction *completed*!")
 
     CMD_GREP = ["scripts/detect_nodename", SAR_XML_FILEPATH]
     p2 = subprocess.Popen(CMD_GREP, stdout=subprocess.PIPE)
+    p2.wait()
     NODENAME = p2.communicate()[0].decode().replace("\n", "")
 
     # import pdb; pdb.set_trace()
@@ -55,6 +60,7 @@ def extract(sessionID, target, sa_filename):
                         SAR_XML_FILEPATH, NODENAME]
         app.logger.info('ES indexing cmd: ' + " ".join(CMD_INDEXING))
         p3 = subprocess.Popen(CMD_INDEXING, stdout=subprocess.PIPE)
+        p3.wait()
         RESULT_RAW = p3.communicate()[0].decode().splitlines()
         TMP = [line for line in RESULT_RAW if line.startswith('grafana_range')]
         if TMP:
