@@ -15,9 +15,9 @@
 
 - [X] fix es-create template/mapping for all pattern sar indices
 
-- [x] fix app crash on second upload
+- [X] fix app crash on second upload
 
-- [x] fix stdOut clearance on second upload. double 'parsin ...' messages 
+- [X] fix stdOut clearance on second upload. double 'parsin ...' messages 
 
 - [ ] Authentication:
 	- [X] restore session functionality 
@@ -26,16 +26,16 @@
 			Note that sessionIDs might change for same user
 
 	- [ ] add dashboard link in in /upload results page
-	- [x] replace txt on /upload page with something useful / redirect to dashboard directly
+	- [X] replace txt on /upload page with something useful / redirect to dashboard directly
 	- [ ] fix redirection paths on POST req on /upload. Redirect user to grafana dashboard
 		- [ ] devise method for user to be logged in automatically or speicfy login/pass
 
 - [ ] add network ready made graphs in panels list in grafana db
 
-- [x] magic code for f22/23 absent in sadf
+- [X] magic code for f22/23 absent in sadf
 	- `stderr: Invalid - safiles/1/sa18/sa18: Unrecognized new format magic: 0x8563`
 
-- [ ] implement check_previous() <metadata> to assign proper versions/dashboard IDs
+- [x] implement check_previous() <metadata> to assign proper versions/dashboard IDs
 
 - [X] assign same name to db-slug and db-name
 
@@ -44,8 +44,8 @@
 	- [x] process all and select later while building dashboard
 
 
-- [ ] debug env var not working issue for config path
-- [ ] add support for 'Multiple option <nested ones>' args in sar
+- [x] debug env var not working issue for config path
+- [x] add support for 'Multiple option <nested ones>' args in sar
 - [x] debug templating in grafana. Check format in sqlite3 db
 - [x] fix panel collapse error in grafana (for readymade panels)
 - [x] add error handling, in case data for that arg is not present
@@ -73,4 +73,4 @@
 	- filesystem  (-F)
 	- tty
 
-- [ ] separate ES, grafana and sarjitsu backend in 3 separate containers.
+- [x] separate ES, grafana and sarjitsu backend in 3 separate containers.

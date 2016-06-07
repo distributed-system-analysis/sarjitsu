@@ -1,9 +1,12 @@
 import os
 import requests
 import subprocess
+
+# user mods
 import creation
 from app import app
 from scripts.vos.analysis.lib import index_sar
+
 
 def extract(sessionID, target, sa_filename):
     TSTAMPS={}
@@ -13,7 +16,6 @@ def extract(sessionID, target, sa_filename):
     file_metadata = "file_metadata:%s:%s" % (sessionID, sa_filename)
 
     sadf_type_det = app.cache.hget(file_metadata, "sadf_type_det").decode()
-    # app.logger.info("sadf type determined: %s" % sadf_type_det)
     app.logger.info('sysstat version found for: %s' % sadf_type_det)
 
     _SCRIPT = "%s-%s-64" % ('scripts/vos/analysis/bin/sadf', sadf_type_det)
@@ -39,7 +41,6 @@ def extract(sessionID, target, sa_filename):
     p2.wait()
     NODENAME = p2.communicate()[0].decode().replace("\n", "")
 
-    # import pdb; pdb.set_trace()
     #FIXME: check if call_indexer works everytime. And if it handles errors
     try:
         #FIXME: bad XML ExpatError
@@ -62,6 +63,7 @@ def extract(sessionID, target, sa_filename):
         p3 = subprocess.Popen(CMD_INDEXING, stdout=subprocess.PIPE)
         p3.wait()
         RESULT_RAW = p3.communicate()[0].decode().splitlines()
+
         TMP = [line for line in RESULT_RAW if line.startswith('grafana_range')]
         if TMP:
             for line in TMP:
@@ -78,4 +80,4 @@ def extract(sessionID, target, sa_filename):
 
         return (NODENAME, TSTAMPS, sadf_type_det)
     else:
-        return (NODENAME, "Elasticsearch Indexing Failed", sadf_type_det)
+        return (NODENAME, False, sadf_type_det)

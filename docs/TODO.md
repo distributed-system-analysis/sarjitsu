@@ -6,7 +6,7 @@
 - [ ] consider using combination of following solutions for replication and service discovery
   - skydns/skydock, docker compose, zookeeper
 
-- [ ] curl multi file upload check failure for *_conv files
+- [x] curl multi file upload check failure for *_conv files
 
 - [ ] add condition in vizit for checking whether connection was reset by peer (in which case, the nodejs app restarts)
 	and if so, re-upload the file
@@ -27,4 +27,4 @@
 - [ ] update grafana to version 3 (branch arcolife/nested_agg_query) for nested docs support.
   - [ ] Make an rpm, release on copper and post link to PR on grafana)
 
-- [ ] sar.data invalid files debug
+- [x] sar.data invalid files debug

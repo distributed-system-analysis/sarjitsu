@@ -5,7 +5,7 @@ import extract_sa
 from app import app
 from scripts.satools import oscode
 
-def prepare(sessionID, target, sa_filename):
+def prepare(sessionID, target, sa_filename, q):
     file_metadata = "file_metadata:%s:%s" % (sessionID, sa_filename)
     SA_FILEPATH = os.path.join(target, sa_filename)
     res = oscode.determine_version(file_path=SA_FILEPATH)
@@ -27,9 +27,9 @@ def prepare(sessionID, target, sa_filename):
             app.logger.error(err)
             if "Invalid" in err:
                 app.logger.error("SAR data extraction *failed*!")
-                return (None, "Invalid system activity file", None)
+                q[sa_filename] = (None, False, None)
+                return
 
-        # import pdb; pdb.set_trace()
         sadf_type_res = "f23"
         _tmp = p2.communicate()[0]
         app.logger.warn(_tmp)
@@ -40,4 +40,5 @@ def prepare(sessionID, target, sa_filename):
     app.cache.hset(file_metadata, "sadf_type_det", sadf_type_res)
 
     #FIXME: handle exceptons
-    return extract_sa.extract(sessionID, target, sa_filename)
+    q[sa_filename] = extract_sa.extract(sessionID, target, sa_filename)
+    return

@@ -1,14 +1,8 @@
-# zcache["session_data"][req.sessionID]["file_ops_blob"][counter] = {
-#   "datafile_path": datafile_path,
-#   "sa_file_path": path.join(datafile_path, path.basename(filename)),
-#   "sadf_type_det": None,
-#   "sa_file_path_conv": None,
-#   "nodename": ''
-# };
 import os
 import creation
 import data_processor
 from app import app, sar_modes
+from threading  import Thread
 
 SINGLE_MODE = list(enumerate(sar_modes['single'], start=1))
 MULTI_MODE = list(enumerate(sar_modes['multiple'], start=1))
@@ -71,13 +65,29 @@ def begin(target, sessionID, form):
     #FIXME: single file upload error: None timestamp (fix for threading.....
     #FIXME: ......wait for file upload, add timeouts to Popen, check close_fds)
     #FIXME: multifile upload not working
+
+    t_list  = []
+    q = dict.fromkeys(filename_list)
+
+    for i in range(len(filename_list)):
+        t = Thread(target=data_processor.prepare, daemon=True,
+                args=(sessionID, target, filename_list[i], q))
+        t_list.append(t)
+
+    for j in t_list:
+        j.start()
+
+    for j in t_list:
+        j.join()
+
     for filename in filename_list:
-        nodename, meta, sadf = data_processor.prepare(sessionID,
-                                                target, filename)
+        nodename, meta, sadf = q[filename]
         result = [filename, sadf, nodename, meta]
-        if not nodename:
+        if not meta:
             #FIXME: on failure, delete all uploaded files
             result.insert(0, False)
+            # add message in meta
+            result[-1] = "Elasticsearch Indexing Failed"
         else:
             result.insert(0, True)
         response["nodenames_info"].append(result)
