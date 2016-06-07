@@ -3,6 +3,8 @@
 source ../../conf/sarjitsu.conf
 
 cp conf/sar-index.cfg.example conf/sar-index.cfg
+cp conf/sarjitsu.ini.example conf/sarjitsu.ini
+cp conf/sarjitsu_nginx.conf.example conf/sarjitsu_nginx.conf
 
 sed -i -r 's#^host\s?=.*#host = '$ES_HOST'#g' conf/sar-index.cfg
 sed -i -r 's#^port\s?=.*#port = '$ES_PORT'#g' conf/sar-index.cfg

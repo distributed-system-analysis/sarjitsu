@@ -1,13 +1,5 @@
 from app import db
-#from app.users import constants as USER
-#from flask.ext.mongoengine.wtf import model_form
-
-# class Metadata(db.Document):
-#     last_modified = db.DateTimeField(help_text='date when last modified')
-#     date_uploaded = db.DateTimeField(help_text='date published')
-#     children_count = db.IntField(default=0)
-# #     metadata = db.ReferenceField(Metadata)
-    
+ 
 class Graph(db.EmbeddedDocument):
     x = db.StringField() #db.DecimalField()
     y = db.StringField() #db.DecimalField()

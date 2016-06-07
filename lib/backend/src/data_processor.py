@@ -27,7 +27,7 @@ def prepare(sessionID, target, sa_filename, q):
             app.logger.error(err)
             if "Invalid" in err:
                 app.logger.error("SAR data extraction *failed*!")
-                q[sa_filename] = (None, False, None)
+                q[sa_filename] = (None, "Invalid", None)
                 return
 
         sadf_type_res = "f23"

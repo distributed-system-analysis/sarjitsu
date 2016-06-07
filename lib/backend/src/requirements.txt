@@ -2,8 +2,9 @@ urllib3==1.12
 elasticsearch==2.1.0
 Flask
 Flask-Cache
-# python-memcached
 Flask-Session
 redis
 Flask-WTF
+uwsgi
+requests
 

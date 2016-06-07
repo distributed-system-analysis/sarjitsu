@@ -1,14 +1,21 @@
 {% extends 'base.html' %}
 {% from "forms/macros.html" import render_field %}
 
-<strong><b><li>Ingestion status: {{ success }}</li></b></strong>
-
 {% block dashboard %}
 <section class='container'>
   <div align="center" class="row">
-    <div class="progress progress-striped">
-      <div class="progress-bar progress-bar-success" style="width: {{progress}}%"></div>
+
+    {% if valid_results %}
+    <div class="progress progress-striped active">
+      <div class="progress-bar" style="width: {{progress}}%"></div>
     </div>
+    <div class="alert alert-dismissible alert-success">
+      <p>Go to <a href="{{ redirect_url }}">this Grafana URL</a> to find
+        the visualization dashboard for your data
+      </p>
+    </div>
+    {% endif %}
+
 
     <div class="panel panel-info">
 
@@ -45,7 +52,12 @@
                 {{ item.3 }}
               </td>
               <td>
-                <pre>{{ item.4 }}</pre>
+                {% if item.0 %}
+                <span class="label label-primary">Begin:</span> {{ item.4.grafana_range_begin |datetime }}
+                &nbsp;<span class="label label-primary">End:</span> {{ item.4.grafana_range_end |datetime }}
+                {% else %}
+                <pre style="white-space:pre-wrap;">{{ item.4 }}</pre>
+                {% endif %}
               </td>
             </tr>
             {% endfor %}

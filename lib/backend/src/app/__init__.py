@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from flask import Flask, render_template, json, session
 
 from logging.handlers import RotatingFileHandler
-from flask.ext.session import RedisSessionInterface
+from flask_session import RedisSessionInterface
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -78,11 +78,11 @@ def _jinja2_filter_list(item, n):
     """ return N  no. of items in history list """
     return item[:n]
 
-def _jinja2_filter_datetime(date, fmt='%c'):
+def _jinja2_filter_datetime(date, fmt="%X, %d %b %Y"):
     # check whether the value is a datetime object
     if not isinstance(date, (datetime.date, datetime.datetime)):
         try:
-            date = datetime.datetime.strptime(str(date), '%Y-%m-%d').date()
+            date = datetime.datetime.strptime(str(date), "%Y-%m-%dT%H:%M:%S")
         except Exception as e:
             return date
     return date.strftime(fmt)

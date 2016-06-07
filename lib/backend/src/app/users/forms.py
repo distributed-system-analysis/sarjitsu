@@ -1,6 +1,6 @@
 import os
 import json
-from flask.ext.wtf import Form, RecaptchaField
+from flask_wtf import Form, RecaptchaField
 from wtforms import TextField, \
   PasswordField, \
   BooleanField, \

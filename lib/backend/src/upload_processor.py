@@ -34,6 +34,7 @@ def update_file_metadata(sessionID, safile):
 
 def begin(target, sessionID, form):
 
+    #FIXME: not using check_all and empty graph_types triggers error
     if form.data['check_all']:
         update_cache(sessionID, flag=True, args='A')
     else:
@@ -80,6 +81,7 @@ def begin(target, sessionID, form):
     for j in t_list:
         j.join()
 
+    _valid_results_found = False
     for filename in filename_list:
         nodename, meta, sadf = q[filename]
         result = [filename, sadf, nodename, meta]
@@ -87,10 +89,16 @@ def begin(target, sessionID, form):
             #FIXME: on failure, delete all uploaded files
             result.insert(0, False)
             # add message in meta
-            result[-1] = "Elasticsearch Indexing Failed"
+            result[-1] = "Elasticsearch Indexing Failed.."
+        elif meta == "Invalid":
+            #FIXME: on failure, delete all uploaded files
+            result.insert(0, False)
+            # add message in meta
+            result[-1] = "Invalid input file.."
         else:
+            _valid_results_found = True
             result.insert(0, True)
         response["nodenames_info"].append(result)
 
     #FIXME
-    return response
+    return (_valid_results_found, response)

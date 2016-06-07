@@ -87,8 +87,8 @@ BACKEND_SERVER_PORT=80
 METRICSTORE_CONTAINER_ID=postrgres_jitsu
 DATASOURCE_CONTAINER_ID=elastic_jitsu
 FRONTEND_CONTAINER_ID=grafana_jitsu
-MIDDLEWARE_CONTAINER_ID=flask_jitsu
-BACKEND_CONTAINER_ID=node_jitsu
+MIDDLEWARE_CONTAINER_ID=api_jitsu
+BACKEND_CONTAINER_ID=server_jitsu
 
 # specify port mapping to the host, for each component
 METRICSTORE_PORT_MAPPING=9600

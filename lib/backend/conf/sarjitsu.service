@@ -1,11 +1,12 @@
 [Unit]
-Description=sarjitsu
+Description=uWSGI instance to serve myproject
+After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/src
-#ExecStart=/usr/bin/grunt serve --force
-ExecStart=/src/nodeup start
+Group=nginx
+WorkingDirectory=/opt/sarjitsu/src
+ExecStart=/usr/bin/uwsgi --ini /opt/sarjitsu/conf/sarjitsu.ini
 StandardOutput=syslog
 StandardError=syslog
 
