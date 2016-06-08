@@ -3,6 +3,7 @@ import creation
 import data_processor
 from app import app, sar_modes
 from threading  import Thread
+from werkzeug import secure_filename
 
 SINGLE_MODE = list(enumerate(sar_modes['single'], start=1))
 MULTI_MODE = list(enumerate(sar_modes['multiple'], start=1))
@@ -47,12 +48,11 @@ def begin(target, sessionID, form):
         app.logger.info("Folder %s exists.." % target)
     except Exception as E:
         #FIXME check this part and confirm it
-        import pdb; pdb.set_trace()
         return 500
 
     filename_list = []
     for upload in form.datafile:
-        filename = upload.filename.rsplit("/")[0]
+        filename = secure_filename(upload.filename).rsplit("/")[0]
         update_file_metadata(sessionID, filename)
         filename_list.append(filename)
         destination = os.path.join(target, filename)
