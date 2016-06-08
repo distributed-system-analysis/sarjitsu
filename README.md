@@ -19,6 +19,8 @@ Table of Contents
 
 Sarjitsu ingests a SAR (System Activity Reporter) binary data file (located under `/var/log/sa/`) ..and produces dynamic visualizations based on Grafana. The name is inspired from 'SAR + jistsu', so to speak, unleashing the power of SAR data.
 
+You could also refer to [this blog post on Sarjitsu](http://arcolife.github.io/blog/2016/06/06/sarjitsu-a-project-on-visualizing-your-systems-activity/) to know more about this app and catch glimpses of some screenshots.
+
 The app is split in 5 container instances as follows:
 
 1) `datasource`: Used to store timeseries data and metadata. A full-text search engine powered by elasticsearch
