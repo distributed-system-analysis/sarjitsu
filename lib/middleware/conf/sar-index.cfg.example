@@ -8,7 +8,7 @@ index_prefix = sarjitsu
 index_version = 1
 bulk_action_count = 2000
 number_of_shards = 1
-number_of_replicas = 1
+number_of_replicas = 0
 
 [Grafana]
 ds_name = vos-test
