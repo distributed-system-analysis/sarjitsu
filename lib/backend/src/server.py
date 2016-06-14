@@ -53,18 +53,16 @@ def home():
                                 **TEMPLATE_CONFIGURATION)
 
 
-@app.route('/upload/', methods=['GET','POST'])
+@app.route('/upload/', methods=['POST'])
 def uploader():
     session['user'] = "anon"
-    # reset_cache(session.sid)
     app.logger.info("current user <%s> for session ID: %s" %
                                     (session['user'], session.sid))
-    #FIXME: handle curl requests (request.json)
     if request.method == 'POST':
         form = UploadForm(request.form)
         form.datafile = request.files.getlist("datafile")
         # FIXME: show invalid form reason in response
-        if form.validate_on_submit():
+        if form.validate_on_submit() or form.data['cmd_mode']:
             target =  os.path.join(app.cache.get('saDir').decode('utf-8'),
                                     session.sid)
             _valid_results_found, response = upload_processor.begin(target,
@@ -72,15 +70,24 @@ def uploader():
         else:
             return jsonify({'form data': 'INVALID'})
 
-        # import pdb; pdb.set_trace()
-        return render_template('results.html',
-            user=session['user'],
-            data=response["nodenames_info"],
-            form=form,
-            valid_results=_valid_results_found,
-            redirect_url=config.get('Grafana','dashboard_url'),
-            progress=100,
-            **TEMPLATE_CONFIGURATION)
+        if form.data['cmd_mode']:
+
+            res = {
+                "valid_results": _valid_results_found,
+                "data": response["nodenames_info"],
+                "redirect_url": config.get('Grafana','dashboard_url'),
+                "progress" : 100
+            }
+            return jsonify(res)
+        else:
+            return render_template('results.html',
+                user=session['user'],
+                data=response["nodenames_info"],
+                form=form,
+                valid_results=_valid_results_found,
+                redirect_url=config.get('Grafana','dashboard_url'),
+                progress=100,
+                **TEMPLATE_CONFIGURATION)
 
     abort(405)
 

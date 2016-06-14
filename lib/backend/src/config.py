@@ -3,7 +3,7 @@
 
 # Statement for enabling the development environment
 DEBUG = False
-# DEBUG = False
+# DEBUG = True
 
 import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -59,6 +59,7 @@ CACHE_CONFIG = {
 # }
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
+# CSRF_ENABLED     = False
 CSRF_ENABLED     = True
 
 # Use a secure, unique and absolutely secret key for

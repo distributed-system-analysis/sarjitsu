@@ -70,7 +70,7 @@ MIDDLEWARE_PORT=80
 
 # don't change this. It is here for reference of app itself
 MIDDLEWARE_ENDPOINT=/db/create/
-MIDDLEWARE_UPLOAD_ENDPOINT=upload
+MIDDLEWARE_UPLOAD_ENDPOINT=upload/
 
 ###########################################################
 # backend config (nodejs app server) - main application

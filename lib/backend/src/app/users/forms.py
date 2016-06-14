@@ -34,8 +34,8 @@ class RegisterForm(Form):
   recaptcha = RecaptchaField()
 
 class UploadForm(Form):
-    # import pdb; pdb.set_trace()
     check_all = BooleanField()
+    cmd_mode = BooleanField(default=False)
     # upload_name = StringField(description='Name this Upload batch')
     datafile = FileField([Required()])
     graph_types = SelectMultipleField(choices=SINGLE_MODE)
