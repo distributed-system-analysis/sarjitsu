@@ -75,31 +75,36 @@ get_container_IP(){
 
 main(){
   log "building and running sarjitsu now"
-
   if [[ -z $DB_HOST ]]; then
     cd ${ROOT_DIR%/}/lib/metricstore/
+    echo -e 'Progress: ##                   (10%)\r'
     ./launch_postgres $APP_CONF
     if [[ ! $? -eq 0 ]]; then
       log "unable to run container: $METRICSTORE_CONTAINER_ID"
       exit -1
     fi
+    echo -e 'Progress: ####                 (20%)\r'
     DB_HOST=`get_container_IP $METRICSTORE_CONTAINER_ID`
     update_sarjitsu_config DB_HOST $DB_HOST
   fi
 
   if [[ -z $ES_HOST ]]; then
     cd ${ROOT_DIR%/}/lib/datasource/
+    echo -e 'Progress: #####                (25%)\r'
     ./launch_elastic $APP_CONF
     if [[ ! $? -eq 0 ]]; then
       log "unable to run container: $DATASOURCE_CONTAINER_ID"
       exit -1
     fi
+    echo -e 'Progress: ######               (35%)\r'
     ES_HOST=`get_container_IP $DATASOURCE_CONTAINER_ID`
     update_sarjitsu_config ES_HOST $ES_HOST
 
     update_es_config host $ES_HOST
     update_es_config port $ES_PORT
 
+    log "Attempting to create Index template in Elasticsearch"
+    log "This might take 5-10 multiple attempts.."
     while :; do
     	status=`curl -s $ES_PROTOCOL://$ES_HOST:$ES_PORT/_cluster/health | egrep "yellow|green"`
     	if [[ ! -z $status ]]; then
@@ -108,7 +113,7 @@ main(){
         		log "index template creation for sarjitsu failed."
             exit -1
     	    fi
-
+          echo -e 'Progress: ########             (40%)\r'
     	    break
     	else
     	    log "unable to contact Elasticsearch; sleeping for 2 secs"
@@ -120,34 +125,40 @@ main(){
   if [[ -z $GRAFANA_HOST ]]; then
     cd ${ROOT_DIR%/}/lib/frontend/
     ./launch_grafana $APP_CONF
+    echo -e 'Progress: ##########           (50%)\r'
     if [[ ! $? -eq 0 ]]; then
       log "unable to run container: $FRONTEND_CONTAINER_ID"
       exit -1
     fi
+    echo -e 'Progress: ############         (60%)\r'
     GRAFANA_HOST=`get_container_IP $FRONTEND_CONTAINER_ID`
     update_sarjitsu_config GRAFANA_HOST $GRAFANA_HOST
   fi
 
   if [[ -z $MIDDLEWARE_HOST ]]; then
     cd ${ROOT_DIR%/}/lib/middleware/
+    echo -e 'Progress: #############        (65%)\r'
     ./launch_api_server $APP_CONF
     if [[ ! $? -eq 0 ]]; then
       log "unable to run container: $MIDDLEWARE_CONTAINER_ID"
       exit -1
     fi
+    echo -e 'Progress: ##############       (70%)\r'
     MIDDLEWARE_HOST=`get_container_IP $MIDDLEWARE_CONTAINER_ID`
     update_sarjitsu_config MIDDLEWARE_HOST $MIDDLEWARE_HOST
   fi
 
   cd ${ROOT_DIR%/}/lib/backend/
+  echo -e 'Progress: ###############      (75%)\r'
   ./launch_backend $APP_CONF
   if [[ ! $? -eq 0 ]]; then
     log "unable to run container: $BACKEND_CONTAINER_ID"
     exit -1
   fi
-
+  echo -e 'Progress: #################    (85%)\r'
   BACKEND_HOST=`get_container_IP $BACKEND_CONTAINER_ID`
   update_sarjitsu_config BACKEND_HOST $BACKEND_HOST
+  echo -e 'Progress: #################### (100%)\r\n'
   log "Done! Go to http://$BACKEND_HOST:$BACKEND_SERVER_PORT/ to access your application"
 }
 
