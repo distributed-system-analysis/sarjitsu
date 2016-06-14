@@ -39,7 +39,25 @@ Application flow is explained in detail in the section `APP FLOW` below.
 
 # INSTALLATION
 
-- Step 0: Make sure you have [docker](https://www.docker.com/) installed.
+- Step 0: Make sure you have the following installed:
+
+  a. [docker](https://www.docker.com/) installed.
+
+  b. `python3-pip` requirements satisfied, as under requirements.txt:
+
+    ```$ pip3 install -r requirements.txt```
+
+Note on using `pip`:
+
+  - `pip3` may also be `pip / python3-pip` depending
+    on your Linux distribution.
+
+    - If you have RHEL or CentOS, you may have to use it like:
+
+      ```
+      $ scl enable python33 "easy_install-3.3 pip"
+      $ scl enable python33 "pip3.3 install -r requirements.txt"
+      ```
 
 ### For the impatient:
 
@@ -106,30 +124,40 @@ Installing by customizing the modularized components, per say, having their own 
 
 ##### TIPS:
 
-- You could use curl and upload files through commandline as follows:
+- You could also upload files through commandline as follows:
 
-```sh
-curl -F 'file=@/tmp/sa binaries/datafile_f19'  -F 'check_all=check_all' 172.17.0.6/upload
-```
+- To upload files from commandline , supply sa binary files using one
+  of following combinations:
 
-  Be sure to add POST request form option `-F 'check_all=check_all'` in addition to
-  supplying the file path as illustrated above.
+  ```sh
+  Usage: ./vizit [ options ] [ <datafile/dir path> ]
 
-- Be sure to run `# iptables -F` from the host, in case it's not accessible outside. Otherwise check your firewall settings.
+  Default: $ ./vizit <sa01 path> <sa02 path> ..
+
+  Options are:
+  	[-f path to a single SA binary file.]
+  	[-d path to directory with a bunch of SA binary files in it.]
+  	[-r path to pbench results dir. Recursively locates all sar.data]
+  ```
+
+  This is useful when you're working out of a remote server and unable to access
+  sa binaries (since web interface requires selection of files from your local machine).
+
+  Some examples:
+  ```
+  $ ./vizit -f <path to sa binary file>"
+  $ ./vizit -d <path to dir w/ sa binaries>"
+  $ ./vizit -r <pbench latest results dir>
+  ```
+
+  A sample of various outputs from `vizit` tool is present in `docs/vizit_output_sample.txt`
 
 -  To stop all running container instances and cleanup sarjitsu, run `$ ./cleanup_sarjitsu`
 
-- To upload files from commandline without using web interface, supply sa binary
-  files using one of following combinations:
-
-```
-$ ./vizit -f <path to sa binary file>"
-$ ./vizit -d <path to dir w/ sa binaries>"
-$ ./vizit -r <pbench latest results dir>
-```
-
-  You could make this tool handy by copying it to `/usr/local/bin`. Before that,
-  copy `conf/sarjitsu.conf` somewhere suitable and edit it's path in `vizit` script under `APP_CONF`.
+- In case Sarjitsu's backend container is not accessible outside, run `# iptables -F`
+to flush the IP tables in the server where it is running. Otherwise check your firewall
+settings. Or the proxy environment settings, like that of Nginx, if you've
+routed your application in that fashion.
 
 ----
 

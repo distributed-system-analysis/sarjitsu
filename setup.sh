@@ -73,6 +73,17 @@ get_container_IP(){
   echo `docker inspect $1 | egrep '"IPAddress.*' | head -n 1 | awk -F'"' '{print $(NF-1)}'`
 }
 
+check_host_status(){
+  CHECK_HOST=$(ping -c 1 $1 | grep "1 received")
+  if [[ -z $CHECK_HOST ]]; then
+    log "$2 is down."
+    log "Check your *_HOST endpoint in conf/sarjitsu.conf, if running custom installation"
+    log "Else run with '$ ./setup.sh -r 1' to do a fresh installation."
+    log "CAUTION: Above recommendation would result in removal of old conf/sarjitsu.conf"
+    exit 1
+  fi
+}
+
 main(){
   log "building and running sarjitsu now"
   if [[ -z $DB_HOST ]]; then
@@ -86,6 +97,8 @@ main(){
     echo -e 'Progress: ####                 (20%)\r'
     DB_HOST=`get_container_IP $METRICSTORE_CONTAINER_ID`
     update_sarjitsu_config DB_HOST $DB_HOST
+  else
+    check_host_status $DB_HOST "postgreSQL host"
   fi
 
   if [[ -z $ES_HOST ]]; then
@@ -120,6 +133,8 @@ main(){
     	    sleep 2
     	fi
     done
+  else
+    check_host_status $ES_HOST "Elasticsearch host"
   fi
 
   if [[ -z $GRAFANA_HOST ]]; then
@@ -133,6 +148,8 @@ main(){
     echo -e 'Progress: ############         (60%)\r'
     GRAFANA_HOST=`get_container_IP $FRONTEND_CONTAINER_ID`
     update_sarjitsu_config GRAFANA_HOST $GRAFANA_HOST
+  else
+    check_host_status $GRAFANA_HOST "Grafana host"
   fi
 
   if [[ -z $MIDDLEWARE_HOST ]]; then
@@ -146,6 +163,8 @@ main(){
     echo -e 'Progress: ##############       (70%)\r'
     MIDDLEWARE_HOST=`get_container_IP $MIDDLEWARE_CONTAINER_ID`
     update_sarjitsu_config MIDDLEWARE_HOST $MIDDLEWARE_HOST
+  else
+    check_host_status $MIDDLEWARE_HOST "Middleware host"
   fi
 
   cd ${ROOT_DIR%/}/lib/backend/
@@ -160,10 +179,11 @@ main(){
   update_sarjitsu_config BACKEND_HOST $BACKEND_HOST
   echo -e 'Progress: #################### (100%)\r\n'
   log "Done! Go to http://$BACKEND_HOST:$BACKEND_SERVER_PORT/ to access your application"
+  log "Note: The same address is mapped to http://127.0.0.1:$BACKEND_PORT_MAPPING"
+  log "Recommendation: Map this to an reverse proxy provider, such as Nginx"
 }
 
-status=`docker --version`
-if [ $? -eq 0 ]; then
+bootstrap(){
   if [ $FRESH -eq 1 ]; then
     log "(FRESH INSTALL) overriding default IP addresses under sarjitsu.conf"
     cleanup_host_info
@@ -175,7 +195,30 @@ if [ $? -eq 0 ]; then
   source $APP_CONF
   cleanup_containers
   main
-else
+}
+
+status=`docker --version 2> /dev/null`
+if [ ! $? -eq 0 ]; then
   log "You don't have docker installed."
   log "Run this again after installing docker"
+  log "Refer to INSTALLATION section of README for more"
+  exit -1
 fi
+
+status=`python3 -c 'import elasticsearch' 2> /dev/null`
+if [ ! $? -eq 0 ]; then
+  log "You don't have python3-elasticsearch installed."
+  log "Install it through 'pip3 install -r requirements.txt'"
+  log "Refer to INSTALLATION section of README for more"
+  exit -1
+fi
+
+status=`python3 -c 'import prettytable' 2> /dev/null`
+if [ ! $? -eq 0 ]; then
+  log "You don't have python3-PTable installed, needed by cmdline tool 'vizit'."
+  log "Install it through 'pip3 install -r requirements.txt'"
+  log "Refer to INSTALLATION section of README for more"
+  exit -1
+fi
+
+bootstrap

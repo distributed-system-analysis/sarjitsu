@@ -60,11 +60,16 @@ def extract(sessionID, target, sa_filename):
         CMD_INDEXING = ['scripts/vos/analysis/bin/index-sar',
                         SAR_XML_FILEPATH, NODENAME]
         app.logger.info('ES indexing cmd: ' + " ".join(CMD_INDEXING))
-        p3 = subprocess.Popen(CMD_INDEXING, stdout=subprocess.PIPE)
+        p3 = subprocess.Popen(CMD_INDEXING, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p3.wait()
-        RESULT_RAW = p3.communicate()[0].decode().splitlines()
+        RESULT_RAW = p3.communicate()
+        RAW_STDOUT = RESULT_RAW[0].decode().splitlines()
+        RAW_STDERR = RESULT_RAW[1].decode()
 
-        TMP = [line for line in RESULT_RAW if line.startswith('grafana_range')]
+        if "ConnectionError" in RAW_STDERR:
+            return (NODENAME, False, sadf_type_det)
+
+        TMP = [line for line in RAW_STDOUT if line.startswith('grafana_range')]
         if TMP:
             for line in TMP:
                 k,v = line.split(' ')

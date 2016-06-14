@@ -76,7 +76,6 @@ def uploader():
                 "valid_results": _valid_results_found,
                 "data": response["nodenames_info"],
                 "redirect_url": config.get('Grafana','dashboard_url'),
-                "progress" : 100
             }
             return jsonify(res)
         else:

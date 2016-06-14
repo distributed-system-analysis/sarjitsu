@@ -21,11 +21,11 @@ fi
 source $APP_CONF
 
 usage(){
-  echo "Usage: vizit [ options ] [ <datafile/dir path> ]"
-  echo -e "\nDefault: $ vizit <sa01 path> <sa02 path> ..\n"
+  echo "Usage: ./vizit [ options ] [ <datafile/dir path> ]"
+  echo -e "\nDefault: $ ./vizit <sa01 path> <sa02 path> ..\n"
   echo "Options are:"
   echo -e "\t[-f path to a single SA binary file.]"
-  echo -e "\t[-d path to directory with a bunch of sar files in it.]"
+  echo -e "\t[-d path to directory with a bunch of SA binary files in it.]"
   echo -e "\t[-r path to pbench results dir. Recursively locates all sar.data]"
 }
 
@@ -50,39 +50,27 @@ while getopts "h?d:f:r:" opt; do
 done
 
 upload_em_all(){
-  SUCCESS=0
+  CMD=''
   APP_URL=$BACKEND_HOST:$BACKEND_SERVER_PORT/$MIDDLEWARE_UPLOAD_ENDPOINT
-  echo "$*" | while read -r line; do
-    log "attempting to upload $line"
-    curl -s -F 'datafile=@'"$line" -F 'check_all=check_all' -F 'cmd_mode=True' $APP_URL > /tmp/sarjitsu_results.json
-    ./utils/vizit_results_parser.py /tmp/sarjitsu_results.json
-    # OUPUT=$(cat /tmp/sarjitsu_results.json)
-    # echo $OUTPUT
-    # NODENAME=$(echo -e "$OUPUT" | grep -i Success | awk -F'<b>' '{print $NF}')
-    # if [[ $NODENAME ]]; then
-    #   SUCCESS=1
-    #   log "\e[1;42m Success! Nodename: $NODENAME \e[0m"
-    # else
-    #   log "\e[1;31m FAILED to upload $(basename "$line") \e[0m"
-    #   log $OUPUT
-    # fi
-    echo
-  done
-
-  if [[ $SUCCESS -eq 1 ]]; then
-    echo -e "\e[1;36m Successful results uploaded to http://$GRAFANA_HOST:$GRAFANA_PORT/ [Grafana]. Login w/ [admin/admin] \e[0m"
-  fi
-
+  while IFS=  read -r line; do
+    CMD+=" -F datafile=@$line"
+  done < <(echo "$*")
+  log "attempting to upload file(s) to $APP_URL now.."
+  OUTPUT=$(curl -s $CMD -F 'check_all=check_all' -F 'cmd_mode=True' $APP_URL)
+  echo $OUTPUT | ./utils/vizit_results_parser.py
 }
 
-if [[ -z $FILE_PATH && -z $UPLOAD_DIR && -z $PBENCH_MODE ]]; then
+if [[ -z $FILE_PATH && -z $UPLOAD_DIR && -z $PBENCH_RESULTS_DIR ]]; then
   upload_em_all $*
 else
   if [[ $UPLOAD_DIR ]]; then
+    log "Directory mode selected.."
     upload_em_all "$(find "$UPLOAD_DIR" -maxdepth 1 -not -type d)"
   elif [[ $PBENCH_RESULTS_DIR ]]; then
+    log "Pbench mode selected.."
     upload_em_all "$(find "$PBENCH_RESULTS_DIR" -name sar.data)"
   elif [[ $FILE_PATH ]]; then
+    log "Single file mode selected.."
     upload_em_all "$FILE_PATH"
   fi
 fi

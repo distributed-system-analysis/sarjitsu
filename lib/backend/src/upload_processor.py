@@ -89,12 +89,12 @@ def begin(target, sessionID, form):
             #FIXME: on failure, delete all uploaded files
             result.insert(0, False)
             # add message in meta
-            result[-1] = "Elasticsearch Indexing Failed.."
+            result[-1] = "ES Indexing Failed"
         elif meta == "Invalid":
             #FIXME: on failure, delete all uploaded files
             result.insert(0, False)
             # add message in meta
-            result[-1] = "Invalid input file.."
+            result[-1] = "Invalid Input"
         else:
             _valid_results_found = True
             result.insert(0, True)

@@ -2,28 +2,36 @@
 
 import sys
 import json
+from datetime import datetime
 from prettytable import PrettyTable
 
+fmt="%X, %d %b %Y"
+PT = PrettyTable()
+PT.field_names = ["Status", "Filename", "Platform",
+"Nodename", "Begin", "End"]
+
+def tstos(date):
+    date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+    return date.strftime(fmt)
+
 def display_results(data):
-    x = PrettyTable()
-    x.field_names = ["Status", "Filename", "Platform",
-                     "Nodename", "Begin", "End"]
     for item in data:
         tmp = item[:-1]
         try:
-            tmp.append(item[-1]['grafana_range_begin'])
-            tmp.append(item[-1]['grafana_range_end'])
+            tmp.append(tstos(item[-1]['grafana_range_begin']))
+            tmp.append(tstos(item[-1]['grafana_range_end']))
         except:
-            tmp.extend(["Invalid Input", "Invalid Input"])
-        x.add_row(tmp)
+            tmp.extend([item[-1]]*2)
+        PT.add_row(tmp)
 
-    print(x)
-    
+
 if __name__ == '__main__':
-    INPUT_FILE = sys.argv[1]
-    result = json.load(open(INPUT_FILE, 'r'))
+    result = json.loads(input())
     display_results(result['data'])
-    print("\nGrafana Dashboard at: %s" %
-          result['redirect_url'])
-    print("\nValid results found: %s" %
-          result['valid_results']) 
+    print(PT)
+    if result['valid_results']:
+        print("\nGrafana Dashboard at: %s" %
+              result['redirect_url'])
+        print("Login with your Grafana credentials. [Default: (admin/admin)]\n")
+    else:
+        print("\nValid results NOT found; No Dashboards generated.")
