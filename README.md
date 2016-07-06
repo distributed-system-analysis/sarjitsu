@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/distributed-system-analysis/sarjitsu.png?label=ready&title=Ready)](https://waffle.io/distributed-system-analysis/sarjitsu)
 Table of Contents
 =================
 
