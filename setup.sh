@@ -46,12 +46,45 @@ if [[ -z $FRESH ]]; then
 fi
 
 cleanup_containers(){
-  CLEAN_IDS=$(docker ps -a | grep -P '^.*(\ssarjitsu.*|'$METRICSTORE_CONTAINER_ID')$' | awk -F' ' '{print $1}')
-  if [[ ! -z $CLEAN_IDS ]]; then
-    log "cleaning up previously created sarjitsu instances"
-    docker stop $CLEAN_IDS
-    docker rm $CLEAN_IDS
-  fi
+    CLEAN_IDS=($MIDDLEWARE_CONTAINER_ID $BACKEND_CONTAINER_ID)
+    CONFIGURABLES=($METRICSTORE_CONTAINER_ID $DATASOURCE_CONTAINER_ID $FRONTEND_CONTAINER_ID)
+    
+    declare -A components
+    components+=( [$METRICSTORE_CONTAINER_ID]="DB_HOST" \
+					     [$DATASOURCE_CONTAINER_ID]="ES_HOST" \
+					     [$FRONTEND_CONTAINER_ID]="GRAFANA_HOST" \
+					     [$MIDDLEWARE_CONTAINER_ID]="MIDDLEWARE_HOST" \
+					     [$BACKEND_CONTAINER_ID]="BACKEND_HOST" )    
+
+    sed -i -r 's#^MIDDLEWARE_HOST=.*#MIDDLEWARE_HOST=#g' $APP_CONF
+    export MIDDLEWARE_HOST=''
+    
+    if [ $1 -eq 0 ]; then
+	for host_type in "${CONFIGURABLES[@]}"; do
+	    host_value=$(eval "echo \$${components[${host_type}]}")
+	    if [[ -z $host_value ]]; then
+		CLEAN_IDS+=($host_type)
+	    fi
+	done
+    else
+	for host_type in "${CONFIGURABLES[@]}"; do
+	    CLEAN_IDS+=($host_type)
+	done
+    fi	
+
+    GREP_PATTERNS=''
+    for host_type in "${CLEAN_IDS[@]}"; do
+	GREP_PATTERNS+=" -e $host_type"
+    done
+    
+    SCHEDULED_CLEANUPS=$(docker ps -a | grep $GREP_PATTERNS | awk -F' ' '{print $1}')
+    
+    #CLEAN_IDS=$(docker ps -a | grep -P '^.*(\ssarjitsu.*|'$METRICSTORE_CONTAINER_ID')$' | awk -F' ' '{print $1}')
+    if [[ ! -z $SCHEDULED_CLEANUPS ]]; then
+	log "cleaning up previously created sarjitsu instances for: [${CLEAN_IDS[@]}]"
+	#docker stop $SCHEDULED_CLEANUPS
+	docker rm -f $SCHEDULED_CLEANUPS
+    fi
 }
 
 cleanup_host_info(){
@@ -185,15 +218,20 @@ main(){
 
 bootstrap(){
   if [ $FRESH -eq 1 ]; then
-    log "(FRESH INSTALL) overriding default IP addresses under sarjitsu.conf"
+      log "(FRESH INSTALL) overriding default IP addresses under sarjitsu.conf"
+      log "NOTE: This would remove all sarjitsu containerized components."
     cleanup_host_info
     cp $ES_CONF.example $ES_CONF
     cp $APP_CONF.example $APP_CONF
+    cleanup_opt=1
   else
-    log "(CUSTOM INSTALL) using earlier set of IP addresses under sarjitsu.conf"
+    log "(CUSTOM INSTALL) CONFIGURABLES: any/all of (Elastic, Grafana and Postgres)"
+    log "(CUSTOM INSTALL) reusing IPs allotted to \$CONFIGURABLES under sarjitsu.conf"
+    log "NOTE: This would pole for containers already up & running, and relaunch missing pieces."
+    cleanup_opt=0
   fi
   source $APP_CONF
-  cleanup_containers
+  cleanup_containers $cleanup_opt
   main
 }
 

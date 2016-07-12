@@ -8,8 +8,8 @@ cleanup_containers(){
   CLEAN_IDS=$(docker ps -a | grep -P '^.*(\ssarjitsu.*|'$METRICSTORE_CONTAINER_ID')$' | awk -F' ' '{print $1}')
   if [[ ! -z $CLEAN_IDS ]]; then
     echo "cleaning up previously created sarjitsu instances"
-    docker stop $CLEAN_IDS
-    docker rm $CLEAN_IDS
+    #docker stop $CLEAN_IDS
+    docker rm -f $CLEAN_IDS
   fi
 }
 
