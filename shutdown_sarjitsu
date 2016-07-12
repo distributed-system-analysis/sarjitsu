@@ -1,0 +1,23 @@
+#!/bin/bash
+
+APP_CONF=conf/sarjitsu.conf
+
+source $APP_CONF
+
+log(){
+  echo -e "[$(date +'%D %H:%M:%S %Z')] - $*"
+}
+
+log "Attempting to stop backend"
+docker stop $BACKEND_CONTAINER_ID
+log "Attempting to stop middleware"
+docker stop $MIDDLEWARE_CONTAINER_ID
+
+CLEAN_IDS=$(docker ps | grep -e $FRONTEND_CONTAINER_ID \
+			     -e $METRICSTORE_CONTAINER_ID \
+			     -e $DATASOURCE_CONTAINER_ID \
+		| awk -F' ' '{print $1}')
+
+log "Attempting to stop: [$FRONTEND_CONTAINER_ID $METRICSTORE_CONTAINER_ID $DATASOURCE_CONTAINER_ID]"
+
+docker stop $CLEAN_IDS
