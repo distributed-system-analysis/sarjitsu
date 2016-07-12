@@ -1,6 +1,13 @@
 #!/bin/bash
 
+# Path to sarjitsu.conf
 APP_CONF=conf/sarjitsu.conf
+
+# From 'curl' man pages:
+#  "Maximum time in seconds that you allow curl's connection to take.  
+#   This only limits the connection phase, so if curl connects within
+#   the given period it will continue - if not it will exit."
+TIMEOUT=10
 
 log(){
   echo -e "[$(date +'%D %H:%M:%S %Z')] - $*"
@@ -56,7 +63,24 @@ upload_em_all(){
     CMD+=" -F datafile=@$line"
   done < <(echo "$*")
   log "attempting to upload file(s) to $APP_URL now.."
-  OUTPUT=$(curl -s $CMD -F 'check_all=check_all' -F 'cmd_mode=True' $APP_URL)
+  log "Current connection TIMEOUT value: $TIMEOUT seconds.."
+  
+  OUTPUT=$(curl --connect-timeout $TIMEOUT -s $CMD -F 'check_all=check_all' -F 'cmd_mode=True' $APP_URL)
+
+  if [[ -z $OUTPUT ]]; then      
+      CHECK_HOST=$(ping -c 1 $BACKEND_HOST | grep "1 received")
+      if [[ -z $CHECK_HOST ]]; then
+	  log "$APP_URL is down."
+	  log "Check status of your BACKEND_HOST endpoint in conf/sarjitsu.conf"
+	  exit 1
+      else
+	  log "$APP_URL is up and running, but for some reason, connection timed out. Try again?"
+	  exit -1
+      fi
+  else
+      log "Files uploaded successfully.."
+  fi
+  
   echo $OUTPUT | ./utils/vizit_results_parser.py
 }
 
