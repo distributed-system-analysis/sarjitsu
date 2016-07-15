@@ -1,0 +1,19 @@
+# Sarjitsu Release Notes
+
+For details, kindly refer to blog post at:
+
+- http://arcolife.github.io/blog/2016/06/06/sarjitsu-a-project-on-visualizing-your-systems-activity/
+
+## Release Highlights
+
+- issues/todo list: remove docs/TODO.md (shifted to github issues)
+- lib/backend: nodejs powered to python-flask powered. Also, threading for multi file uploads.
+- commandline uploads: refactor vizit script to display single table
+- setup.sh: various checks during installation
+- 12 factor addons: graceful shutdown and restart scripts. better cleanup scripts for complete setup removal
+
+## Breaking Changes
+
+- add index_sar as a separate lib
+- config paths / contents changed
+- vizit cmdline tool refactored
