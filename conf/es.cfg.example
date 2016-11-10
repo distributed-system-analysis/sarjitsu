@@ -11,4 +11,4 @@ sar_template_version=02
 
 # comment these out in case you need defaults
 number_of_shards = 1
-number_of_replicas = 1
+number_of_replicas = 0
