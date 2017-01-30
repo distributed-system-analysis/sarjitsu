@@ -11,7 +11,7 @@ from __future__ import print_function
 
 import os, sys
 
-cfg_name = sys.argv[1]
+cfg_name = "/etc/sar-index.cfg"
 
 import configparser
 
@@ -32,6 +32,7 @@ else:
 hosts = [dict(host=host, port=port),]
 INDEX_PREFIX = config.get('Settings', 'index_prefix')
 SAR_VERSION = config.get('Settings', 'sar_template_version')
+# SAR_VERSION = '02'
 
 # Since we are not using SSDs, set merge max thread count to 1 to avoid a drop
 # in performance using the default. See:
@@ -80,7 +81,7 @@ def fetch_mapping(mapping_fn):
 
 import glob, json
 
-LIBDIR = sys.argv[2]
+LIBDIR = '/opt/api_server/lib/mappings/'
 
 key, mapping = fetch_mapping(os.path.join(LIBDIR, "sar.json"))
 

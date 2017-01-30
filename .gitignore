@@ -13,8 +13,10 @@ logs/
 *~
 *.pyc
 *.cfg
+!vizit.cfg
 *.ini
 *.conf
 *.log.[0-9]
 *.log
+venv
 

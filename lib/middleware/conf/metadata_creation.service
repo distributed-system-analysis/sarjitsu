@@ -1,5 +1,5 @@
 [Unit]
-Description=Create indexing templates and grafana data source
+Description=Create Grafana data source for sarjitsu
 
 [Service]
 User=root

@@ -3,9 +3,6 @@ Table of Contents
 
 - [Sarjitsu](#sarjitsu)
 - [Installation](#installation)
-  - [Quick Install](#for-the-impatient)
-  - [Customized Installation](#for-the-ones-whove-found-inner-peace)
-  - [Additional Notes](#additional-note)
 - [App Flow](#app-flow)
   - [Architecture](#architecture)
   - [Control Flow](#control-flow)
@@ -39,97 +36,31 @@ Application flow is explained in detail in the section `APP FLOW` below.
 
 # INSTALLATION
 
-- Step 0: Make sure you have the following installed:
+Prerequisites: [docker-compose](https://docs.docker.com/compose/)
 
-  a. [docker](https://www.docker.com/) installed.
-
-  b. `python3-pip` requirements satisfied, as under requirements.txt:
-
-    ```$ pip3 install -r requirements.txt```
-
-Note on using `pip`:
-
-  - `pip3` may also be `pip / python3-pip` depending
-    on your Linux distribution.
-
-    - If you have RHEL or CentOS, you may have to use it like:
-
-      ```
-      $ scl enable python33 "easy_install-3.3 pip"
-      $ scl enable python33 "pip3.3 install -r requirements.txt"
-      ```
-
-### For the impatient:
-
-- single step setup script  `$ ./setup.sh`
-
-  WARNING: This script would remove all previously running instances of sarjitsu.
-
-  - Options:
-
-    - `-r 0` (Custom install; default): takes config from `conf/sarjitsu.conf`
-      (or creates it from `conf/sarjitsu.conf.example` if not present)
-
-    - `-r 1` (Fresh install): All containers are deployed as a fresh instance
-
-### For the ones who've found inner peace:
-
-Installing by customizing the modularized components, per say, having their own IPs.
-
-- Step 1: open `conf/sarjitsu.conf` and edit the params as required. If for example,
-          you don't want to spawn containers for postgres, grafana or elasticsearch,
-          you should leave out their `*_HOST` parameters empty.
-
-  ```sh
-  # metricstore config (postgres) - for grafana's metadata
-  DB_HOST=
-  # append DB_PORT in grafana.ini db config
-  DB_NAME=grafana
-  DB_USER=grafana
-  DB_PASSWORD=sarjitsu123
-  DB_PORT=5432 # default for postgres
-
-  # datasource config (elasticsearch) - source of timeseries data
-  ES_HOST=172.17.0.3
-  ES_PORT=9200
-
-  # frontend config (grafana) - visualization framework
-  GRAFANA_HOST=
-  GRAFANA_DB_TYPE=postgres
-
-  # make sure this is above 1024; 3000 is standard
-  GRAFANA_PORT=3000
-  ```
-
-  This is minimal config needed to take a look over. Leave the rest of the parameters
-  unchanged, if you're unsure.
-
-- Step 2: After you're sure your configurations are alright, simply run setup.sh
-
-  ```sh
-  $ ./setup.sh
-  ```
-
-  - Options:
-
-    - `-r 0` (Custom install; default): takes config from `conf/sarjitsu.conf`
-      (or creates it from `conf/sarjitsu.conf.example` if not present)
-
-    - `-r 1` (Fresh install): All containers are deployed as a fresh instance
-
-
-  WARNING: This script would remove all previously running instances of sarjitsu.
-
-### Additional Note
+Copy `env.example` to `.env`. Then, run `$ docker-compose up --build -d`.
 
 ##### TIPS:
 
-- You could also upload files through commandline as follows:
+- docker-compose self-help (from project root folder):
 
-- To upload files from commandline , supply sa binary files using one
-  of following combinations:
+```
+start: `docker-compose up -d`
+cleanup: `docker-compose rm` or `docker-compose rm --all`
+shutdown: `docker-compose down`
+restart: `docker-compose restart`
+kill: `docker-compose kill`
+```
+
+- You could also upload files through the commandline tool `vizit`, from under `utils/` folder.
+
+  For using vizit, you need to fulfill requirements as follows:
 
   ```sh
+  $ virtualenv venv -p python3
+  $ source venv/bin/activate
+  $ pip3 install -r requirements.txt
+
   Usage: ./vizit [ options ] [ <datafile/dir path> ]
 
   Default: $ ./vizit <sa01 path> <sa02 path> ..
@@ -141,7 +72,7 @@ Installing by customizing the modularized components, per say, having their own 
   ```
 
   This is useful when you're working out of a remote server and unable to access
-  sa binaries (since web interface requires selection of files from your local machine).
+  sa binaries (since sarjitsu's web interface requires selection of files from your local machine).
 
   Some examples:
   ```
@@ -152,8 +83,6 @@ Installing by customizing the modularized components, per say, having their own 
 
   A sample of various outputs from `vizit` tool is present in `docs/vizit_output_sample.txt`
 
--  To stop all running container instances and cleanup sarjitsu, run `$ ./cleanup_sarjitsu`
-
 - In case Sarjitsu's backend container is not accessible outside, run `# iptables -F`
 to flush the IP tables in the server where it is running. Otherwise check your firewall
 settings. Or the proxy environment settings, like that of Nginx, if you've
@@ -163,35 +92,29 @@ routed your application in that fashion.
 
 ##### NOTES
 
-1. Below mentioned ports will be used for port mapping from container to host, and could be configured in `conf/sarjitsu.conf`. Default bindings are:
+- Building docker images on first run would take some time, as the images are pulled from dockerhub, customized & built; then packages are installed and so on..
 
-```sh
-METRICSTORE_PORT_MAPPING=9600
-DATASOURCE_PORT_MAPPING=9601
-FRONTEND_PORT_MAPPING=9602
-MIDDLEWARE_PORT_MAPPING=9603
-BACKEND_PORT_MAPPING=9604
-```
+- If you have custom HOST(s) configured, they should match the following versions (for sarjitsu compatibility reasons):
 
-..This is when all components are containerized.
+  - Elasticsearch < 2.0 and > 1.5 (containerized version: 1.7.3)
+  - Grafana > 2.5 and <= 3.0 (containerized version: 3.0.1-1)
+  - Postgres == 9.5 (containerized version: 9.5 (dockerhub latest) ..utilizes UPSERT feature introduced in this version)
 
-2. Building this first time would take some time, as docker images are pulled from dockerhub,
-   customized & built; packages are installed and so on..
-
-	a.  At the end though, it should output a message like:
+- Without docker-compose, a container can be started using the following approach:
 
 ```
-Done! Go to http://172.17.0.6:80/ to access your application
+docker rm -f elastic_jitsu
+docker build -t saitsu_elasticsearch --build-arg ES_PORT=9200 .
+docker run --name elastic_jitsu -p 9601:9200 -d sarjitsu_elasticsearch
+
+## OR single line:
+docker rm -f elastic_jitsu; docker build -t saitsu_elasticsearch --build-arg ES_PORT=9200 . && docker run --name elastic_jitsu -p 9601:9200 -d sarjitsu_elasticsearch
+
+## supply additional args if needed:  -v /sys/fs/cgroup:/sys/fs/cgroup:ro --privileged
+## although there's a new method out there for running containers without systemd. Checkout the links:
+1. https://developers.redhat.com/blog/2016/09/13/running-systemd-in-a-non-privileged-container/
+2. https://github.com/RHsyseng/container-rhel-examples/tree/master/starter-systemd
 ```
-
-	b. If it fails in between, you might wanna take a look at your configurations / environment.
-	   If you think it's a bug, you're welcome to open an issue here on github.
-
-3. Also be sure that if you have custom HOST(s) configured, they should match the following versions (for sarjitsu compatibility reasons):
-
-- Elasticsearch < 2.0 and > 1.5 (containerized version: 1.7.3)
-- Grafana > 2.5 and <= 3.0 (containerized version: 3.0.1-1)
-- Postgres == 9.5 (containerized version: 9.5 (dockerhub latest) ..utilizes UPSERT feature introduced in this version)
 
 # APP FLOW
 

@@ -11,15 +11,26 @@ MAINTAINER arcolife <archit.py@gmail.com>
 
 RUN dnf -y install java-1.8.0-openjdk initscripts
 
+# # ensure elasticsearch user exists
+# RUN addgroup -S elasticsearch && adduser -S -G elasticsearch elasticsearch
+
 RUN rpm -Uvh https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.3.noarch.rpm
-#	RUN /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
+RUN /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
 
-RUN sed -i "s/# network.host:.*/network.host: 0.0.0.0/g" \
-    	   /etc/elasticsearch/elasticsearch.yml  && \
-	   sed -i "s/#cluster.name: elasticsearch/cluster.name: elasticsearch20189/g" \
-	   /etc/elasticsearch/elasticsearch.yml
+ENV PATH /usr/share/elasticsearch/bin:$PATH
 
-RUN systemctl enable elasticsearch
-EXPOSE 9200
+# VOLUME /usr/share/elasticsearch/data
 
-CMD ["/usr/sbin/init"]
+# ENV es_port=${es_port}
+ARG ES_PORT
+EXPOSE ${ES_PORT}
+
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# following illustrates different appraoches to running elasticsearch
+# for now, we're gonna use non privileged mode
+CMD ["elasticsearch"]
+
+# RUN systemctl enable elasticsearch
+# CMD ["/usr/sbin/init"]

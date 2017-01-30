@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path to sarjitsu.conf
-APP_CONF=conf/sarjitsu.conf
+APP_CONF=conf/vizit.cfg
 
 # From 'curl' man pages:
 #  "Maximum time in seconds that you allow curl's connection to take.  
@@ -81,7 +81,7 @@ upload_em_all(){
       log "Files uploaded successfully.."
   fi
   
-  echo $OUTPUT | ./utils/vizit_results_parser.py
+  echo $OUTPUT | ./vizit_results_parser.py
 }
 
 if [[ -z $FILE_PATH && -z $UPLOAD_DIR && -z $PBENCH_RESULTS_DIR ]]; then

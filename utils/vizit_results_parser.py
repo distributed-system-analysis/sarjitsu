@@ -30,8 +30,8 @@ if __name__ == '__main__':
     display_results(result['data'])
     print(PT)
     if result['valid_results']:
-        print("\nGrafana Dashboard at: %s" %
-              result['redirect_url'])
-        print("Login with your Grafana credentials. [Default: (admin/admin)]\n")
+        # print("\nGrafana Dashboard at: %s" %
+        #       result['redirect_url'])
+        print("Login with your Grafana credentials [Default: (admin/admin)] to check the results.\n")
     else:
         print("\nValid results NOT found; No Dashboards generated.")
