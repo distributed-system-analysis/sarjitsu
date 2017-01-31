@@ -1,0 +1,103 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: frontend
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service: frontend
+    spec:
+      containers:
+      - env:
+        - name: DB_HOST
+          value: metricstore
+        - name: DB_NAME
+          value: grafana
+        - name: DB_USER
+          value: grafana
+        - name: DB_PASSWORD
+          value: sarjitsu123
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_DATA_DIR
+          value: /var/lib/postgresql/data
+        - name: ES_HOST
+          value: datasource
+        - name: ES_PORT
+          value: "9200"
+        - name: ES_PROTOCOL
+          value: http
+        - name: INDEX_PREFIX
+          value: sarjitsu
+        - name: BULK_ACTION_COUNT
+          value: "2000"
+        - name: INDEX_VERSION
+          value: "1"
+        - name: GRAFANA_HOST
+          value: frontend
+        - name: GRAFANA_DB_TYPE
+          value: postgres
+        - name: GRAFANA_PORT
+          value: "3000"
+        - name: GRAFANA_TIMEFIELD
+          value: _timestamp
+        - name: GRAFANA_DS_NAME
+          value: elastic
+        - name: GRAFANA_DS_PATTERN
+          value: '[sarjitsu.sar-]YYYYMMDD'
+        - name: MIDDLEWARE_HOST
+          value: middleware
+        - name: MIDDLEWARE_PORT
+          value: "80"
+        - name: MIDDLEWARE_ENDPOINT
+          value: /db/create/
+        - name: MIDDLEWARE_UPLOAD_ENDPOINT
+          value: upload/
+        - name: BACKEND_HOST
+          value: web
+        - name: BACKEND_SERVER_PORT
+          value: "80"
+        - name: METRICSTORE_CONTAINER_ID
+          value: postrgres_jitsu
+        - name: DATASOURCE_CONTAINER_ID
+          value: elastic_jitsu
+        - name: FRONTEND_CONTAINER_ID
+          value: grafana_jitsu
+        - name: MIDDLEWARE_CONTAINER_ID
+          value: api_jitsu
+        - name: BACKEND_CONTAINER_ID
+          value: server_jitsu
+        - name: METRICSTORE_PORT_MAPPING
+          value: "9700"
+        - name: DATASOURCE_PORT_MAPPING
+          value: "9701"
+        - name: FRONTEND_PORT_MAPPING
+          value: "9702"
+        - name: MIDDLEWARE_PORT_MAPPING
+          value: "9703"
+        - name: BACKEND_PORT_MAPPING
+          value: "9704"
+        image: sarjitsu:grafana
+        name: frontend
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        resources: {}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /sys/fs/cgroup
+          name: frontend-claim0
+          readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: frontend-claim0
+        persistentVolumeClaim:
+          claimName: frontend-claim0
+          readOnly: true
+status: {}

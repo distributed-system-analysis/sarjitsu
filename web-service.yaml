@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    service: web
+  name: web
+spec:
+  ports:
+  - name: "9704"
+    port: 9704
+    protocol: TCP
+    targetPort: 80
+  selector:
+    service: web
+status:
+  loadBalancer: {}
