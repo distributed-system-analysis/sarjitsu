@@ -3,15 +3,14 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    service: frontend
+    io.kompose.service: frontend
   name: frontend
 spec:
   ports:
   - name: "9702"
     port: 9702
-    protocol: TCP
     targetPort: 3000
   selector:
-    service: frontend
+    io.kompose.service: frontend
 status:
   loadBalancer: {}

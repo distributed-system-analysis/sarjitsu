@@ -3,7 +3,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    service: metricstore
+    io.kompose.service: metricstore
   name: metricstore
 spec:
   clusterIP: None
@@ -12,6 +12,6 @@ spec:
     port: 55555
     targetPort: 0
   selector:
-    service: metricstore
+    io.kompose.service: metricstore
 status:
   loadBalancer: {}

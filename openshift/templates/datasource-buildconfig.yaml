@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  creationTimestamp: null
+  name: datasource
+spec:
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: datasource:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: lib/datasource/
+    git:
+      ref: komposed
+      uri: https://github.com/arcolife/sarjitsu.git
+    type: Git
+  strategy:
+    dockerStrategy:
+      env:
+      - name: ES_PORT
+        value: "9200"
+    type: Docker
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+status:
+  lastVersion: 0

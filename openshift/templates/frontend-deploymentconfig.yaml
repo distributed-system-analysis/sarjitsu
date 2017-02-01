@@ -1,21 +1,44 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: v1
+kind: DeploymentConfig
 metadata:
   creationTimestamp: null
-  name: datasource
+  labels:
+    io.kompose.service: frontend
+  name: frontend
 spec:
   replicas: 1
-  strategy: {}
+  selector:
+    io.kompose.service: frontend
+  strategy:
+    resources: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        service: datasource
+        io.kompose.service: frontend
     spec:
       containers:
       - env:
-        - name: DB_HOST
-          value: metricstore
+        - name: METRICSTORE_PORT_MAPPING
+          value: "9700"
+        - name: DATASOURCE_PORT_MAPPING
+          value: "9701"
+        - name: FRONTEND_PORT_MAPPING
+          value: "9702"
+        - name: MIDDLEWARE_PORT_MAPPING
+          value: "9703"
+        - name: BACKEND_PORT_MAPPING
+          value: "9704"
+        - name: METRICSTORE_CONTAINER_ID
+          value: postrgres_jitsu
+        - name: DATASOURCE_CONTAINER_ID
+          value: elastic_jitsu
+        - name: FRONTEND_CONTAINER_ID
+          value: grafana_jitsu
+        - name: MIDDLEWARE_CONTAINER_ID
+          value: api_jitsu
+        - name: BACKEND_CONTAINER_ID
+          value: server_jitsu
         - name: DB_NAME
           value: grafana
         - name: DB_USER
@@ -24,22 +47,16 @@ spec:
           value: sarjitsu123
         - name: DB_PORT
           value: "5432"
-        - name: DB_DATA_DIR
-          value: /var/lib/postgresql/data
-        - name: ES_HOST
-          value: datasource
-        - name: ES_PORT
-          value: "9200"
         - name: ES_PROTOCOL
           value: http
+        - name: ES_PORT
+          value: "9200"
         - name: INDEX_PREFIX
           value: sarjitsu
         - name: BULK_ACTION_COUNT
           value: "2000"
         - name: INDEX_VERSION
           value: "1"
-        - name: GRAFANA_HOST
-          value: frontend
         - name: GRAFANA_DB_TYPE
           value: postgres
         - name: GRAFANA_PORT
@@ -62,31 +79,21 @@ spec:
           value: web
         - name: BACKEND_SERVER_PORT
           value: "80"
-        - name: METRICSTORE_CONTAINER_ID
-          value: postrgres_jitsu
-        - name: DATASOURCE_CONTAINER_ID
-          value: elastic_jitsu
-        - name: FRONTEND_CONTAINER_ID
-          value: grafana_jitsu
-        - name: MIDDLEWARE_CONTAINER_ID
-          value: api_jitsu
-        - name: BACKEND_CONTAINER_ID
-          value: server_jitsu
-        - name: METRICSTORE_PORT_MAPPING
-          value: "9700"
-        - name: DATASOURCE_PORT_MAPPING
-          value: "9701"
-        - name: FRONTEND_PORT_MAPPING
-          value: "9702"
-        - name: MIDDLEWARE_PORT_MAPPING
-          value: "9703"
-        - name: BACKEND_PORT_MAPPING
-          value: "9704"
-        image: sarjitsu:elasticsearch
-        name: datasource
+        image: ' '
+        name: frontend
         ports:
-        - containerPort: 9200
-          protocol: TCP
+        - containerPort: 3000
         resources: {}
       restartPolicy: Always
+  test: false
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - frontend
+      from:
+        kind: ImageStreamTag
+        name: frontend:grafana
+    type: ImageChange
 status: {}

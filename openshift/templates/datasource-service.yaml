@@ -3,15 +3,14 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    service: datasource
+    io.kompose.service: datasource
   name: datasource
 spec:
   ports:
   - name: "9701"
     port: 9701
-    protocol: TCP
     targetPort: 9200
   selector:
-    service: datasource
+    io.kompose.service: datasource
 status:
   loadBalancer: {}

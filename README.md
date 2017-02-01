@@ -52,6 +52,19 @@ restart: `docker-compose restart`
 kill: `docker-compose kill`
 ```
 
+- To deploy on OpenShift, you could use [kompose](https://github.com/kubernetes-incubator/kompose):
+
+```
+$ kompose convert -f docker-compose.yml  --provider openshift
+```
+
+or
+
+```
+$ kompose up
+```
+
+	
 - You could also upload files through the commandline tool `vizit`, from under `utils/` folder.
 
   For using vizit, you need to fulfill requirements as follows:

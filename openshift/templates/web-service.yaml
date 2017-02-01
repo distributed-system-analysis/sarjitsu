@@ -3,15 +3,14 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    service: web
+    io.kompose.service: web
   name: web
 spec:
   ports:
   - name: "9704"
     port: 9704
-    protocol: TCP
     targetPort: 80
   selector:
-    service: web
+    io.kompose.service: web
 status:
   loadBalancer: {}
