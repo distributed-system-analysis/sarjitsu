@@ -28,7 +28,7 @@ The app is split in 5 container instances as follows:
 
 4) `middleware`: A Python-Flask powered API that talks to backend and metricstore; builds scriped dashboards
 
-5) `backend`: A NodeJS based web app, which runs the web interface
+5) `backend`: A ~~NodeJS (rewritten in Flask)~~ Python-Flask powered web app, which runs the web interface
               for users to upload a SA binary file and obtain visualizations.
 
 
@@ -170,13 +170,13 @@ Please use Github issues list and it's features for contributions. [Click here](
 
 ### Issue Tracker
 
-GitHub Issues and Pull Requests managed via [Waffle.io](https://waffle.io/arcolife/sarjitsu)
+The default GitHub Issues and Pull Requests interface.
 
 ### Upcoming features
 
 - Statistics about top N devices. Example: CPUs, Disks or Network devices.
 - Options to integrate this with hybrid cloud ecosystem.
-- Service Discovery for individual components.
+- ~~Service Discovery for individual components.~~ <- Covered by Docker-Compose / OSE feature
 - Nested documents support in Grafana (Network, CPU, Disks, ..). Refer to [PR #4694 of grafana](https://github.com/grafana/grafana/pull/4694) for more.
 - Timeshift feature to compare 2 different sa binaries
 
