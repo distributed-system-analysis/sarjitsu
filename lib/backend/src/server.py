@@ -70,12 +70,16 @@ def uploader():
         else:
             return jsonify({'form data': 'INVALID'})
 
+        dashboard_url = config.get('Grafana','dashboard_url')
+        if not dashboard_url:
+            import socket; IP = socket.gethostbyname('frontend')
+            dashboard_url = "http://%s:3000" % IP
+            
         if form.data['cmd_mode']:
-
             res = {
                 "valid_results": _valid_results_found,
                 "data": response["nodenames_info"],
-                "redirect_url": config.get('Grafana','dashboard_url'),
+                "redirect_url": dashboard_url
             }
             return jsonify(res)
         else:
@@ -84,7 +88,7 @@ def uploader():
                 data=response["nodenames_info"],
                 form=form,
                 valid_results=_valid_results_found,
-                redirect_url=config.get('Grafana','dashboard_url'),
+                redirect_url=dashboard_url,
                 progress=100,
                 **TEMPLATE_CONFIGURATION)
 

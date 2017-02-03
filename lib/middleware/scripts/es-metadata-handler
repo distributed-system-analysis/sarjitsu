@@ -25,7 +25,6 @@ start_daemon() {
           if [ $? -eq 0 ]; then
             log "Created datasource for Grafana."
             sleep 1
-            systemctl restart api_engine
           else
             log "Grafana's datasource creation failed!"
             exit -1
@@ -40,7 +39,7 @@ start_daemon() {
           else
             log "ES index template created."
           fi
-          
+
     	    break
     	else
     	    echo "$(date +'%D %H:%M:%S %Z') - unable to contact Elasticsearch; sleeping for 2 secs"

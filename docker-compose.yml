@@ -11,7 +11,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
     # ports:
-    # - "9600:5432"
+    # - "${METRICSTORE_PORT_MAPPING}:${DB_PORT}"
 
   datasource:
     # name: ${DATASOURCE_CONTAINER_ID}
@@ -23,7 +23,6 @@ services:
     image: sarjitsu:elasticsearch
     ports:
     - "${DATASOURCE_PORT_MAPPING}:${ES_PORT}"
-    # command: sh /srv/scripts/post-run-web.sh
 
   frontend:
     # name: ${FRONTEND_CONTAINER_ID}
@@ -33,13 +32,8 @@ services:
         GRAFANA_PORT: $GRAFANA_PORT
     env_file: .env
     image: sarjitsu:grafana
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
     ports:
     - "${FRONTEND_PORT_MAPPING}:${GRAFANA_PORT}"
-    # links:
-    # - frontend
     links:
      - metricstore
      - datasource
@@ -55,15 +49,13 @@ services:
         MIDDLEWARE_PORT: $MIDDLEWARE_PORT
     env_file: .env
     image: sarjitsu:api
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
     ports:
     - "${MIDDLEWARE_PORT_MAPPING}:${MIDDLEWARE_PORT}"
     depends_on:
      - datasource
     links:
      - datasource
+    # command: sh /srv/scripts/post-run-web.sh
 
   web:
     # name: ${BACKEND_CONTAINER_ID}

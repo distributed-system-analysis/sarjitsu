@@ -68,6 +68,7 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # CMD ["middleware"]
 
-RUN systemctl enable metadata_creation
-RUN systemctl enable api_engine
-CMD ["/usr/sbin/init"]
+# RUN systemctl enable metadata_creation
+# RUN systemctl enable api_engine
+# CMD ["/usr/sbin/init"]
+CMD ["api_engine"]

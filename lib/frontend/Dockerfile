@@ -43,5 +43,6 @@ COPY update_grafana_conf.py /
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-RUN systemctl enable grafana-server
-CMD ["/usr/sbin/init"]
+# RUN systemctl enable grafana-server
+# CMD ["/usr/sbin/init"]
+CMD ["grafana-server"]

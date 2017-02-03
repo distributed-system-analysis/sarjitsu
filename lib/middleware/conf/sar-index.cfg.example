@@ -1,5 +1,5 @@
 [ElasticSearch]
-host = 172.17.0.3
+host =
 port = 9200
 protocol = http
 
@@ -8,7 +8,7 @@ index_prefix = sarjitsu
 index_version = 1
 bulk_action_count = 2000
 number_of_shards = 1
-number_of_replicas = 1
+number_of_replicas = 5
 sar_template_version=02
 
 [Grafana]
@@ -21,7 +21,7 @@ templates_path = /opt/api_server/lib/mappings/
 api_port = 80
 
 [Postgres]
-db_host = localhost
+db_host = 
 db_password = grafana
 db_name = grafana
 db_user = grafana

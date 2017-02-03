@@ -6,9 +6,10 @@
 
 # pending
 
-- [ ] kompose
+- [x] kompose
 - [ ] include grafana PR #4694 as custom patch
-- [ ] docker-compose + custom hosts? (separate ES/postgres/grafana instances)
+- [x] docker-compose + custom hosts? (separate ES/postgres/grafana instances)
+- [x] fix frontend url redirect linkage in uploaded results page
 
 --
 

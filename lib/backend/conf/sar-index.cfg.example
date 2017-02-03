@@ -1,14 +1,14 @@
 [ElasticSearch]
-host = 172.17.0.3
+host = 
 port = 9200
 
 [Settings]
 index_prefix = sarjitsu
 index_version = 1
 bulk_action_count = 2000
-number_of_shards = 1
+number_of_shards = 5
 number_of_replicas = 1
 
 [Grafana]
-dashboard_url = http://172.17.0.4:3000/
-api_url = http://172.17.0.4:5000/db/create/
+dashboard_url = 
+api_url = http://middleware:80/
