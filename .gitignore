@@ -19,4 +19,4 @@ logs/
 *.log.[0-9]
 *.log
 venv
-
+.env
