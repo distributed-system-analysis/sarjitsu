@@ -21,43 +21,6 @@ THREADS_PER_PAGE = 2
 
 SA_DIR = 'safiles'
 
-# MEMCACHED_SERVER = '127.0.0.1:11211'
-# CACHE_CONFIG = {
-#     'CACHE_TYPE': 'memcached',
-#     'CACHE_MEMCACHED_SERVERS': ['127.0.0.1:11211'],
-#     # 'CACHE_DEFAULT_TIMEOUT': ,
-#     # 'CACHE_KEY_PREFIX': ,
-#     # 'CACHE_ARGS': ,
-#     # 'CACHE_OPTIONS': ,
-# }
-# SESSION_CONFIG = {
-#     'SESSION_TYPE': 'memcached',
-#     'SESSION_MEMCACHED':
-# }
-
-REDIS_CONFIG = {
-    'host': '127.0.0.1',
-    'db': 0,
-    'port': 6379
-}
-
-CACHE_CONFIG = {
-    # 'CACHE_DEFAULT_TIMEOUT': 0,
-    'CACHE_TYPE': 'redis',
-    'CACHE_REDIS_HOST': '127.0.0.1',
-    'CACHE_REDIS_PORT': 6379,
-    # 'CACHE_REDIS_PASSWORD': '#redhat',
-    # 'CACHE_REDIS_DB': 'redhat',
-    # 'CACHE_REDIS_URL': '',
-    # 'CACHE_KEY_PREFIX': ,
-    # 'CACHE_ARGS': ,
-    # 'CACHE_OPTIONS': ,
-}
-
-# SESSION_CONFIG = {
-#     'SESSION_TYPE': 'redis',
-# }
-
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 # CSRF_ENABLED     = False
 CSRF_ENABLED     = True

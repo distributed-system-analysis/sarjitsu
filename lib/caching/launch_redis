@@ -1,0 +1,21 @@
+#!/bin/bash
+
+log(){
+  echo -e "[$(date +'%D %H:%M:%S %Z')] - $*"
+}
+
+APP_CONF=$1
+if [[ -z $APP_CONF ]]; then
+	APP_CONF=../../.env
+fi
+
+if [ ! -f $APP_CONF ]; then
+	log ".env file does not exist. Supply it's path as 1st argument"
+	exit -1
+fi
+
+source $APP_CONF
+
+log "Pulling and Running $CACHING_CONTAINER_ID:"
+docker run --name $CACHING_CONTAINER_ID \
+	-d redis:alpine

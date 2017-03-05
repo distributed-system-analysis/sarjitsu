@@ -17,7 +17,8 @@ FROM fedora:23
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # deps
-RUN dnf -y install net-tools procps git tar bzip2 redis python3-devel gcc nginx
+RUN dnf -y install net-tools procps git tar bzip2 redis python3-devel gcc
+# nginx
 
 # scaffolding
 RUN mkdir -p /opt/sarjitsu/conf
@@ -27,9 +28,7 @@ RUN cd /opt/sarjitsu/src && pip3 install -r requirements.txt
 # copy configs from example files and modify them later through entrypoint
 COPY conf/sarjitsu.ini.example /opt/sarjitsu/conf/sarjitsu.ini
 COPY conf/sar-index.cfg.example /opt/sarjitsu/conf/sar-index.cfg
-COPY conf/sarjitsu_nginx.conf.example /etc/nginx/conf.d/sarjitsu_nginx.conf
-
-COPY conf/sarjitsu.service /lib/systemd/system/sarjitsu.service
+# COPY conf/sarjitsu_nginx.conf.example /etc/nginx/conf.d/sarjitsu_nginx.conf
 
 ENV VOS_CONFIG_PATH=/opt/sarjitsu/conf/sar-index.cfg
 
@@ -58,10 +57,10 @@ ENV MIDDLEWARE_PORT=${MIDDLEWARE_PORT}
 ARG MIDDLEWARE_ENDPOINT
 ENV MIDDLEWARE_ENDPOINT=${MIDDLEWARE_ENDPOINT}
 
-RUN sed -i -r s#^.*listen.*\ 80.*##g /etc/nginx/nginx.conf
+# RUN sed -i -r s#^.*listen.*\ 80.*##g /etc/nginx/nginx.conf
 RUN touch /opt/sarjitsu/src/flaskapp.sock
-RUN chmod 710 /opt/sarjitsu/{src,conf} && chown -R nginx:nginx /opt/sarjitsu
-RUN usermod -a -G root nginx
+# RUN chmod 710 /opt/sarjitsu/{src,conf} && chown -R nginx:nginx /opt/sarjitsu
+# RUN usermod -a -G root nginx
 
 WORKDIR /opt/sarjitsu/src
 
@@ -73,9 +72,7 @@ EXPOSE ${BACKEND_SERVER_PORT}
 
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
 # ENTRYPOINT /docker-entrypoint.sh && /usr/sbin/init
 
-# CMD ["backend"]
-
-RUN systemctl enable redis nginx sarjitsu
-CMD ["/usr/sbin/init"]
+CMD ["backend"]

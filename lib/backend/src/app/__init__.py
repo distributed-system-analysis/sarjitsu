@@ -1,9 +1,9 @@
 import os
 import sys
-import redis
 import logging
 import datetime
 from time import ctime
+from redis import Redis
 from urllib.parse import urljoin
 from flask import Flask, render_template, json, session
 
@@ -34,7 +34,8 @@ app.logger.addHandler(handler)
 # log.setLevel(logging.DEBUG)
 # log.addHandler(handler)
 
-app.cache = redis.StrictRedis(**app.config.get('REDIS_CONFIG'))
+# app.cache = redis.StrictRedis(**app.config.get('REDIS_CONFIG'))
+app.cache = Redis(host='redis', port=6379)
 
 app.cache.set("saDir", SA_DIR)
 app.cache.set("uid_track", 1)

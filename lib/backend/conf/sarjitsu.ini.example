@@ -1,12 +1,20 @@
 [uwsgi]
+
 chdir           = /opt/sarjitsu/src/
 module          = wsgi
-master          = true
-processes       =  5
-socket          = /opt/sarjitsu/src/flaskapp.sock
-chmod-socket    = 666
-chown-socket	= nginx:nginx
-vacuum = true
-die-on-term = true
-pythonpath = /usr/bin/python3
 
+master          = true
+processes       = 5
+
+socket 		= 0.0.0.0:8000
+chown-socket	= www-data:www-data
+
+; socket          = /opt/sarjitsu/src/flaskapp.sock
+; chmod-socket    = 666
+; chown-socket	= nginx:nginx
+
+vacuum = true
+enable-threads=True
+die-on-term = true
+
+pythonpath = /usr/bin/python3

@@ -1,12 +1,22 @@
+upstream flask {
+    server web:8000;
+}
+
 server {
   listen 80;
   server_name default_server;
   client_max_body_size 800M;
+  charset utf-8;
   
-  root /opt/sarjitsu/src/app/templates/;
+  # root /opt/sarjitsu/src/app/templates/;
   error_page   500 502 503 504 =200 /static/defeat.jpg;
   error_page   404 =200 /static/404.gif;
-  
+
+  # location / {
+  #     uwsgi_pass flask;
+  #     include uwsgi_params;
+  # }
+    
   location / {
     try_files $uri @app;
 
@@ -16,8 +26,9 @@ server {
   }
 
   location @app {
-    uwsgi_pass unix:///opt/sarjitsu/src/flaskapp.sock;
-    include uwsgi_params;
+    uwsgi_pass flask;
+    include uwsgi_params;  
+    # uwsgi_pass unix:///opt/sarjitsu/src/flaskapp.sock;
+    # include uwsgi_params;
   }
 }
-
