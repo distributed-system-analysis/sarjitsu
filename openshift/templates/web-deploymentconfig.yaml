@@ -11,7 +11,6 @@ spec:
     io.kompose.service: web
   strategy:
     resources: {}
-    type: Recreate
   template:
     metadata:
       creationTimestamp: null
@@ -30,6 +29,8 @@ spec:
           value: "9703"
         - name: BACKEND_PORT_MAPPING
           value: "9704"
+        - name: PROXY_PORT_MAPPING
+          value: "9705"
         - name: METRICSTORE_CONTAINER_ID
           value: postrgres_jitsu
         - name: DATASOURCE_CONTAINER_ID
@@ -40,6 +41,10 @@ spec:
           value: api_jitsu
         - name: BACKEND_CONTAINER_ID
           value: server_jitsu
+        - name: CACHING_CONTAINER_ID
+          value: redis_jitsu
+        - name: PROXY_CONTAINER_ID
+          value: nginx_jistu
         - name: DB_NAME
           value: grafana
         - name: DB_USER
@@ -80,6 +85,8 @@ spec:
           value: web
         - name: BACKEND_SERVER_PORT
           value: "80"
+        - name: PROXY_PORT
+          value: "80"
         image: ' '
         name: web
         ports:
@@ -87,16 +94,7 @@ spec:
         resources: {}
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /sys/fs/cgroup
-          name: web-claim0
-          readOnly: true
       restartPolicy: Always
-      volumes:
-      - name: web-claim0
-        persistentVolumeClaim:
-          claimName: web-claim0
-          readOnly: true
   test: false
   triggers:
   - type: ConfigChange

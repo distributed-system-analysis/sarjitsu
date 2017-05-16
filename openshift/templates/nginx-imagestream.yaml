@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nginx
+  name: nginx
+spec: {}
+status:
+  dockerImageRepository: ""

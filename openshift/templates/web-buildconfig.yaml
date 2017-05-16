@@ -15,7 +15,7 @@ spec:
   source:
     contextDir: lib/backend/
     git:
-      ref: komposed
+      ref: master
       uri: https://github.com/arcolife/sarjitsu.git
     type: Git
   strategy:
