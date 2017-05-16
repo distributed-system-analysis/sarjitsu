@@ -21,9 +21,6 @@ ADD api_server/ /opt/api_server
 
 COPY conf/sar-index.cfg.example /etc/sar-index.cfg
 
-COPY conf/metadata_creation.service /usr/lib/systemd/system/metadata_creation.service
-COPY conf/api_engine.service /usr/lib/systemd/system/api_engine.service
-
 ARG ES_HOST
 ENV ES_HOST=${ES_HOST}
 ARG ES_PORT
@@ -66,9 +63,4 @@ EXPOSE ${MIDDLEWARE_PORT}
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-# CMD ["middleware"]
-
-# RUN systemctl enable metadata_creation
-# RUN systemctl enable api_engine
-# CMD ["/usr/sbin/init"]
 CMD ["api_engine"]
