@@ -92,8 +92,6 @@ spec:
         ports:
         - containerPort: 80
         resources: {}
-        securityContext:
-          privileged: true
       restartPolicy: Always
   test: false
   triggers:
