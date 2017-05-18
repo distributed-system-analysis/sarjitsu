@@ -28,6 +28,10 @@ EXPOSE ${ES_PORT}
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+RUN chmod -R 777 /usr/share/elasticsearch/
+RUN chmod -R 777 /etc/elasticsearch/
+USER nobody
+
 # following illustrates different appraoches to running elasticsearch
 # for now, we're gonna use non privileged mode
 CMD ["elasticsearch"]

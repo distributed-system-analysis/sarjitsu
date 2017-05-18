@@ -11,7 +11,7 @@ FROM fedora:23
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # install grafana
-RUN dnf -y install initscripts fontconfig python3-pip
+RUN dnf -y install initscripts fontconfig python3-pip nss_wrapper gettext
 RUN pip3 install configparser
 
 # needed for psycopg2 postgres library
@@ -19,7 +19,7 @@ RUN rpm -Uvh https://grafanarel.s3.amazonaws.com/builds/grafana-3.0.1-1.x86_64.r
 
 COPY conf/grafana.ini.example /etc/grafana/grafana.ini
 
-RUN chown -R root:grafana /etc/grafana/grafana.ini
+# RUN chown -R grafana:grafana /etc/grafana/grafana.ini
 # RUN iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
 
 ARG GRAFANA_DB_TYPE
@@ -42,6 +42,8 @@ EXPOSE ${GRAFANA_PORT}
 COPY update_grafana_conf.py /
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# USER nobody
 
 # RUN systemctl enable grafana-server
 # CMD ["/usr/sbin/init"]

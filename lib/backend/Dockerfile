@@ -17,7 +17,7 @@ FROM fedora:23
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # deps
-RUN dnf -y install net-tools procps git tar bzip2 redis python3-devel gcc
+RUN dnf -y install net-tools procps git tar bzip2 redis python3-devel gcc nss_wrapper gettext
 # nginx
 
 # scaffolding

@@ -10,7 +10,7 @@
 FROM fedora:23
 MAINTAINER arcolife <archit.py@gmail.com>
 
-RUN dnf -y install initscripts
+RUN dnf -y install initscripts nss_wrapper gettext
 # needed for psycopg2 postgres library
 RUN dnf -y install python3-pip postgresql-devel gcc redhat-rpm-config python3-devel
 COPY conf/requirements.txt /root/requirements.txt
@@ -18,8 +18,9 @@ RUN pip3 install -r /root/requirements.txt
 
 ADD scripts/ /scripts
 ADD api_server/ /opt/api_server
-
+  
 COPY conf/sar-index.cfg.example /etc/sar-index.cfg
+COPY conf/passwd.template /${HOME}/passwd.template
 
 ARG ES_HOST
 ENV ES_HOST=${ES_HOST}
@@ -61,6 +62,22 @@ ENV MIDDLEWARE_PORT=${MIDDLEWARE_PORT}
 EXPOSE ${MIDDLEWARE_PORT}
 
 COPY docker-entrypoint.sh /
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# RUN chmod -R 777
+# RUN chgrp -R 0 /etc \
+#   && chmod -R g+rwX /etc
+
+RUN chgrp -R 0 /scripts /opt/api_server \
+  && chmod -R g+rwX /scripts /opt/api_server
+
+RUN useradd -ms /bin/bash flask
+
+RUN chmod 755 /etc/sar-index.cfg
+
+USER flask
+
+# USER nobody
 
 CMD ["api_engine"]
