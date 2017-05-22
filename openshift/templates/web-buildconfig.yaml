@@ -2,27 +2,29 @@ apiVersion: v1
 kind: BuildConfig
 metadata:
   creationTimestamp: null
+  labels:
+    io.kompose.service: web
   name: web
 spec:
   nodeSelector: null
   output:
     to:
       kind: ImageStreamTag
-      name: web:latest
+      name: web:backend
   postCommit: {}
   resources: {}
   runPolicy: Serial
   source:
     contextDir: lib/backend/
     git:
-      ref: master
+      ref: non-root
       uri: https://github.com/arcolife/sarjitsu.git
     type: Git
   strategy:
     dockerStrategy:
       env:
       - name: BACKEND_SERVER_PORT
-        value: "80"
+        value: "8000"
     type: Docker
   triggers:
   - type: ConfigChange

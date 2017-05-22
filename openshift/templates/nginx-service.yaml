@@ -9,7 +9,7 @@ spec:
   ports:
   - name: "9705"
     port: 9705
-    targetPort: 80
+    targetPort: 8000
   selector:
     io.kompose.service: nginx
 status:

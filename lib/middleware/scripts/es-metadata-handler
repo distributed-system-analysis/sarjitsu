@@ -15,9 +15,9 @@ trap user_interrupt SIGTSTP
 
 start_daemon() {
     log "starting daemon.."
-    ES_HOST=$(egrep '^(host)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
-    ES_PORT=$(egrep '^(port)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
-    ES_PROTOCOL=$(egrep '^(protocol)\s?=.*$' /etc/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    ES_HOST=$(egrep '^(host)\s?=.*$' /opt/api_server/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    ES_PORT=$(egrep '^(port)\s?=.*$' /opt/api_server/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
+    ES_PROTOCOL=$(egrep '^(protocol)\s?=.*$' /opt/api_server/sar-index.cfg  | awk -F'=' '{print $NF}' | tr -d '[[:space:]]')
     while :; do
     	status=`curl -s $ES_PROTOCOL://$ES_HOST:$ES_PORT/_cluster/health | egrep "yellow|green"`
     	if [[ ! -z $status ]]; then

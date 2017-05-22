@@ -2,20 +2,22 @@ apiVersion: v1
 kind: BuildConfig
 metadata:
   creationTimestamp: null
+  labels:
+    io.kompose.service: datasource
   name: datasource
 spec:
   nodeSelector: null
   output:
     to:
       kind: ImageStreamTag
-      name: datasource:latest
+      name: datasource:elasticsearch
   postCommit: {}
   resources: {}
   runPolicy: Serial
   source:
     contextDir: lib/datasource/
     git:
-      ref: master
+      ref: non-root
       uri: https://github.com/arcolife/sarjitsu.git
     type: Git
   strategy:

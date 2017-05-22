@@ -7,7 +7,7 @@
 # docker run --privileged -it -d --name grafana_jitsu -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_grafana
 ###########################################################
 
-FROM fedora:23
+FROM fedora:25
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # install grafana
@@ -40,11 +40,16 @@ ARG GRAFANA_PORT
 EXPOSE ${GRAFANA_PORT}
 
 COPY update_grafana_conf.py /
+
+# RUN useradd -ms /bin/bash grafana
+
+RUN chgrp -R 0 /etc/grafana/ /update_grafana_conf.py /usr/share/grafana/ /var/lib/grafana /var/log/grafana\
+  && chmod -R g+rwX /etc/grafana/ /update_grafana_conf.py /usr/share/grafana/ /var/lib/grafana /var/log/grafana\
+  && chown -R grafana:root /etc/grafana/ /update_grafana_conf.py /usr/share/grafana /var/lib/grafana /var/log/grafana/
+
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-# USER nobody
+USER grafana
 
-# RUN systemctl enable grafana-server
-# CMD ["/usr/sbin/init"]
 CMD ["grafana-server"]

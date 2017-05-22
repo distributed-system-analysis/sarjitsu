@@ -13,12 +13,11 @@
 # container's port 80 to your host at 9210
 ###########################################################
 
-FROM fedora:23
+FROM fedora:25
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # deps
-RUN dnf -y install net-tools procps git tar bzip2 redis python3-devel gcc nss_wrapper gettext
-# nginx
+RUN dnf --setopt=deltarpm=false -y install net-tools procps git tar bzip2 redis python3-devel gcc nss_wrapper gettext
 
 # scaffolding
 RUN mkdir -p /opt/sarjitsu/conf
@@ -28,7 +27,6 @@ RUN cd /opt/sarjitsu/src && pip3 install -r requirements.txt
 # copy configs from example files and modify them later through entrypoint
 COPY conf/sarjitsu.ini.example /opt/sarjitsu/conf/sarjitsu.ini
 COPY conf/sar-index.cfg.example /opt/sarjitsu/conf/sar-index.cfg
-# COPY conf/sarjitsu_nginx.conf.example /etc/nginx/conf.d/sarjitsu_nginx.conf
 
 ENV VOS_CONFIG_PATH=/opt/sarjitsu/conf/sar-index.cfg
 
@@ -57,22 +55,23 @@ ENV MIDDLEWARE_PORT=${MIDDLEWARE_PORT}
 ARG MIDDLEWARE_ENDPOINT
 ENV MIDDLEWARE_ENDPOINT=${MIDDLEWARE_ENDPOINT}
 
-# RUN sed -i -r s#^.*listen.*\ 80.*##g /etc/nginx/nginx.conf
-RUN touch /opt/sarjitsu/src/flaskapp.sock
-# RUN chmod 710 /opt/sarjitsu/{src,conf} && chown -R nginx:nginx /opt/sarjitsu
-# RUN usermod -a -G root nginx
-
-WORKDIR /opt/sarjitsu/src
-
-# VOLUME /var/lib/postgresql/data
-
 # expose ports for sarjitsu
 ARG BACKEND_SERVER_PORT
-EXPOSE ${BACKEND_SERVER_PORT}
+ENV BACKEND_SERVER_PORT=${BACKEND_SERVER_PORT}
+# EXPOSE ${BACKEND_SERVER_PORT}
 
+RUN useradd -ms /bin/bash flask
+
+RUN chgrp -R 0 /opt/sarjitsu/ \
+  && chmod -R g+rwX /opt/sarjitsu/ \
+  && chown -R flask:root /opt/sarjitsu/
+
+WORKDIR /opt/sarjitsu/src
+# VOLUME /var/lib/postgresql/data
+COPY conf/passwd.template /${HOME}/passwd.template
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-# ENTRYPOINT /docker-entrypoint.sh && /usr/sbin/init
+USER flask
 
 CMD ["backend"]

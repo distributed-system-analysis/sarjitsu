@@ -9,8 +9,7 @@ if [ "${1:0:1}" = '-' ]; then
 	set -- grafana-server "$@"
 fi
 
-if [ "$1" = 'grafana-server' -a "$(id -u)" = '0' ]; then
-
+if [ "$1" = 'grafana-server' ]; then
   if [[ -z $DB_HOST ]]; then
     DB_HOST='metricstore'
     log "DB_HOST set to default - 'metricstore'"

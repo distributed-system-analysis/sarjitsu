@@ -18,10 +18,10 @@ timeField = _timestamp
 templates_path = /opt/api_server/lib/mappings/
 
 [Api]
-api_port = 80
+api_port = 5000
 
 [Postgres]
-db_host = 
+db_host =
 db_password = grafana
 db_name = grafana
 db_user = grafana

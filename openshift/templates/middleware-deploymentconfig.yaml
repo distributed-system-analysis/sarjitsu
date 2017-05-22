@@ -76,7 +76,7 @@ spec:
         - name: MIDDLEWARE_HOST
           value: middleware
         - name: MIDDLEWARE_PORT
-          value: "80"
+          value: "5000"
         - name: MIDDLEWARE_ENDPOINT
           value: /db/create/
         - name: MIDDLEWARE_UPLOAD_ENDPOINT
@@ -84,13 +84,13 @@ spec:
         - name: BACKEND_HOST
           value: web
         - name: BACKEND_SERVER_PORT
-          value: "80"
+          value: "8000"
         - name: PROXY_PORT
-          value: "80"
+          value: "8000"
         image: ' '
         name: middleware
         ports:
-        - containerPort: 80
+        - containerPort: 5000
         resources: {}
       restartPolicy: Always
   test: false

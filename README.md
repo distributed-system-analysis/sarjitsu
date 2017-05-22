@@ -61,9 +61,11 @@ $ kompose convert -f docker-compose.yml  --provider openshift
 or
 
 ```
-$ kompose up
+$ kompose up --provider openshift
+$ oc get pods,svc -o wide
+$ oc delete service,dc,is,bc datasource frontend metricstore middleware nginx redis web
+$ kompose down
 ```
-
 	
 - You could also upload files through the commandline tool `vizit`, from under `utils/` folder.
 

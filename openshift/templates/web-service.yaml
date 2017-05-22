@@ -9,7 +9,7 @@ spec:
   ports:
   - name: "9704"
     port: 9704
-    targetPort: 80
+    targetPort: 8000
   selector:
     io.kompose.service: web
 status:

@@ -7,7 +7,7 @@
 # docker run --privileged -it -d --name api_jitsu -v /sys/fs/cgroup:/sys/fs/cgroup:ro  sarjitsu_api
 ###########################################################
 
-FROM fedora:23
+FROM fedora:25
 MAINTAINER arcolife <archit.py@gmail.com>
 
 RUN dnf -y install initscripts nss_wrapper gettext
@@ -18,8 +18,8 @@ RUN pip3 install -r /root/requirements.txt
 
 ADD scripts/ /scripts
 ADD api_server/ /opt/api_server
-  
-COPY conf/sar-index.cfg.example /etc/sar-index.cfg
+
+COPY conf/sar-index.cfg.example /opt/api_server/sar-index.cfg
 COPY conf/passwd.template /${HOME}/passwd.template
 
 ARG ES_HOST
@@ -61,23 +61,15 @@ ENV MIDDLEWARE_PORT=${MIDDLEWARE_PORT}
 # EXPOSE $MIDDLEWARE_PORT}
 EXPOSE ${MIDDLEWARE_PORT}
 
-COPY docker-entrypoint.sh /
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
-# RUN chmod -R 777
-# RUN chgrp -R 0 /etc \
-#   && chmod -R g+rwX /etc
-
-RUN chgrp -R 0 /scripts /opt/api_server \
-  && chmod -R g+rwX /scripts /opt/api_server
-
 RUN useradd -ms /bin/bash flask
 
-RUN chmod 755 /etc/sar-index.cfg
+RUN chgrp -R 0 /scripts /opt/api_server \
+  && chmod -R g+rwX /scripts /opt/api_server \
+  && chown -R flask:root /scripts /opt/api_server
+
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 USER flask
-
-# USER nobody
 
 CMD ["api_engine"]

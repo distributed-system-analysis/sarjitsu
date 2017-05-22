@@ -10,7 +10,7 @@ from create_dashboard import *
 app = Flask(__name__)
 
 def _read_configs():
-    cfg_name = "/etc/sar-index.cfg"
+    cfg_name = "/opt/api_server/sar-index.cfg"
     config = configparser.ConfigParser()
     config.read(cfg_name)
 

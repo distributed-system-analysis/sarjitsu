@@ -9,7 +9,7 @@ spec:
   ports:
   - name: "9703"
     port: 9703
-    targetPort: 80
+    targetPort: 5000
   selector:
     io.kompose.service: middleware
 status:

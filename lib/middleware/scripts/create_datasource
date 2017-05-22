@@ -5,7 +5,7 @@ import configparser
 import psycopg2
 
 config = configparser.ConfigParser()
-CFG_PATH = "/etc/sar-index.cfg"
+CFG_PATH = "/opt/api_server/sar-index.cfg"
 
 def tstos(ts=None):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts))
