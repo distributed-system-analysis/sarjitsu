@@ -3,7 +3,7 @@ upstream flask {
 }
 
 server {
-  listen 80;
+  listen 8000;
   server_name default_server;
   client_max_body_size 800M;
   charset utf-8;

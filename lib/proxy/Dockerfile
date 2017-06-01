@@ -8,3 +8,4 @@ COPY conf/sarjitsu_nginx.conf.example /etc/nginx/conf.d/sarjitsu_nginx.conf
 # RUN touch /opt/sarjitsu/src/flaskapp.sock
 # RUN chmod 710 /opt/sarjitsu/{src,conf} && chown -R nginx:nginx /opt/sarjitsu
 # RUN usermod -a -G root nginx
+

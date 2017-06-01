@@ -6,12 +6,15 @@ module          = wsgi
 master          = true
 processes       = 5
 
-socket 		= 0.0.0.0:8000
-chown-socket	= www-data:www-data
+socket        = 0.0.0.0:8000
+; chown-socket  = www-data:www-data
+
+; http            = 0.0.0.0:8000
+; buffer-size=32768
 
 ; socket          = /opt/sarjitsu/src/flaskapp.sock
 ; chmod-socket    = 666
-; chown-socket	= nginx:nginx
+; chown-socket  = nginx:nginx
 
 vacuum = true
 enable-threads=True
