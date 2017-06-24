@@ -14,10 +14,14 @@ if [ "$1" = 'metricstore' ]; then
     export NSS_WRAPPER_PASSWD=/tmp/passwd
     export NSS_WRAPPER_GROUP=/etc/group
 
+    # whoami
+    # id -u
+    # id
     # /usr/libexec/init-pgsql
     echo 'starting up..'
     ln -s /tmp/.s.PGSQL.5432 /var/run/postgresql/.s.PGSQL.5432
-    /usr/bin/postgres -D ${PGDATA} -c config_file=/var/lib/pgsql/data/postgresql.conf
+    echo "PGDATA="${PGDATA}
+    /usr/bin/postgres -D ${PGDATA}/userdata -c config_file=${PGDATA}/userdata/postgresql.conf
     # pg_ctl -D "$PGDATA" -w start -o # "-h ''"
     # exec postgres
 fi

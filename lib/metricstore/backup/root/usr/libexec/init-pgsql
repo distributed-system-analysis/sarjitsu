@@ -9,10 +9,11 @@ PGSTARTTIMEOUT=270
 POSTGRES_PASSWORD=$1
 POSTGRES_USER=$2
 POSTGRES_DB=$3
-PGDATA=$4
-CONTAINER_SCRIPTS_PATH=$5
+CONTAINER_SCRIPTS_PATH=$4
 
-chmod 700 "$PGDATA"
+# PGDATA=$4
+
+# chmod 700 "$PGDATA"
 
 export_vars=$(cgroup-limits) ; export $export_vars
 
@@ -85,6 +86,27 @@ function check_env_vars() {
 }
 
 check_env_vars
+
+function set_pgdata() {
+  # backwards compatibility case, we used to put the data here,
+  # move it into our new expected location (userdata)
+  if [ -e ${HOME}/data/PG_VERSION ]; then
+    mkdir -p "${HOME}/data/userdata"
+    pushd "${HOME}/data"
+    # move everything except the userdata directory itself, into the userdata directory.
+    # TIL: mv !(userdata) 'userdata' -- doesn't work on fedora:25 container. but does, in centos container
+    bash -c "mv !(userdata) 'userdata'"
+    popd
+  else
+    # create a subdirectory that the user owns
+    mkdir -p "${HOME}/data/userdata"
+  fi
+  export PGDATA=$HOME/data/userdata
+  # ensure sane perms for postgresql startup
+  chmod 700 "$PGDATA"
+}
+
+set_pgdata
 
 export POSTGRESQL_CONFIG_FILE=$HOME/openshift-custom-postgresql.conf
 

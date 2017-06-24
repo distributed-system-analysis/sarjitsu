@@ -1,58 +1,58 @@
-FROM fedora:25
+FROM centos:centos7
 
-RUN dnf install -y procps net-tools nss_wrapper gettext findutils
-RUN dnf install -y postgresql-9.5.7 postgresql-server-9.5.7 \
-                  postgresql-libs-9.5.7 postgresql-contrib-9.5.7 \
-    && dnf clean all
+# PostgreSQL image for OpenShift.
+# Volumes:
+#  * /var/lib/psql/data   - Database cluster for PostgreSQL
+# Environment:
+#  * $POSTGRESQL_USER     - Database user name
+#  * $POSTGRESQL_PASSWORD - User's password
+#  * $POSTGRESQL_DATABASE - Name of the database to create
+#  * $POSTGRESQL_ADMIN_PASSWORD (Optional) - Password for the 'postgres'
+#                           PostgreSQL administrative account
 
-# RUN localedef -f UTF-8 -i en_US en_US.UTF-8
-COPY conf/passwd.template /${HOME}/passwd.template
+MAINTAINER SoftwareCollections.org <sclorg@redhat.com>
 
-ARG POSTGRES_PASSWORD
-ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-ARG POSTGRES_USER
-ENV POSTGRES_USER=${POSTGRES_USER}
-ARG POSTGRES_DB
-ENV POSTGRES_DB=${POSTGRES_DB}
+ENV POSTGRESQL_VERSION=9.5 \
+    HOME=/var/lib/pgsql \
+    PGUSER=postgres
 
-ENV PGDATA=/var/lib/pgsql/data \
-    CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql
-
-# RUN chgrp -R 0 /var/lib/pgsql/ \
-#   && chown -R postgres:root /var/lib/pgsql/ \
-#   && chmod -R g+rwX /var/lib/pgsql/
-
-# && chmod -R 777 /var/lib/pgsql/data \
-
-# VOLUME ["/var/lib/pgsql/data"]
-ADD root /
-
-# USER root
-RUN mkdir -p /var/lib/pgsql/data && \
-    /usr/libexec/fix-permissions /var/lib/pgsql && \
-    /usr/libexec/fix-permissions /var/run/postgresql # && chmod g-rwx $PGDATA
-
-# USER postgres
-# RUN /usr/libexec/init-pgsql
-RUN su - postgres -c "/usr/libexec/init-pgsql $POSTGRES_PASSWORD $POSTGRES_USER $POSTGRES_DB $PGDATA $CONTAINER_SCRIPTS_PATH"
-# RUN initdb -A trust -D /var/lib/pgsql/data
-# RUN sed -i -r s#'.*listen_addresses.*'#"listen_addresses = '*'"#g /var/lib/pgsql/data/postgresql.conf
-
-
-# RUN echo -e "\nhost all all all md5" >> /var/lib/pgsql/data/pg_hba.conf
-# RUN chgrp -R 0 /var/lib/pgsql/ \
-#   && chown -R postgres:root /var/lib/pgsql/ \
-#   && chmod -R g+rwX /var/lib/pgsql/
-
-# RUN ls -lh /var/lib/pgsql/data/
-
-COPY docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
+LABEL io.k8s.description="PostgreSQL is an advanced Object-Relational database management system" \
+      io.k8s.display-name="PostgreSQL 9.5" \
+      io.openshift.expose-services="5432:postgresql" \
+      io.openshift.tags="database,postgresql,postgresql95,rh-postgresql95"
 
 EXPOSE 5432
 
-RUN chown postgres /usr/bin/{postgres,postmaster,postgresql-setup}
+ADD root /
 
-USER postgres
+# This image must forever use UID 26 for postgres user so our volumes are
+# safe in the future. This should *never* change, the last test is there
+# to make sure of that.
+RUN yum install -y centos-release-scl-rh epel-release && \
+    INSTALL_PKGS="rsync tar gettext bind-utils rh-postgresql95 rh-postgresql95-postgresql-contrib nss_wrapper" && \
+    yum -y --setopt=tsflags=nodocs install $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum clean all && \
+    localedef -f UTF-8 -i en_US en_US.UTF-8 && \
+    test "$(id postgres)" = "uid=26(postgres) gid=26(postgres) groups=26(postgres)" && \
+    mkdir -p /var/lib/pgsql/data && \
+    /usr/libexec/fix-permissions /var/lib/pgsql && \
+    /usr/libexec/fix-permissions /var/run/postgresql
 
-CMD ["metricstore"]
+# Get prefix path and path to scripts rather than hard-code them in scripts
+ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql \
+    ENABLED_COLLECTIONS=rh-postgresql95
+
+# When bash is started non-interactively, to run a shell script, for example it
+# looks for this variable and source the content of this file. This will enable
+# the SCL for all scripts without need to do 'scl enable'.
+ENV BASH_ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
+    ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
+    PROMPT_COMMAND=". ${CONTAINER_SCRIPTS_PATH}/scl_enable"
+
+VOLUME ["/var/lib/pgsql/data"]
+
+USER 26
+
+ENTRYPOINT ["container-entrypoint"]
+CMD ["run-postgresql"]
