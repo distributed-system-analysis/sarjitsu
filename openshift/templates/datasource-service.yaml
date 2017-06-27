@@ -7,8 +7,8 @@ metadata:
   name: datasource
 spec:
   ports:
-  - name: "9701"
-    port: 9701
+  - name: "9200"
+    port: 9200
     targetPort: 9200
   selector:
     io.kompose.service: datasource

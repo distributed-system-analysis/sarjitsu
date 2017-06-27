@@ -3,28 +3,25 @@ kind: BuildConfig
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: nginx
-  name: nginx
+    io.kompose.service: metricstore
+  name: metricstore
 spec:
   nodeSelector: null
   output:
     to:
       kind: ImageStreamTag
-      name: nginx:proxy
+      name: metricstore:metricstore_official
   postCommit: {}
   resources: {}
   runPolicy: Serial
   source:
-    contextDir: lib/proxy/
+    contextDir: lib/metricstore/
     git:
       ref: non-root
       uri: https://github.com/arcolife/sarjitsu.git
     type: Git
   strategy:
-    dockerStrategy:
-      env:
-      - name: PROXY_PORT
-        value: "8001"
+    dockerStrategy: {}
     type: Docker
   triggers:
   - type: ConfigChange

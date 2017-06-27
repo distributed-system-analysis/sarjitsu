@@ -6,11 +6,10 @@ metadata:
     io.kompose.service: metricstore
   name: metricstore
 spec:
-  clusterIP: None
   ports:
-  - name: headless
-    port: 55555
-    targetPort: 0
+  - name: "5432"
+    port: 5432
+    targetPort: 5432
   selector:
     io.kompose.service: metricstore
 status:

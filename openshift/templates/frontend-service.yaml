@@ -7,8 +7,8 @@ metadata:
   name: frontend
 spec:
   ports:
-  - name: "9702"
-    port: 9702
+  - name: "3000"
+    port: 3000
     targetPort: 3000
   selector:
     io.kompose.service: frontend

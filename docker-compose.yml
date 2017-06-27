@@ -101,7 +101,11 @@ services:
 
   nginx:
     restart: always
-    build: lib/proxy
+    # build: lib/proxy
+    build:
+      context: lib/proxy
+      args:
+        PROXY_PORT: $PROXY_PORT
     image: sarjitsu:proxy
     ports:
     - "${PROXY_PORT_MAPPING}:${PROXY_PORT}"

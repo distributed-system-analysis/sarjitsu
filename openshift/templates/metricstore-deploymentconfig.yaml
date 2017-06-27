@@ -19,24 +19,24 @@ spec:
     spec:
       containers:
       - env:
-        - name: POSTGRES_PASSWORD
+        - name: POSTGRESQL_PASSWORD
           value: sarjitsu123
-        - name: POSTGRES_USER
+        - name: POSTGRESQL_USER
           value: grafana
-        - name: POSTGRES_DB
+        - name: POSTGRESQL_DATABASE
           value: grafana
         - name: METRICSTORE_PORT_MAPPING
-          value: "9700"
+          value: "5432"
         - name: DATASOURCE_PORT_MAPPING
-          value: "9701"
+          value: "9200"
         - name: FRONTEND_PORT_MAPPING
-          value: "9702"
+          value: "3000"
         - name: MIDDLEWARE_PORT_MAPPING
-          value: "9703"
+          value: "5000"
         - name: BACKEND_PORT_MAPPING
-          value: "9704"
+          value: "8000"
         - name: PROXY_PORT_MAPPING
-          value: "9705"
+          value: "8001"
         - name: METRICSTORE_CONTAINER_ID
           value: postrgres_jitsu
         - name: DATASOURCE_CONTAINER_ID
@@ -92,9 +92,11 @@ spec:
         - name: BACKEND_SERVER_PORT
           value: "8000"
         - name: PROXY_PORT
-          value: "8000"
+          value: "8001"
         image: ' '
         name: metricstore
+        ports:
+        - containerPort: 5432
         resources: {}
       restartPolicy: Always
   test: false
@@ -106,6 +108,6 @@ spec:
       - metricstore
       from:
         kind: ImageStreamTag
-        name: metricstore:9.5
+        name: metricstore:metricstore_official
     type: ImageChange
 status: {}

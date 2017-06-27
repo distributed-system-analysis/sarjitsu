@@ -19,6 +19,10 @@ COPY conf/passwd.template /${HOME}/passwd.template
 
 RUN touch /var/run/nginx.pid
 
+# expose ports for nginx
+ARG PROXY_PORT
+EXPOSE ${PROXY_PORT}
+
 RUN chgrp -R 0 /var/cache/nginx /etc/nginx /var/run/nginx.pid /var/log/nginx/ /var/lib/nginx/ \
   && chmod -R g+rwX /var/cache/nginx /etc/nginx /var/run/nginx.pid /var/log/nginx/ /var/lib/nginx/ \
   && chown -R nginx:root /var/cache/nginx /etc/nginx/ /var/run/nginx.pid /var/log/nginx/ /var/lib/nginx/

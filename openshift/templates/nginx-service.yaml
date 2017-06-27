@@ -7,9 +7,9 @@ metadata:
   name: nginx
 spec:
   ports:
-  - name: "9705"
-    port: 9705
-    targetPort: 8000
+  - name: "8001"
+    port: 8001
+    targetPort: 8001
   selector:
     io.kompose.service: nginx
 status:

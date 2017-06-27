@@ -21,7 +21,7 @@ spec:
       - image: ' '
         name: nginx
         ports:
-        - containerPort: 8000
+        - containerPort: 8001
         resources: {}
       restartPolicy: Always
   test: false

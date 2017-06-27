@@ -7,8 +7,8 @@ metadata:
   name: middleware
 spec:
   ports:
-  - name: "9703"
-    port: 9703
+  - name: "5000"
+    port: 5000
     targetPort: 5000
   selector:
     io.kompose.service: middleware
