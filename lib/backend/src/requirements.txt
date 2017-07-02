@@ -9,9 +9,9 @@ Jinja2==2.9.6
 MarkupSafe==1.0
 pygpgme==0.3
 redis==2.10.5
-requests==2.14.2
+requests==2.18.1
+urllib3==1.21.1
 six==1.9.0
-urllib3==1.12
 uWSGI==2.0.15
 Werkzeug==0.12.2
 WTForms==2.1
