@@ -1,15 +1,35 @@
-Not in this order. This is strictly for self reference and WIP.
+# INSTALLATION
+
+Refer to Official Openshift docs for single node Openshift cluster installation through docker.
+Once you have the `oc` origin client installed and all requirements fullfilled, proceed as follows:
 
 ```
 sudo iptables -F
+
+# needs connection to internet
 oc cluster up
 oc login -u system:admin
 oc whoami
 
+# optionally, to be able to access all projects in web UI of Openshift, from `admin` a/c (pass: `admin`), do this:
+sudo oadm policy add-cluster-role-to-user cluster-admin admin --config=/var/lib/origin/openshift.local.config/master/admin.kubeconfig
+oadm policy add-role-to-user cluster-admin admin
+
 oc cluster status
 ```
 
+Note:
+
+If you're looking to proceed with sarjitsu installation from here on, continue to Step 2 of Openshift deployment, as per README.md
+
+Everything below, is just self reference garbage.
+
 ---
+
+
+## Guiding light (sample OCP commands)
+
+Not in this order. This is strictly for self reference.
 
 ```
 oc new-project arco

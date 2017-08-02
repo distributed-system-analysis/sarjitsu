@@ -1,0 +1,72 @@
+version: '2'
+services:
+  redis:
+    image: "redis:alpine"
+  
+  metricstore:
+    env_file: .env
+    image: arcolife/sarjitsu:metricstore_official
+    expose:
+    - "${DB_PORT}"
+    environment:
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_USER=${DB_USER}
+      - POSTGRESQL_DATABASE=${DB_NAME}
+    ports:
+    - "${METRICSTORE_PORT_MAPPING}:${DB_PORT}"
+
+  datasource:
+    env_file: .env
+    image: arcolife/sarjitsu:elasticsearch
+    ports:
+    - "${DATASOURCE_PORT_MAPPING}:${ES_PORT}"
+
+  frontend:
+    env_file: .env
+    image: arcolife/sarjitsu:grafana
+    ports:
+    - "${FRONTEND_PORT_MAPPING}:${GRAFANA_PORT}"
+    links:
+     - metricstore
+     - datasource
+    depends_on:
+     - metricstore
+     - datasource
+
+  middleware:
+    env_file: .env
+    image: arcolife/sarjitsu:api
+    ports:
+    - "${MIDDLEWARE_PORT_MAPPING}:${MIDDLEWARE_PORT}"
+    depends_on:
+     - datasource
+    links:
+     - datasource
+     - metricstore
+
+  web:
+    restart: always
+    env_file: .env
+    image: sarjitsu:backend
+    ports:
+    - "${BACKEND_PORT_MAPPING}:${BACKEND_SERVER_PORT}"
+    depends_on:
+     - metricstore
+     - datasource
+     - redis
+     - frontend
+     - middleware
+    links:
+     - metricstore
+     - datasource
+     - frontend
+     - middleware
+     - redis
+
+  nginx:
+    restart: always
+    image: arcolife/sarjitsu:proxy
+    ports:
+    - "${PROXY_PORT_MAPPING}:${PROXY_PORT}"
+    links:
+      - web:web

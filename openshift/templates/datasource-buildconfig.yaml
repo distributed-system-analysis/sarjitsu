@@ -17,7 +17,7 @@ spec:
   source:
     contextDir: lib/datasource/
     git:
-      ref: non-root
+      ref: master
       uri: https://github.com/arcolife/sarjitsu.git
     type: Git
   strategy:

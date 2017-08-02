@@ -3,6 +3,8 @@ Table of Contents
 
 - [Sarjitsu](#sarjitsu)
 - [Installation](#installation)
+- [Usage](#usage)
+- [Notes](#notes)
 - [App Flow](#app-flow)
   - [Architecture](#architecture)
   - [Control Flow](#control-flow)
@@ -18,13 +20,13 @@ Sarjitsu ingests a SAR (System Activity Reporter) binary data file (located unde
 
 You could also refer to [this blog post on Sarjitsu](http://arcolife.github.io/blog/2016/06/06/sarjitsu-a-project-on-visualizing-your-systems-activity/) to know more about this app and catch glimpses of some screenshots.
 
-The app is split in 5 container instances as follows:
+The app is composed of following containerized instances:
 
 1) `datasource`: Used to store timeseries data and metadata. A full-text search engine powered by elasticsearch
 
-2) `metricstore`: Postgres powered, used by the frontend (grafana in our case) to store metadata about dashboards, datasource and users.
+2) `metricstore`: PostgreSQL powered, used by the frontend (Grafana) to store metadata about dashboards, datasource and users.
 
-3) `frontend`: Powered by Grafana, a dynamic visualization frontend, which performs 2 duties; sources data from elasticsearch
+3) `frontend`: Powered by Grafana, a dynamic visualization frontend which sources data from elasticsearch, and stored metadata in metricstore.
 
 4) `middleware`: A Python-Flask powered API that talks to backend and metricstore; builds scriped dashboards
 
@@ -32,13 +34,20 @@ The app is split in 5 container instances as follows:
               for users to upload a SA binary file and obtain visualizations.
 
 
+6) `caching`: Redis based caching solution for the web app.
+
+7) `proxy`: Nginx based proxy for web app.
+
+
 Application flow is explained in detail in the section `APP FLOW` below.
 
 # INSTALLATION
 
+## Option 1: Through Docker Compose
+
 Prerequisites: [docker-compose](https://docs.docker.com/compose/)
 
-Copy `env.example` to `.env`. Then, run `$ docker-compose up --build -d`.
+Copy `env.example` to `.env`. Then, run `$ docker-compose up --build -d`
 
 ##### TIPS:
 
@@ -52,31 +61,74 @@ restart: `docker-compose restart`
 kill: `docker-compose kill`
 ```
 
+## Option 2: Through Openshift
+
 - To deploy on OpenShift, you could use [kompose](https://github.com/kubernetes-incubator/kompose):
 
+### Step 1
+
+Get your openshift cluster up and running. Refer to [ose-deployment.md](docs/openshift/ose-deployment.md)
+
+### Step 2
+
+Once it's up, do this:
+
 ```
-$ kompose convert -f docker-compose.yml  --provider openshift
+$ kompose convert -f docker-compose.yml  --provider openshift -o openshift/templates/
+$ oc create -f openshift/templates/
 ```
 
-or
+or this:
 
 ```
 $ kompose up --provider openshift
-$ oc get pods,svc -o wide
-$ oc delete service,dc,is,bc datasource frontend metricstore middleware nginx redis web
-$ kompose down
-```
-	
-- You could also upload files through the commandline tool `vizit`, from under `utils/` folder.
 
-  For using vizit, you need to fulfill requirements as follows:
+# either of:
+$ oc get pods,svc -o wide
+$ oc get pods -w
+$ oc get pods --show-all=false
+```
+
+### Step 3
+
+Once all the pods are running, do this:
+
+```
+$ oc expose svc nginx
+# optionally, supply --hostname='' ..if a DNS hostname resolution entry is reserved for this application.
+```
+
+# USAGE
+
+### Through web
+
+Sarjitsu is accessible through Nginx container's URL / IP address.
+
+- If deployed through docker-compose, access the nginx IP.
+If you've used default settings from `env.example`, the URL should be `http://0.0.0.0:8001/`
+
+- If deployed through openshift, use the exposed nginx route.
+Defaults to sample URL -> `http://nginx-myproject.<your IP address>.xip.io/`
+
+### Through Vizit - sarjitsu's command line tool (for remote servers)
+
+You could also upload files through the commandline tool `vizit`, from under `utils/` folder. This is useful when you're working out of a remote server and unable to access SA binaries (since sarjitsu's web interface requires selection of files from your local machine).
+
+For using vizit, you need to fulfill requirements as follows:
 
   ```sh
+  $ cd utils/
   $ virtualenv venv -p python3
   $ source venv/bin/activate
   $ pip3 install -r requirements.txt
+  ```
 
-  Usage: ./vizit [ options ] [ <datafile/dir path> ]
+Now, edit `conf/vizit.cfg` under `utils/` and update with sarjitsu server's nginx URL/address and Port.
+
+##### Vizit - Usage
+
+```
+  $ ./vizit [ options ] [ <datafile/dir path> ]
 
   Default: $ ./vizit <sa01 path> <sa02 path> ..
 
@@ -84,10 +136,7 @@ $ kompose down
   	[-f path to a single SA binary file.]
   	[-d path to directory with a bunch of SA binary files in it.]
   	[-r path to pbench results dir. Recursively locates all sar.data]
-  ```
-
-  This is useful when you're working out of a remote server and unable to access
-  sa binaries (since sarjitsu's web interface requires selection of files from your local machine).
+```
 
   Some examples:
   ```
@@ -105,7 +154,7 @@ routed your application in that fashion.
 
 ----
 
-##### NOTES
+# NOTES
 
 - Building docker images on first run would take some time, as the images are pulled from dockerhub, customized & built; then packages are installed and so on..
 
@@ -115,11 +164,11 @@ routed your application in that fashion.
   - Grafana > 2.5 and <= 3.0 (containerized version: 3.0.1-1)
   - Postgres == 9.5 (containerized version: 9.5 (dockerhub latest) ..utilizes UPSERT feature introduced in this version)
 
-- Without docker-compose, a container can be started using the following approach:
+- Without docker-compose (WARNING: not recommended / supported anymore), a container can be started using the following approach:
 
 ```
 docker rm -f elastic_jitsu
-docker build -t saitsu_elasticsearch --build-arg ES_PORT=9200 .
+docker build -t sarjitsu_elasticsearch --build-arg ES_PORT=9200 .
 docker run --name elastic_jitsu -p 9601:9200 -d sarjitsu_elasticsearch
 
 ## OR single line:
@@ -129,6 +178,16 @@ docker rm -f elastic_jitsu; docker build -t saitsu_elasticsearch --build-arg ES_
 ## although there's a new method out there for running containers without systemd. Checkout the links:
 1. https://developers.redhat.com/blog/2016/09/13/running-systemd-in-a-non-privileged-container/
 2. https://github.com/RHsyseng/container-rhel-examples/tree/master/starter-systemd
+```
+
+To delete the pods / services as well as the openshift cluster itself,  do this:
+
+```
+$ oc delete service,dc,is,bc datasource frontend metricstore middleware nginx redis web
+
+$ kompose down --provider=openshift
+
+$ oc cluster down
 ```
 
 # APP FLOW
@@ -149,9 +208,12 @@ Following steps involved in visualizing SA binary file:
 - Step 4: Grafana dashboard generated --> Output tagged with the appropriate nodename
 
 
-Sarjitsu's frontend service segragates data into various panels, based on params like CPU, Disk, Network usage.
+Sarjitsu's frontend service segragates data into various panels, based on params
+like CPU, Disk, Network usage.
 
-Description of those parameters could be obtained in detail by running the command `$ man sar` on a linux terminal. Or you could read about them [here on the official man page for sar command](http://linux.die.net/man/1/sar)
+Description of those parameters could be obtained in detail by running the command
+`$ man sar` on a linux terminal. Or you could read about them [here on the official
+man page for sar command](http://linux.die.net/man/1/sar)
 
 # FAQs
 
@@ -167,7 +229,7 @@ Files generated in RHEL 5 OS (old enough) ..upto the ones generated by the lates
   to go see what's wrong / different about the system behavior by instantly getting
   access to all the data indexed in a nice NoSQL based full-text search engine and
   a dynamic visualization playground. It further simplifies this process by providing
-  a web interface to upload these files to!
+  a web interface to upload these files too!
 
   Sarjitsu also automatically detects the time range of the sa files to display the
   time-series visualizations and names the dashboards based on the nodename of your system.
@@ -177,11 +239,15 @@ Files generated in RHEL 5 OS (old enough) ..upto the ones generated by the lates
 #### Is it portable/scalable ?
 
   Sarjitsu is scalable since it keeps the datasource, frontend and backend separately
-  and is based on completely scalable and portable solution, i.e., Elasticsearch, Postgres, Grafana and NodeJs ..in their respective containerized environments using Docker.
+  and is based on completely scalable and portable solution, i.e., Elasticsearch,
+  Postgres, Grafana et al, in their respective containerized environments using Docker.
 
 # Contributions
 
-Please use Github issues list and it's features for contributions. [Click here](https://github.com/distributed-system-analysis/sarjitsu/issues) list of issues. If you think there's a bug in sarjitsu, you're welcome to open an issue here on github and could submit PRs for the same. Any refactoring suggestions/PRs to the app are also welcome.
+Please use Github issues list and its features for contributions.
+[Click here](https://github.com/distributed-system-analysis/sarjitsu/issues) list of issues.
+If you think there's a bug in sarjitsu, you're welcome to open an issue here on github and
+could submit PRs for the same. Any refactoring suggestions/PRs to the app are also welcome.
 
 ### Issue Tracker
 
@@ -190,7 +256,7 @@ The default GitHub Issues and Pull Requests interface.
 ### Upcoming features
 
 - Statistics about top N devices. Example: CPUs, Disks or Network devices.
-- Options to integrate this with hybrid cloud ecosystem.
+- ~~Options to integrate this within cloud ecosystem.~~ <- Runs on openshift as well as docker-compose.
 - ~~Service Discovery for individual components.~~ <- Covered by Docker-Compose / OSE feature
 - Nested documents support in Grafana (Network, CPU, Disks, ..). Refer to [PR #4694 of grafana](https://github.com/grafana/grafana/pull/4694) for more.
 - Timeshift feature to compare 2 different sa binaries

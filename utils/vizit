@@ -58,7 +58,7 @@ done
 
 upload_em_all(){
   CMD=''
-  APP_URL=$BACKEND_HOST:$BACKEND_SERVER_PORT/$MIDDLEWARE_UPLOAD_ENDPOINT
+  APP_URL=$SARJITSU_SERVER_HOST:$SARJITSU_SERVER_PORT/$MIDDLEWARE_UPLOAD_ENDPOINT
   while IFS=  read -r line; do
     CMD+=" -F datafile=@$line"
   done < <(echo "$*")
@@ -68,10 +68,10 @@ upload_em_all(){
   OUTPUT=$(curl --connect-timeout $TIMEOUT -s $CMD -F 'check_all=check_all' -F 'cmd_mode=True' $APP_URL)
 
   if [[ -z $OUTPUT ]]; then      
-      CHECK_HOST=$(ping -c 1 $BACKEND_HOST | grep "1 received")
+      CHECK_HOST=$(ping -c 1 $SARJITSU_SERVER_HOST | grep "1 received")
       if [[ -z $CHECK_HOST ]]; then
 	  log "$APP_URL is down."
-	  log "Check status of your BACKEND_HOST endpoint in conf/sarjitsu.conf"
+	  log "Check status of your SARJITSU_SERVER_HOST endpoint in conf/sarjitsu.conf"
 	  exit 1
       else
 	  log "$APP_URL is up and running, but for some reason, connection timed out. Try again?"
