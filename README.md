@@ -110,6 +110,8 @@ If you've used default settings from `env.example`, the URL should be `http://0.
 - If deployed through openshift, use the exposed nginx route.
 Defaults to sample URL -> `http://nginx-myproject.<your IP address>.xip.io/`
 
+One could experiment with sample SA binaires included in `test/` folder.
+
 ### Through Vizit - sarjitsu's command line tool (for remote servers)
 
 You could also upload files through the commandline tool `vizit`, from under `utils/` folder. This is useful when you're working out of a remote server and unable to access SA binaries (since sarjitsu's web interface requires selection of files from your local machine).
