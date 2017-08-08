@@ -270,7 +270,7 @@ The default GitHub Issues and Pull Requests interface.
 - Start the containers with ``` docker compose up ```
 - kill backend container and keep the rest of 'em running
 - Navigate to ``` sarjitsu/lib/backend/src ```
-- Install dependencies with ``` sudo dnf install python3-gpgme && python3-devel && pip install -r requirements.txt ```
+- Install dependencies with ``` sudo dnf install python3-devel gpgme-devel gpgme && pip install -r requirements.txt ```
 - Modify CFG_PATH in config.py to ``` lib/backend/conf/sar-index.cfg.example ```
 - Make sure your sar-index.cfg.example looks like below
   ``` 
