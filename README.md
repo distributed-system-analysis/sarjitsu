@@ -268,11 +268,17 @@ The default GitHub Issues and Pull Requests interface.
 - Clone the repo
 - run cp ``` cp env.example .env ```
 - Start the containers with ``` docker compose up ```
-- Kill the web container ``` docker kill sarjitsu_web_1 ```
+- kill backend container and keep the rest of 'em running
 - Navigate to ``` sarjitsu/lib/backend/src ```
-- Install dependencies with ``` sudo dnf install python3-devel && pip install -r requirements.txt ```
-- Modify CFG_PATH in config.py to ``` lib/backend/conf/sarjustu.ini.example ```
+- Install dependencies with ``` sudo dnf install python3-gpgme && python3-devel && pip install -r requirements.txt ```
+- Modify CFG_PATH in config.py to ``` lib/backend/conf/sar-index.cfg.example ```
+- Make sure your sar-index.cfg.example looks like below
+  ``` 
+  dashboard_url = 0.0.0.0:3000
+  api_url = http://0.0.0.0:5000/ 
+  ```
 - Set DEBUG=True in config.py
+- Set container ip of redis as host in config.py
 - Run ``` Python server.py ```
 
 ### LICENSE
