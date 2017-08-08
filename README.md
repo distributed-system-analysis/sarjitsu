@@ -266,3 +266,15 @@ The default GitHub Issues and Pull Requests interface.
 ### LICENSE
 
 Refer to GPL v3 `LICENSE` file included in the repo, for reference.
+
+### Setting up development enviorment
+
+- Clone the repo
+- run cp ``` cp env.example .env ```
+- Start the containers with ``` docker compose up ```
+- Kill the web container ``` docker kill sarjitsu_web_1 ```
+- Navigate to ``` sarjitsu/lib/backend/src ```
+- Install dependencies with ``` sudo dnf install python3-devel && pip install -r requirements.txt ```
+- Modify CFG_PATH in config.py to ``` lib/backend/conf/sarjustu.ini.example ```
+- Set DEBUG=True in config.py
+- Run ``` Python server.py ```
