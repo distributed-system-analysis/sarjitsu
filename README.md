@@ -263,11 +263,7 @@ The default GitHub Issues and Pull Requests interface.
 - Nested documents support in Grafana (Network, CPU, Disks, ..). Refer to [PR #4694 of grafana](https://github.com/grafana/grafana/pull/4694) for more.
 - Timeshift feature to compare 2 different sa binaries
 
-### LICENSE
-
-Refer to GPL v3 `LICENSE` file included in the repo, for reference.
-
-### Setting up development enviorment
+### Setting up development environment
 
 - Clone the repo
 - run cp ``` cp env.example .env ```
@@ -278,3 +274,7 @@ Refer to GPL v3 `LICENSE` file included in the repo, for reference.
 - Modify CFG_PATH in config.py to ``` lib/backend/conf/sarjustu.ini.example ```
 - Set DEBUG=True in config.py
 - Run ``` Python server.py ```
+
+### LICENSE
+
+Refer to GPL v3 `LICENSE` file included in the repo, for reference.
