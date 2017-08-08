@@ -275,10 +275,10 @@ The default GitHub Issues and Pull Requests interface.
 - Make sure your sar-index.cfg.example looks like below
   ``` 
   dashboard_url = 0.0.0.0:3000
-  api_url = http://0.0.0.0:5000/ 
+  api_url = http://0.0.0.0:5000/
   ```
-- Set DEBUG=True in config.py
-- Set container ip of redis as host in config.py
+- Set ``` DEBUG=True ``` in config.py
+- Set the IP of container containing redis as host in config.py
 - Run ``` Python server.py ```
 
 ### LICENSE
