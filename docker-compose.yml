@@ -2,6 +2,8 @@ version: '2'
 services:
   redis:
     image: "redis:alpine"
+    ports:
+    - "${CACHE_PORT}:${CACHE_PORT}"
 
   # metricstore:
   #   build:
