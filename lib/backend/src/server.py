@@ -56,7 +56,6 @@ def uploader():
     if request.method == 'POST':
         form = UploadForm(request.form)
         form.datafile = request.files.getlist("datafile")
-        # FIXME: show invalid form reason in response
         if form.validate_on_submit() or form.data['cmd_mode']:
             target =  os.path.join(app.cache.get('saDir').decode('utf-8'),
                                     session.sid)

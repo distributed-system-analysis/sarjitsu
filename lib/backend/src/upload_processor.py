@@ -9,17 +9,17 @@ SINGLE_MODE = list(enumerate(sar_modes['single'], start=1))
 MULTI_MODE = list(enumerate(sar_modes['multiple'], start=1))
 
 def update_cache(sessionID, flag=True, args='A'):
-    #FIXME
-    params = ','.join(list(sar_modes['single'].keys()))
     if flag:
+        params = ','.join(list(sar_modes['single'].keys()))
         arg_data = {
             'argOfsar': args,
             'fields': params
         }
     else:
+        field_values = dict(enumerate(sar_modes['single'], start=1))
         arg_data = {
-            'argOfsar': 'A',
-            'fields': params
+            'argOfsar': args,
+            'fields': ','.join([field_values[i] for i in args])
         }
     app.cache.hmset("sar_args:%s" % sessionID, arg_data)
 
@@ -35,7 +35,6 @@ def update_file_metadata(sessionID, safile):
 
 def begin(target, sessionID, form):
 
-    #FIXME: not using check_all and empty graph_types triggers error
     if form.data['check_all']:
         update_cache(sessionID, flag=True, args='A')
     else:
@@ -69,7 +68,6 @@ def begin(target, sessionID, form):
 
     t_list  = []
     q = dict.fromkeys(filename_list)
-
     for i in range(len(filename_list)):
         t = Thread(target=data_processor.prepare, daemon=True,
                 args=(sessionID, target, filename_list[i], q))
