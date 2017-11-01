@@ -22,11 +22,6 @@ from flask import Flask, \
 
 # user modules
 import upload_processor
-from config import \
-    HOST, \
-    PORT, \
-    DEBUG,\
-    TEMPLATE_CONFIGURATION
 
 config = configparser.ConfigParser()
 config.read(app.config.get('CFG_PATH'))
@@ -50,7 +45,7 @@ def home():
                                 data=False,
                                 form=form,
                                 progress=0,
-                                **TEMPLATE_CONFIGURATION)
+                                **app.config.get('TEMPLATE_CONFIGURATION'))
 
 
 @app.route('/upload/', methods=['POST'])
@@ -74,7 +69,7 @@ def uploader():
         if not dashboard_url:
             import socket; IP = socket.gethostbyname('frontend')
             dashboard_url = "http://%s:3000" % IP
-            
+
         if form.data['cmd_mode']:
             res = {
                 "valid_results": _valid_results_found,
@@ -90,7 +85,7 @@ def uploader():
                 valid_results=_valid_results_found,
                 redirect_url=dashboard_url,
                 progress=100,
-                **TEMPLATE_CONFIGURATION)
+                **app.config.get('TEMPLATE_CONFIGURATION'))
 
     abort(405)
 
@@ -123,15 +118,15 @@ def template_loader(template='404'):
                                 data=False,
                                 form=form,
                                 progress=0,
-                                **TEMPLATE_CONFIGURATION)
+                                **app.config.get('TEMPLATE_CONFIGURATION'))
     except:
         abort(404)
 
 
 if __name__ == '__main__':
     try:
-        app.run(host = HOST,
-                port = PORT,
-                debug = DEBUG)
+        app.run(host = app.config.get('HOST'),
+                port = app.config.get('PORT'),
+                debug = app.config.get('DEBUG'))
     except:
         raise
