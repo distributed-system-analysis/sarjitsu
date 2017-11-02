@@ -263,6 +263,24 @@ The default GitHub Issues and Pull Requests interface.
 - Nested documents support in Grafana (Network, CPU, Disks, ..). Refer to [PR #4694 of grafana](https://github.com/grafana/grafana/pull/4694) for more.
 - Timeshift feature to compare 2 different sa binaries
 
+### Setting up development environment
+
+- Clone the repo
+- run cp ``` cp env.example .env ```
+- Start the containers with ``` docker compose up ```
+- kill backend container and keep the rest of 'em running
+- Navigate to ``` sarjitsu/lib/backend/src ```
+- Install dependencies with ``` sudo dnf install python3-devel gpgme-devel gpgme && pip install -r requirements.txt ```
+- Modify CFG_PATH in config.py to ``` lib/backend/conf/sar-index.cfg.example ```
+- Make sure your sar-index.cfg.example looks like below
+  ``` 
+  dashboard_url = 0.0.0.0:3000
+  api_url = http://0.0.0.0:5000/
+  ```
+- Set ``` DEBUG=True ``` in config.py
+- Set the IP of container containing redis as host in config.py
+- Run ``` Python server.py ```
+
 ### LICENSE
 
 Refer to GPL v3 `LICENSE` file included in the repo, for reference.
