@@ -5,6 +5,7 @@ Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
 - [Notes](#notes)
+- [development](#development)
 - [App Flow](#app-flow)
   - [Architecture](#architecture)
   - [Control Flow](#control-flow)
@@ -190,6 +191,91 @@ $ oc delete service,dc,is,bc datasource frontend metricstore middleware nginx re
 $ kompose down --provider=openshift
 
 $ oc cluster down
+```
+
+# Development
+
+### Setting up development environment for web/backend service
+
+We've included a script that automates following steps `lib/backend/activate_dev_mode`.
+
+But as of now, it only works with Fedora OS.
+For other Operating Systems, refer below:
+
+- Clone the repo
+- run cp `cp env.example .env`
+- Start the containers with `docker compose up -d`.
+- Kill the web container `docker-compose kill web` and make sure rest are running `docker-compose ps`
+
+Output should be like this:
+```
+Name                       Command                State             Ports         
+-------------------------------------------------------------------------------------------
+sarjitsu_datasource_1    /docker-entrypoint.sh elastic    Up         0.0.0.0:9200->9200/tcp
+sarjitsu_frontend_1      /docker-entrypoint.sh graf ...   Up         0.0.0.0:3000->3000/tcp
+sarjitsu_metricstore_1   container-entrypoint run-p ...   Up         0.0.0.0:5432->5432/tcp
+sarjitsu_middleware_1    /docker-entrypoint.sh api_ ...   Up         0.0.0.0:5000->5000/tcp
+sarjitsu_nginx_1         /docker-entrypoint.sh prox ...   Up         0.0.0.0:8001->8001/tcp
+sarjitsu_redis_1         docker-entrypoint.sh redis ...   Up         0.0.0.0:6379->6379/tcp
+sarjitsu_web_1           /docker-entrypoint.sh backend    Exit 137            
+```
+
+- Next, navigate to ``` sarjitsu/lib/backend/``` and run this:
+
+```sh
+echo '
+[ElasticSearch]
+host = 0.0.0.0
+port = 9200
+
+[Settings]
+index_prefix = sarjitsu
+index_version = 1
+bulk_action_count = 2000
+number_of_shards = 5
+number_of_replicas = 1
+
+[Grafana]
+dashboard_url = 0.0.0.0:3000
+api_url = http://0.0.0.0:5000/
+' > conf/sar-index.cfg
+
+echo 'DEBUG = True' > src/config_local.py
+echo 'CFG_PATH = "'$(realpath conf/sar-index.cfg)'"' >> src/config_local.py
+```
+
+- Install following officially supported packages for your OS distribution:
+
+For Ubuntu OS:
+
+```sh
+sudo apt-get install libgpgme11 libgpgme11-dev python3-gpgme python3-dev
+```
+
+For Fedora OS:
+
+```sh
+sudo dnf install python3-devel gpgme-devel gpgme
+```
+- Activate virtualenv for python3 and install `pip` dependencies:
+
+```sh
+virtualenv -p python3 venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+- Run this to connect `redis` hostname: `echo '0.0.0.0 redis' | sudo tee -a /etc/hosts`
+- Run this from `lib/backend`:  
+
+```sh
+export VOS_CONFIG_PATH="$(realpath conf/sar-index.cfg)"
+```
+
+- Run server:
+```sh
+cd src/
+./server.py
 ```
 
 # APP FLOW

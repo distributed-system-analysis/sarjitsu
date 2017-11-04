@@ -50,13 +50,15 @@ def extract(sessionID, target, sa_filename):
                                cfg_name=app.config.get('CFG_PATH'),
                                run_unique_id=sessionID,
                                run_md5=sessionID)
+        # import pdb; pdb.set_trace()
+
         if state:
             TSTAMPS['grafana_range_begin'] = beg
             TSTAMPS['grafana_range_end'] = end
     except Exception as E:
         #FIXME: remove if we use the try: approach in future.
-        app.logger.warn("=====Running alternate ES indexing script======")
         app.logger.warn(E)
+        app.logger.warn("=====Running alternate ES indexing script======")
         CMD_INDEXING = ['scripts/vos/analysis/bin/index-sar',
                         SAR_XML_FILEPATH, NODENAME]
         app.logger.info('ES indexing cmd: ' + " ".join(CMD_INDEXING))
