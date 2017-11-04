@@ -199,7 +199,7 @@ $ oc cluster down
 
 We've included a script that automates following steps `lib/backend/activate_dev_mode`.
 
-But as of now, it only works with Fedora OS.
+But as of now, it only works with Fedora and Ubuntu OS.
 For other Operating Systems, refer below:
 
 - Clone the repo
@@ -236,8 +236,8 @@ number_of_shards = 5
 number_of_replicas = 1
 
 [Grafana]
-dashboard_url = 0.0.0.0:3000
-api_url = http://0.0.0.0:5000/
+dashboard_url = http://0.0.0.0:3000
+api_url = http://0.0.0.0:5000/db/create/
 ' > conf/sar-index.cfg
 
 echo 'DEBUG = True' > src/config_local.py

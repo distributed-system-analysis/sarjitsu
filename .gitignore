@@ -21,3 +21,4 @@ logs/
 venv
 .env
 utils/results.txt
+config_local.py

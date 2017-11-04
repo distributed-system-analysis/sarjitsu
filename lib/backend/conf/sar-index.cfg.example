@@ -1,5 +1,5 @@
 [ElasticSearch]
-host = 
+host =
 port = 9200
 
 [Settings]
@@ -10,5 +10,5 @@ number_of_shards = 5
 number_of_replicas = 1
 
 [Grafana]
-dashboard_url = 
-api_url = http://middleware:80/
+dashboard_url =
+api_url = http://middleware:80/db/create/
