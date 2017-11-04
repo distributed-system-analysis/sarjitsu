@@ -4,8 +4,8 @@
 {% block dashboard %}
 <section class='container'>
   <div align="center" class="row">
-
-    {% if valid_results %}
+  
+    <!-- {% if valid_results %}
     <div class="progress progress-striped active">
       <div class="progress-bar" style="width: {{progress}}%"></div>
     </div>
@@ -14,7 +14,7 @@
         the visualization dashboard for your data
       </p>
     </div>
-    {% endif %}
+    {% endif %} -->
 
 
     <div class="panel panel-info">
@@ -36,7 +36,40 @@
           </thead>
           <tbody>
 
-            {% for item in data %}
+            <script type="text/javascript" charset="utf-8">
+        // var sessionID = {{data["sessionId"]}};
+        // document.write(sessionID);
+    var socket = io.connect('http://' + document.domain + ':' + location.port + "/get_result");
+    var sessionID = "{{data["sessionID"]}}"
+    var fileCount = "{{data["file_count"]}}"
+    var fileList = {{data["file_list"] | safe}}
+    socket.on('connect', function() {
+        // document.write(sessionID);
+        socket.emit('get results', {"sessionID" : sessionID, "tota_files" : fileCount, "file_list" : fileList});
+
+    });
+
+    socket.on('response', function(response_json) {
+      var tbody = document.getElementById('results_table');
+                for (var key in response_json) {
+    // check if the property/key is defined in the object itself, not in parent
+    // if (response_json.hasOwnProperty(key)) {           
+    //     key, response_json[key];
+    file_data = response_json[key];
+    var tr = "<tr>";
+        tr += "<td>" + file_data.filename + "</td>" + "<td>" + file_data.sadf_type_det + "</td>" + "<td>" + file_data.nodename + "</td> + <td></td></tr>";
+    // }
+    $("#results_table tbody").append(tr);
+}
+});
+    
+    // socket.on('connect', function() {
+    //     socket.emit('my event', {data: 'I\'m connected!'});
+    // });
+</script>
+           <!--  {% for item in data %}
+            console.log(item)
+
             <tr>
               <td>
                 {% if item.0 %}
@@ -53,14 +86,12 @@
               </td>
               <td>
                 {% if item.0 %}
-                <span class="label label-primary">Begin:</span> {{ item.4.grafana_range_begin |datetime }}
-                &nbsp;<span class="label label-primary">End:</span> {{ item.4.grafana_range_end |datetime }}
                 {% else %}
                 <pre style="white-space:pre-wrap;">{{ item.4 }}</pre>
                 {% endif %}
               </td>
             </tr>
-            {% endfor %}
+            {% endfor %} -->
           </tbody>
         </table>
 

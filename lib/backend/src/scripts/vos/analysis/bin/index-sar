@@ -47,7 +47,6 @@ try:
 except IndexError:
     indexname = ''
 
-# cfg_name = "/opt/sarjitsu/conf/sar-index.cfg"
 cfg_name = os.environ.get('VOS_CONFIG_PATH')
 if cfg_name is None:
     print("Need VOS_CONFIG_PATH environment variable defined", file=sys.stderr)
