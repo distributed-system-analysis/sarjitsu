@@ -19,15 +19,6 @@ MAINTAINER arcolife <archit.py@gmail.com>
 # deps
 RUN dnf --setopt=deltarpm=false -y install net-tools procps git tar bzip2 redis python3-devel gcc nss_wrapper gettext
 
-# scaffolding
-RUN mkdir -p /opt/sarjitsu/conf
-ADD src/ /opt/sarjitsu/src
-RUN cd /opt/sarjitsu/src && pip3 install -r requirements.txt
-
-# copy configs from example files and modify them later through entrypoint
-COPY conf/sarjitsu.ini.example /opt/sarjitsu/conf/sarjitsu.ini
-COPY conf/sar-index.cfg.example /opt/sarjitsu/conf/sar-index.cfg
-
 ENV VOS_CONFIG_PATH=/opt/sarjitsu/conf/sar-index.cfg
 
 ARG ES_HOST
@@ -61,6 +52,17 @@ ENV BACKEND_SERVER_PORT=${BACKEND_SERVER_PORT}
 EXPOSE ${BACKEND_SERVER_PORT}
 
 RUN useradd -ms /bin/bash flask
+
+# scaffolding
+RUN mkdir -p /opt/sarjitsu/conf
+
+# copy configs from example files and modify them later through entrypoint
+COPY conf/sarjitsu.ini.example /opt/sarjitsu/conf/sarjitsu.ini
+COPY conf/sar-index.cfg.example /opt/sarjitsu/conf/sar-index.cfg
+COPY src/requirements.txt /opt/sarjitsu/
+RUN cd /opt/sarjitsu/ && pip3 install -r requirements.txt
+
+ADD src/ /opt/sarjitsu/src
 
 RUN chgrp -R 0 /opt/sarjitsu/ \
   && chmod -R g+rwX /opt/sarjitsu/ \
