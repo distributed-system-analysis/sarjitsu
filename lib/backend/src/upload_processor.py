@@ -80,12 +80,22 @@ def begin(target, sessionID, form):
         nodename, meta, sadf = q[filename]
         result = [filename, sadf, nodename, meta]
         if not meta:
-            #FIXME: on failure, delete all uploaded files
+            #We have a failure here, let's delete the uploaded files
+            try:
+                remove_target = os.path.join(target, filename)
+                os.remove(remove_target)
+            except OSError:
+                app.logger.info("Unable to delete %s" % remove_target)	
             result.insert(0, False)
             # add message in meta
             result[-1] = "ES Indexing Failed"
         elif meta == "Invalid":
-            #FIXME: on failure, delete all uploaded files
+            #Delete the files if there is an error
+            try:
+                remove_target = os.path.join(target, filename)
+                os.remove(remove_target)
+            except OSError:
+                app.logger.info("Unable to delete %s" % remove_target)
             result.insert(0, False)
             # add message in meta
             result[-1] = "Invalid Input"
