@@ -44,11 +44,11 @@ def begin(target, sessionID, form):
 
     try:
         os.makedirs(target)
-    except FileExistsError:
+    except OSError:
         app.logger.info("Folder %s exists.." % target)
     except Exception as E:
         #FIXME check this part and confirm it
-        return 500
+        return (False, 500)
 
     filename_list = []
     for upload in form.datafile:
