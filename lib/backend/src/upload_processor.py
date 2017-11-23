@@ -33,6 +33,29 @@ def update_file_metadata(sessionID, safile):
     app.cache.hmset("file_metadata:%s:%s" %
                         (sessionID, safile), file_metadata)
 
+def upload_files(target, sessionID, datafiles):
+    """Upload the files to the server directory
+
+    Keyword arguments:
+    target - The target directory to upload the files to
+    sessionID - The user session ID
+    datafiles - The list of the files to be uploaded
+    
+    Returns:
+        List
+    """
+
+    filename_list = []
+    for datafile in datafiles:
+        filename = secure_filename(datafile.filename).rsplit("/")[0]
+        update_file_metadata(sessionID, filename)
+        filename_list.append(filename)
+        destination = os.path.join(target, filename)
+        app.logger.info("Accepting incoming file: %s" % filename)
+        app.logger.info("Saving it to %s" % destination)
+        datafile.save(destination)
+    return filename_list
+
 def begin(target, sessionID, form):
 
     #FIXME: not using check_all and empty graph_types triggers error
@@ -44,15 +67,7 @@ def begin(target, sessionID, form):
 
     os.makedirs(target, exist_ok=True)
 
-    filename_list = []
-    for upload in form.datafile:
-        filename = secure_filename(upload.filename).rsplit("/")[0]
-        update_file_metadata(sessionID, filename)
-        filename_list.append(filename)
-        destination = os.path.join(target, filename)
-        app.logger.info("Accepting incoming file: %s" % filename)
-        app.logger.info("Saving it to: %s" % destination)
-        upload.save(destination)
+    filename_list = upload_files(target, sessionID, form.datafiles)
 
     app.cache.set("filenames:%s" % sessionID, filename_list)
     response = {"nodenames_info": []}
