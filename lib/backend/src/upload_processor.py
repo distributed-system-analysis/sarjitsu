@@ -42,13 +42,7 @@ def begin(target, sessionID, form):
         _tmp = form.data['graph_types']
         update_cache(sessionID, flag=False, args=_tmp)
 
-    try:
-        os.makedirs(target)
-    except FileExistsError:
-        app.logger.info("Folder %s exists.." % target)
-    except Exception as E:
-        #FIXME check this part and confirm it
-        return 500
+    os.makedirs(target, exist_ok=True)
 
     filename_list = []
     for upload in form.datafile:
