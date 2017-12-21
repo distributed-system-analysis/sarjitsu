@@ -14,8 +14,8 @@ RUN dnf -y install procps net-tools java-1.8.0-openjdk initscripts
 # # ensure elasticsearch user exists
 # RUN addgroup -S elasticsearch && adduser -S -G elasticsearch elasticsearch
 
-RUN rpm -Uvh https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.3.noarch.rpm
-RUN /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
+RUN rpm -Uvh https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.1.1.rpm
+# RUN /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
 
 RUN dnf -y install nss_wrapper gettext
 

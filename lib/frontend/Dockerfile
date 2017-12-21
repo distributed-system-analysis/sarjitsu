@@ -11,11 +11,11 @@ FROM fedora:25
 MAINTAINER arcolife <archit.py@gmail.com>
 
 # install grafana
-RUN dnf -y install initscripts fontconfig python3-pip nss_wrapper gettext
+RUN dnf -y install initscripts fontconfig python3-pip nss_wrapper gettext urw-fonts
 RUN pip3 install configparser
 
 # needed for psycopg2 postgres library
-RUN rpm -Uvh https://grafanarel.s3.amazonaws.com/builds/grafana-3.0.1-1.x86_64.rpm
+RUN rpm -Uvh https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-4.6.3-1.x86_64.rpm
 
 COPY conf/grafana.ini.example /etc/grafana/grafana.ini
 

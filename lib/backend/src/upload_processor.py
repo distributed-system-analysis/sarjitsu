@@ -40,7 +40,7 @@ def upload_files(target, sessionID, datafiles):
     target - The target directory to upload the files to
     sessionID - The user session ID
     datafiles - The list of the files to be uploaded
-    
+
     Returns:
         List
     """
@@ -66,7 +66,7 @@ def begin(target, sessionID, form):
 
     os.makedirs(target, exist_ok=True)
 
-    filename_list = upload_files(target, sessionID, form.datafiles)
+    filename_list = upload_files(target, sessionID, form.datafile)
 
     app.cache.set("filenames:%s" % sessionID, filename_list)
     response = {"nodenames_info": []}
@@ -98,7 +98,7 @@ def begin(target, sessionID, form):
                 remove_target = os.path.join(target, filename)
                 os.remove(remove_target)
             except OSError:
-                app.logger.info("Unable to delete %s" % remove_target)	
+                app.logger.info("Unable to delete %s" % remove_target)
             result.insert(0, False)
             # add message in meta
             result[-1] = "ES Indexing Failed"

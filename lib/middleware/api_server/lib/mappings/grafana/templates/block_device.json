@@ -6,7 +6,7 @@
     {
       "aliasColors": {},
       "bars": false,
-      "datasource": "vos-test",
+      "datasource": "elastic",
       "editable": true,
       "error": false,
       "fill": 1,
@@ -48,7 +48,7 @@
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -67,12 +67,12 @@
           ],
           "query": "",
           "refId": "A",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         },
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -91,12 +91,12 @@
           ],
           "query": "disk.disk-device:dev8-16",
           "refId": "B",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         },
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -115,12 +115,12 @@
           ],
           "query": "disk.disk-device:dev8-16",
           "refId": "C",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         },
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -139,12 +139,12 @@
           ],
           "query": "disk.disk-device:dev8-16",
           "refId": "D",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         },
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -163,12 +163,12 @@
           ],
           "query": "disk.disk-device:dev8-16",
           "refId": "E",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         },
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -187,12 +187,12 @@
           ],
           "query": "disk.disk-device:dev8-16",
           "refId": "F",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         },
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -211,12 +211,12 @@
           ],
           "query": "disk.disk-device:dev8-16",
           "refId": "G",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         },
         {
           "bucketAggs": [
             {
-              "field": "_timestamp",
+              "field": "recorded_on",
               "id": "2",
               "settings": {
                 "interval": "auto"
@@ -235,7 +235,7 @@
           ],
           "query": "disk.disk-device:dev8-16",
           "refId": "H",
-          "timeField": "_timestamp"
+          "timeField": "recorded_on"
         }
       ],
       "timeFrom": null,

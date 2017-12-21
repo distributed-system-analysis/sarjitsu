@@ -12,9 +12,9 @@ number_of_replicas = 5
 sar_template_version=02
 
 [Grafana]
-ds_name = vos-test
+ds_name = elastic
 pattern = [sarjitsu.sar-]YYYYMMDD
-timeField = _timestamp
+timeField = recorded_on
 templates_path = /opt/api_server/lib/mappings/
 
 [Api]

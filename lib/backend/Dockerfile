@@ -74,6 +74,9 @@ COPY conf/passwd.template /${HOME}/passwd.template
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+# cleanup development mode traces while building the image again
+RUN rm -f /opt/sarjitsu/src/config_local.py
+
 USER flask
 
 CMD ["backend"]

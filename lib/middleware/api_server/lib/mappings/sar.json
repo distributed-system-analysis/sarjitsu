@@ -1,284 +1,189 @@
 {
-  "sar": {
-    "_timestamp": {
-      "enabled": true,
-      "store": true,
-      "fielddata": {
-        "format": "doc_values"
-      }
-    },
-    "properties": {
-      "_metadata": {
-        "properties": {
-          "file-date": {
-            "type": "date",
-            "format": "yyyy-MM-dd",
-            "fielddata": {
-              "format": "doc_values"
+  "mappings": {
+    "sar": {
+      "properties": {
+        "cpu-load": {
+          "properties": {
+            "cpu": {
+              "type": "keyword"
             }
           },
-          "machine": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
+          "type": "nested"
+        },
+        "serial": {
+          "properties": {
+            "line": {
+              "type": "keyword"
             }
           },
-          "nodename": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
+          "type": "nested"
+        },
+        "filesystems": {
+          "properties": {
+            "filesystem": {
+              "type": "keyword"
             }
           },
-          "number-of-cpus": {
-            "type": "integer",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          },
-          "release": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          },
-          "sysdata-version": {
-            "type": "float",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          },
-          "sysname": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "timestamp": {
-        "properties": {
-          "date": {
-            "type": "date",
-            "format": "yyyy-MM-dd",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          },
-          "time": {
-            "type": "date",
-            "format": "HH:mm:ss",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "cpu-load": {
-        "type": "nested",
-        "properties": {
-          "cpu": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "cpu-load-all": {
-        "type": "nested",
-        "properties": {
-          "cpu": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "disk": {
-        "type": "nested",
-        "properties": {
-          "disk-device": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "interrupts": {
-        "type": "nested",
-        "properties": {
-          "intr": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "interrupts-processor": {
-        "type": "nested",
-        "properties": {
-          "intr": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          },
-          "cpu": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "filesystems": {
-        "type": "nested",
-        "properties": {
-          "filesystem": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
-            }
-          }
-        }
-      },
-      "network": {
-        "properties": {
-          "net-dev": {
-            "type": "nested",
-            "properties": {
-              "iface": {
-                "type": "string",
-                "index": "not_analyzed",
-                "fielddata": {
-                  "format": "doc_values"
-                }
-              }
-            }
-          },
-          "net-edev": {
-            "type": "nested",
-            "properties": {
-              "iface": {
-                "type": "string",
-                "index": "not_analyzed",
-                "fielddata": {
-                  "format": "doc_values"
-                }
-              }
-            }
-          }
-        }
-      },
-      "power-management": {
-        "properties": {
-          "cpu-frequency": {
-            "type": "nested",
-            "properties": {
-              "number": {
-                "type": "string",
-                "index": "not_analyzed",
-                "fielddata": {
-                  "format": "doc_values"
-                }
-              }
-            }
-          },
-          "fan-speed": {
-            "type": "nested",
-            "properties": {
-              "device": {
-                "type": "string"
-              },
-              "number": {
-                "type": "string",
-                "index": "not_analyzed",
-                "fielddata": {
-                  "format": "doc_values"
-                }
-              }
-            }
-          },
-          "temperature": {
-            "type": "nested",
-            "properties": {
-              "device": {
-                "type": "string"
-              },
-              "number": {
-                "type": "string",
-                "index": "not_analyzed",
-                "fielddata": {
-                  "format": "doc_values"
-                }
-              }
-            }
-          },
-          "voltage-input": {
-            "type": "nested",
-            "properties": {
-              "device": {
-                "type": "string"
-              },
-              "number": {
-                "type": "string",
-                "index": "not_analyzed",
-                "fielddata": {
-                  "format": "doc_values"
-                }
-              }
-            }
-          },
-          "usb-devices": {
-            "type": "nested",
-            "properties": {
-              "bus_number": {
-                "type": "string",
-                "index": "not_analyzed",
-                "fielddata": {
-                  "format": "doc_values"
+          "type": "nested"
+        },
+        "network": {
+          "properties": {
+            "net-dev": {
+              "properties": {
+                "iface": {
+                  "doc_values": true,
+                  "type": "keyword"
                 }
               },
-              "idvendor": {
-                "type": "string"
+              "type": "nested"
+            },
+            "net-edev": {
+              "properties": {
+                "iface": {
+                  "doc_values": true,
+                  "type": "keyword"
+                }
               },
-              "idprod": {
-                "type": "string"
-              },
-              "manufact": {
-                "type": "string"
-              },
-              "product": {
-                "type": "string"
-              }
+              "type": "nested"
             }
           }
-        }
-      },
-      "serial": {
-        "type": "nested",
-        "properties": {
-          "line": {
-            "type": "string",
-            "index": "not_analyzed",
-            "fielddata": {
-              "format": "doc_values"
+        },
+        "disk": {
+          "properties": {
+            "disk-device": {
+              "type": "keyword"
+            }
+          },
+          "type": "nested"
+        },
+        "interrupts": {
+          "properties": {
+            "intr": {
+              "type": "keyword"
+            }
+          },
+          "type": "nested"
+        },
+        "cpu-load-all": {
+          "properties": {
+            "cpu": {
+              "type": "keyword"
+            }
+          },
+          "type": "nested"
+        },
+        "power-management": {
+          "properties": {
+            "temperature": {
+              "properties": {
+                "number": {
+                  "doc_values": true,
+                  "type": "keyword"
+                },
+                "device": {
+                  "type": "keyword"
+                }
+              },
+              "type": "nested"
+            },
+            "voltage-input": {
+              "properties": {
+                "number": {
+                  "doc_values": true,
+                  "type": "keyword"
+                },
+                "device": {
+                  "type": "keyword"
+                }
+              },
+              "type": "nested"
+            },
+            "cpu-frequency": {
+              "properties": {
+                "number": {
+                  "doc_values": true,
+                  "type": "keyword"
+                }
+              },
+              "type": "nested"
+            },
+            "usb-devices": {
+              "properties": {
+                "product": {
+                  "type": "keyword"
+                },
+                "bus_number": {
+                  "doc_values": true,
+                  "type": "keyword"
+                },
+                "idprod": {
+                  "type": "keyword"
+                },
+                "manufact": {
+                  "type": "keyword"
+                },
+                "idvendor": {
+                  "type": "keyword"
+                }
+              },
+              "type": "nested"
+            },
+            "fan-speed": {
+              "properties": {
+                "number": {
+                  "doc_values": true,
+                  "type": "keyword"
+                },
+                "device": {
+                  "type": "keyword"
+                }
+              },
+              "type": "nested"
             }
           }
+        },
+        "_metadata": {
+          "properties": {
+            "sysdata-version": {
+              "doc_values": true,
+              "type": "float"
+            },
+            "sysname": {
+              "type": "keyword"
+            },
+            "machine": {
+              "type": "keyword"
+            },
+            "number-of-cpus": {
+              "doc_values": true,
+              "type": "integer"
+            },
+            "file-date": {
+              "format": "yyyy-MM-dd",
+              "doc_values": true,
+              "type": "date"
+            },
+            "release": {
+              "type": "keyword"
+            },
+            "nodename": {
+              "type": "keyword"
+            }
+          }
+        },
+        "interrupts-processor": {
+          "properties": {
+            "intr": {
+              "type": "keyword"
+            },
+            "cpu": {
+              "type": "keyword"
+            }
+          },
+          "type": "nested"
+        },
+        "recorded_on": {
+          "type": "date"
         }
       }
     }
