@@ -1,6 +1,6 @@
 from app import celery_app
 from celery import task
-from data_processor import prepare, post_prepare
+from data_processor import prepare
 
 @celery_app.task()
 def file_processor(sessionID, target, sa_filename):

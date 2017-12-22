@@ -42,27 +42,61 @@
     var socket = io.connect('http://' + document.domain + ':' + location.port + "/get_result");
     var sessionID = "{{data["sessionID"]}}"
     var fileCount = "{{data["file_count"]}}"
-    var fileList = {{data["file_list"] | safe}}
+    fileList = {{data["file_list"] | safe}}
+    var searchKeys = []
     socket.on('connect', function() {
         // document.write(sessionID);
+
         socket.emit('get results', {"sessionID" : sessionID, "tota_files" : fileCount, "file_list" : fileList});
+        var black_list = []
+        for (var i = 0; i < file_list; i++) {
+          socket.emit('get results', {"sessionID" : sessionID, "file" : file_list[i]});
+          
+      }
+
 
     });
 
     socket.on('response', function(response_json) {
+      searchKeys = Object.keys(response_json);
       var tbody = document.getElementById('results_table');
-                for (var key in response_json) {
+                
     // check if the property/key is defined in the object itself, not in parent
     // if (response_json.hasOwnProperty(key)) {           
     //     key, response_json[key];
-    file_data = response_json[key];
-    var tr = "<tr>";
-        tr += "<td>" + file_data.filename + "</td>" + "<td>" + file_data.sadf_type_det + "</td>" + "<td>" + file_data.nodename + "</td> + <td></td></tr>";
+    var black_list = []
+    for (var i = 0; i < file_list; i++) {
+    
+    }
+    file_data = response_json;
+    
+    var tr = "<tr id="+ file_data.filename + ">";
+        var filename;
+        var status;
+        if (file_data["if_valid"]) {  
+          filename = "<span class='label label-success'>" + file_data.filename + "</span>";
+          status = "<span class='label label-primary'>Begin:</span>" + file_data.tstamp_beg + "<span class='label label-primary'>End:</span>" + file_data.tstamp_end;
+        } 
+        else{
+          filename = "<span class='label label-danger'>" + file_data.filename + "</span>";
+          status = "<pre style='white-space:pre-wrap;''>"+ "Invalid File" + '</pre>';
+        }  
+
+
+    //     key, response_json[key];
+        tr += "<td id=filename>" + filename + "</td>" + "<td id=systat >" + file_data.sadf_type_det + "</td>" + "<td id=hostname>" + file_data.nodename + "</td> + <td id=status>" + status + "</td></tr>";
     // }
     $("#results_table tbody").append(tr);
-}
 });
+socket.on('poll', function() {
+      
+                for (var key in searchKeys) {
+    socket.emit('poll check', {"SearchKey": key});
+}
+
     
+});
+
     // socket.on('connect', function() {
     //     socket.emit('my event', {data: 'I\'m connected!'});
     // });
