@@ -6,6 +6,8 @@
 # Create the sar index templates, with explicit mappings found in
 # ../lib/mappings/*.json.
 
+# command line alternative
+# curl -s -H 'Content-Type: application/json' -XPUT 'http://0.0.0.0:9200/_template/sarjitsu.sar-02' -d @/home/arcolife/template.json | json_pp
 
 from __future__ import print_function
 
@@ -44,12 +46,6 @@ SAR_VERSION = config.get('Settings', 'sar_template_version')
 #
 #     http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
 settings = dict(
-    codec=dict(
-        bloom=dict(
-            load='false')),
-    gateway=dict(
-        local=dict(
-            sync='1m')),
     merge=dict(
         scheduler=dict(
             max_thread_count=1)),
@@ -66,6 +62,7 @@ NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
 if NUMBER_OF_REPLICAS:
     settings['number_of_replicas'] = NUMBER_OF_REPLICAS
 
+
 def fetch_mapping(mapping_fn):
     with open(mapping_fn, "r") as mappingfp:
         try:
@@ -73,23 +70,23 @@ def fetch_mapping(mapping_fn):
         except ValueError as err:
             print("%s: %s" % (mapping_fn, err), file=sys.stderr)
             sys.exit(1)
-    keys = list(mapping.keys())
-    if len(keys) != 1:
+    # alternate validity check:
+    # BASIC_TEMPLATE_KEYS = {'settings', 'mappings', 'index_patterns'}
+    # if set(mapping.keys()) != BASIC_TEMPLATE_KEYS:
+    if len(mapping.keys()) != 1:
         print("Invalid mapping file: %s" % mapping_fn, file=sys.stderr)
         sys.exit(1)
-    return keys[0], mapping
+    return mapping['mappings']
 
 import glob, json
 
-LIBDIR = '/opt/api_server/lib/mappings/'
+LIBDIR = config.get('Grafana', 'templates_path')
 
-key, mapping = fetch_mapping(os.path.join(LIBDIR, "sar.json"))
-
-sar_mappings = { key: mapping }
-sar_settings = settings
+sar_mappings = fetch_mapping(os.path.join(LIBDIR, "sar.json"))
+pattern_1 = '%s.sar-*' % (INDEX_PREFIX,)
 sar_body = dict(
-    template='%s.sar-*' % (INDEX_PREFIX,),
-    settings=sar_settings,
+    index_patterns = [ pattern_1 ],
+    settings=settings,
     mappings=sar_mappings)
 
 # Silence logging messages from the elasticsearch client library
@@ -112,6 +109,7 @@ es = Elasticsearch(hosts)
 
 def create_template(tname, tbody):
     if es.indices.exists_template(name=tname):
+        print("Template %s exists" % tname)
         return
     try:
         res = es.indices.put_template(name=tname, body=tbody)
@@ -129,5 +127,4 @@ def create_template(tname, tbody):
         print("Created template %s" % tname)
 
 tname = '%s.sar-%s' % (INDEX_PREFIX, SAR_VERSION)
-sar_body['template'] = '%s.sar-*' % (INDEX_PREFIX,)
 create_template(tname, sar_body)

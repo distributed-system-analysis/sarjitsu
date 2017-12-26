@@ -114,12 +114,13 @@ def gen_action(index, rec, nodename, ts):
     md5 = hashlib.md5((nodename + ts).encode('utf-8'))
     ts_all.append(ts)
     # ix_all.append(index)
+    rec['recorded_on'] = ts
     action = {
         "_op_type": _op_type,
         "_index": index,
         "_type": DOCTYPE,
         "_id": md5.hexdigest(),
-        "_timestamp": ts,
+        # "_timestamp": ts,
         "_source": rec
         }
     return action
@@ -409,6 +410,7 @@ class SysStatParse(object):
         try:
             while True:
                 try:
+                    # import pdb; pdb.set_trace()
                     res = helpers.bulk(es, self.actions)
                 except es_excs.ConnectionError as err:
                     end = time.time()
@@ -432,6 +434,10 @@ class SysStatParse(object):
                         tstos(end), end - start, err), file=sys.stderr)
                     self.exceptions += 1
                 except Exception as err:
+                    # import pdb; pdb.set_trace()
+                    errors = [ _e['create']['error'] for _e in err.errors ]
+                    from pprint import pprint
+                    pprint(errors, stream=sys.stderr)
                     end = time.time()
                     if _DEBUG > 8:
                         import pdb; pdb.set_trace()

@@ -43,7 +43,7 @@ services:
       args:
         ES_PORT: $ES_PORT
     env_file: .env
-    image: sarjitsu:elasticsearch
+    image: sarjitsu:elasticsearch_new
     ports:
     - "${DATASOURCE_PORT_MAPPING}:${ES_PORT}"
 
@@ -53,7 +53,7 @@ services:
       args:
         GRAFANA_PORT: $GRAFANA_PORT
     env_file: .env
-    image: sarjitsu:grafana
+    image: sarjitsu:grafana_new
     ports:
     - "${FRONTEND_PORT_MAPPING}:${GRAFANA_PORT}"
     links:
@@ -77,6 +77,7 @@ services:
     links:
      - datasource
      - metricstore
+     - frontend
 
   web:
     restart: always

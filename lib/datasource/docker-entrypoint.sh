@@ -9,17 +9,17 @@ fi
 
 update_configs(){
 
-    sed -i "s/# network.host:.*/network.host: 0.0.0.0/g" \
+    sed -i "s/#.*network.host:.*/network.host: 0.0.0.0/g" \
 	/etc/elasticsearch/elasticsearch.yml
 
     # sed -i -r 's#elasticsearch\$RANDOM#'$ES_CLUSTER_NAME'#g' /etc/elasticsearch/elasticsearch.yml
-    sed -i -r "s/#cluster.name: elasticsearch/cluster.name: elasticsearch$RANDOM/g" \
+    sed -i -r "s/#.*cluster.name:.*/cluster.name: elasticsearch$RANDOM/g" \
 	/etc/elasticsearch/elasticsearch.yml
 
 }
 
 if [ "$1" = 'elastic' ]; then
-    
+
     export USER_ID=$(id -u)
     export GROUP_ID=$(id -g)
     envsubst < /passwd.template > /tmp/passwd
@@ -33,14 +33,19 @@ if [ "$1" = 'elastic' ]; then
     DATA_DIR=/var/lib/elasticsearch
     LOG_DIR=/var/log/elasticsearch
     PID_DIR=/var/run/elasticsearch
-    
-    set -- elasticsearch \
-        -Des.pidfile=$PID_DIR/elasticsearch.pid \
-        -Des.default.path.home=$ES_HOME \
-        -Des.default.path.logs=$LOG_DIR \
-        -Des.default.path.data=$DATA_DIR \
-        -Des.default.config=$CONF_FILE \
-        -Des.default.path.conf=$CONF_DIR
+
+    update_configs
+
+    echo '
+    -Des.pidfile='$PID_DIR'/elasticsearch.pid
+    -Des.default.path.home='$ES_HOME'
+    -Des.default.path.logs='$LOG_DIR'
+    -Des.default.path.data='$DATA_DIR'
+    -Des.default.config='$CONF_FILE'
+    -Des.default.path.conf='$CONF_D'
+    ' >> /etc/elasticsearch/jvm.options
+
+    set -- /usr/share/elasticsearch/bin/elasticsearch
     # exec su-exec elasticsearch "$BASH_SOURCE" "$@"
 
 fi

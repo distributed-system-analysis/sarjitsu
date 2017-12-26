@@ -29,7 +29,7 @@ class PrepareDashboard(object):
 
     def __init__(self, DB_TITLE='default', DB_TITLE_ORIG='default',
                  _FROM=None, _TO=None, _FIELDS=None,
-                 TIMEFIELD='_timestamp', DATASOURCE=None,
+                 TIMEFIELD='recorded_on', DATASOURCE=None,
                  TEMPLATES=None, NODENAME=None, db_credentials={}):
         """
         Use the precprocessed templates to create the dashboard,

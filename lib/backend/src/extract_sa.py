@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import subprocess
 
@@ -69,7 +70,13 @@ def extract(sessionID, target, sa_filename):
         RAW_STDERR = RESULT_RAW[1].decode()
 
         if "ConnectionError" in RAW_STDERR:
+            print(RAW_STDERR, file=sys.stderr)
             return (NODENAME, False, sadf_type_det)
+
+        if "ERROR" in RAW_STDERR:
+            # ES indexing failed
+            print(RAW_STDERR, file=sys.stderr)
+            # return (NODENAME, False, sadf_type_det)
 
         TMP = [line for line in RAW_STDOUT if line.startswith('grafana_range')]
         if TMP:
