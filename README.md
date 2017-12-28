@@ -204,7 +204,7 @@ For other Operating Systems, refer below:
 
 - Clone the repo
 - run cp `cp env.example .env`
-- Start the containers with `docker compose up -d`.
+- Start the containers with `docker-compose up -d`.
 - Kill the web container `docker-compose kill web` and make sure rest are running `docker-compose ps`
 
 Output should be like this:
