@@ -26,6 +26,7 @@
 
 - [ ] different sar file comparison feature
   - [ ] timeshift query support
+- [ ] Use elasticsearch or postgres as a backend of Celery to improve code quality. Reference PR (https://github.com/distributed-system-analysis/sarjitsu/pull/47)
 
 --
 
