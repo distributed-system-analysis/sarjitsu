@@ -52,6 +52,8 @@ def home():
 
 @app.route('/upload/', methods=['POST'])
 def uploader():
+    import pdb
+    pdb.set_trace()
     session['user'] = "anon"
     app.logger.info("current user <%s> for session ID: %s" %
                                     (session['user'], session.sid))
@@ -144,42 +146,22 @@ Polls redis for results by opening a socketio connection
 '''
 @socketio.on('get results', namespace='/get_result')
 def handle_results(json):
-
     poll_data = json
-    sessionID = poll_data.get("sessionID", None)
-    total_count = poll_data.get("total_count", None)
-    file_list = poll_data.get("file_list", [])
+    # sessionID = poll_data.get("sessionID", None)
+    # total_count = poll_data.get("total_count", None)
+    # file_list = poll_data.get("file_list", [])
     # redis_object = app.cache.hmget()
     # if sessionId!=None and total_count>0 and redis_object!=None:
-    file_data = {}
-    search_keys = []
-    count = 0
-    black_list = []
-    for count in range(0,len(file_list)):
-
-        each_file = file_list[count]
-        if each_file not in black_list:
-            # import pdb
-            # pdb.set_trace()
-            search_key = "file_metadata:" + sessionID + ":" + each_file
-            redis_object = app.cache.hgetall(search_key)
-            redis_object = {k.decode(): v.decode() for k,v in redis_object.items()}
+    search_key = json.get("search_key")
+    # for count in range(0,len(file_list)):
+    redis_object = app.cache.hgetall(search_key)
+    redis_object = {k.decode(): v.decode() for k,v in redis_object.items()}
             # black_list.append(each_file)
             # file_data.append(redis_object)
             # print(redis_object['is_processed'])
-
-            if redis_object['is_processed'] == 'True':
-                
-                print("reached here")
-                print(redis_object)
-                black_list.append(each_file)
-                emit('response', redis_object)
-        import pdb
-        pdb.set_trace()
-        if(len(black_list) == len(file_list)):
-
-                break
-        count = 0
+    print(redis_object)
+    emit('response', redis_object)
+        
     disconnect()
     
 
