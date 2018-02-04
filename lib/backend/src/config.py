@@ -53,6 +53,17 @@ HOST = "0.0.0.0"
 
 # The port to run the application from
 PORT = 8000
+REDIS_HOST = "redis"
+
+REDIS_PORT = 6379
+
+CELERY_REDIS_URL = "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT)
+
+CELERY_NAME = "sar"
+
+class CeleryConfig:
+    CELERY_IMPORTS = ['tasks']
+    CELERY_RESULT_BACKEND = 'redis'
 
 # override above options with local configs if needed
 try:

@@ -2,10 +2,13 @@ import os
 import sys
 import logging
 import datetime
+from celery import Celery
+from config import CeleryConfig
 from time import ctime
 from redis import Redis
 from urllib.parse import urljoin
 from flask import Flask, render_template, json, session
+from flask_socketio import SocketIO
 
 from logging.handlers import RotatingFileHandler
 from flask_session import RedisSessionInterface
@@ -14,6 +17,12 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__,  template_folder=os.path.join(BASE_DIR, 'templates'))
 app.config.from_object('config')
+socketio = SocketIO(app)
+
+# Bootstraping celery application
+
+celery_app = Celery(app.config["CELERY_NAME"], broker=app.config["CELERY_REDIS_URL"])
+celery_app.config_from_object(CeleryConfig)
 
 SAR_ARGS = os.path.join(BASE_DIR, 'static/sar_args_mapping.json')
 sar_modes = json.load(open(SAR_ARGS, 'r'))
@@ -35,8 +44,10 @@ app.logger.addHandler(handler)
 # log.addHandler(handler)
 
 # app.cache = redis.StrictRedis(**app.config.get('REDIS_CONFIG'))
-app.cache = Redis(host='redis', port=6379)
-
+app.cache = Redis(
+                host=app.config["REDIS_HOST"],
+                port=app.config["REDIS_PORT"],
+            )
 app.cache.set("saDir", SA_DIR)
 app.cache.set("uid_track", 1)
 app.cache.set("session_data", {})
@@ -95,3 +106,5 @@ def _jinja2_filter_url(link_name, path):
 app.jinja_env.filters['datetime'] = _jinja2_filter_datetime
 app.jinja_env.filters['arrange'] = _jinja2_filter_list
 app.jinja_env.filters['urljoin'] = _jinja2_filter_url
+
+

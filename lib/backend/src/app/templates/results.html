@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 {% from "forms/macros.html" import render_field %}
 
+{% block socket_script %}
+<script type="text/javascript" src="/static/js/socketFunction.js"></script>
+{% endblock %}
+
 {% block dashboard %}
 <section class='container'>
   <div align="center" class="row">
-
-    {% if valid_results %}
+  
+    <!-- {% if valid_results %}
     <div class="progress progress-striped active">
       <div class="progress-bar" style="width: {{progress}}%"></div>
     </div>
@@ -14,7 +18,7 @@
         the visualization dashboard for your data
       </p>
     </div>
-    {% endif %}
+    {% endif %} -->
 
 
     <div class="panel panel-info">
@@ -35,32 +39,11 @@
             </tr>
           </thead>
           <tbody>
-
-            {% for item in data %}
-            <tr>
-              <td>
-                {% if item.0 %}
-                <span class="label label-success">{{ item.1 }}</span>
-                {% else %}
-                <span class="label label-danger">{{ item.1 }}</span>
-                {% endif %}
-              </td>
-              <td>
-                {{ item.2 }}
-              </td>
-              <td>
-                {{ item.3 }}
-              </td>
-              <td>
-                {% if item.0 %}
-                <span class="label label-primary">Begin:</span> {{ item.4.grafana_range_begin |datetime }}
-                &nbsp;<span class="label label-primary">End:</span> {{ item.4.grafana_range_end |datetime }}
-                {% else %}
-                <pre style="white-space:pre-wrap;">{{ item.4 }}</pre>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
+          <script type="text/javascript">
+          var data = "{{data}}"
+           console.log(data);
+           socketConnection(data);
+           </script>          
           </tbody>
         </table>
 

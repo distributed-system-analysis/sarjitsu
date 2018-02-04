@@ -9,7 +9,9 @@ from app import app
 from scripts.vos.analysis.lib import index_sar
 
 
-def extract(sessionID, target, sa_filename):
+def extract(sessionID, target, sa_filename, file_rediskey):
+
+    # print("*************************EXCTRACT********************", sessionID, target, sa_filename)
     TSTAMPS={}
     CMD_CONVERT = ['-x', "--", "-A"]
 
@@ -41,6 +43,7 @@ def extract(sessionID, target, sa_filename):
     p2 = subprocess.Popen(CMD_GREP, stdout=subprocess.PIPE)
     p2.wait()
     NODENAME = p2.communicate()[0].decode().replace("\n", "")
+    app.cache.hset(file_metadata, "nodename", NODENAME)
 
     #FIXME: check if call_indexer works everytime. And if it handles errors
     try:
@@ -62,17 +65,18 @@ def extract(sessionID, target, sa_filename):
         app.logger.warn("=====Running alternate ES indexing script======")
         CMD_INDEXING = ['scripts/vos/analysis/bin/index-sar',
                         SAR_XML_FILEPATH, NODENAME]
+        # print("********VOS*********", os.environ.get("VOS_CONFIG_PATH"))
         app.logger.info('ES indexing cmd: ' + " ".join(CMD_INDEXING))
         p3 = subprocess.Popen(CMD_INDEXING, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
         p3.wait()
         RESULT_RAW = p3.communicate()
+        # print("***********raw*********", RESULT_RAW)
         RAW_STDOUT = RESULT_RAW[0].decode().splitlines()
         RAW_STDERR = RESULT_RAW[1].decode()
-
+        print(RAW_STDERR, RAW_STDOUT)
         if "ConnectionError" in RAW_STDERR:
-            print(RAW_STDERR, file=sys.stderr)
-            return (NODENAME, False, sadf_type_det)
-
+            return
         if "ERROR" in RAW_STDERR:
             # ES indexing failed
             print(RAW_STDERR, file=sys.stderr)
@@ -91,7 +95,9 @@ def extract(sessionID, target, sa_filename):
 
         GRAPHING_OPTIONS = app.cache.hget("sar_args:%s" % sessionID, "fields").decode()
         creation.dashboard(NODENAME, GRAPHING_OPTIONS, TSTAMPS)
+        app.cache.hset(file_metadata, "tstamp_beg", TSTAMPS['grafana_range_begin'])
+        app.cache.hset(file_metadata, "tstamp_end", TSTAMPS['grafana_range_end'])
 
-        return (NODENAME, TSTAMPS, sadf_type_det)
-    else:
-        return (NODENAME, False, sadf_type_det)
+
+
+    return
