@@ -31,16 +31,34 @@ def extract(sessionID, target, sa_filename):
     CMD_CONVERT.insert(-2, target_file)
 
     #FIXME: check if env in Popen is working fine
-    app.logger.info("spawned CMD: %s" % " ".join(CMD_CONVERT));
-    p1 = subprocess.Popen(CMD_CONVERT, env={'LC_ALL': 'C'},
-                            stdout=open(SAR_XML_FILEPATH, 'w'))
-    p1.wait()
-    app.logger.info("SAR data extraction *completed*!")
+    app.logger.info("spawned CMD: %s" % " ".join(CMD_CONVERT))
+    try:
+        p1 = subprocess.Popen(CMD_CONVERT, env={'LC_ALL': 'C'},
+                              stdout=open(SAR_XML_FILEPATH, 'w'))
+        p1.wait()
+        app.logger.info("SAR data extraction completed!")
+    except ValueError:
+        app.logger.error("Invalid arguments provided to Popen while \
+                          trying to extract SAR data")
+    except OSError as e:
+        app.logger.error("Error forking the process while trying to \
+                          extract the SA data")
+        error_string = "[%s]: %s" % (str(e.errno), e.message)
+        app.logger.error(error_string)
 
     CMD_GREP = ["scripts/detect_nodename", SAR_XML_FILEPATH]
-    p2 = subprocess.Popen(CMD_GREP, stdout=subprocess.PIPE)
-    p2.wait()
-    NODENAME = p2.communicate()[0].decode().replace("\n", "")
+    try:
+        p2 = subprocess.Popen(CMD_GREP, stdout=subprocess.PIPE)
+        p2.wait()
+        NODENAME = p2.communicate()[0].decode().replace("\n", "")
+    except ValueError:
+        app.logger.error("Invalid argument provided to Popen while \
+                         trying to detect nodename")
+    except OSError as e:
+        app.logger.error("Error forking the process while trying to \
+                         detect the nodename")
+        error_string = "[%s]: %s" % (str(e.errno), e.message)
+        app.logger.error(error_string)
 
     #FIXME: check if call_indexer works everytime. And if it handles errors
     try:
