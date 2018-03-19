@@ -24,8 +24,8 @@ def prepare(sessionID, target, sa_filename, q):
         err = p2.stderr
         if err:
             err = err.read().decode()
-            app.logger.error(err)
-            if "Invalid" in err:
+            if "successfully" not in err:
+                app.logger.error(err)
                 app.logger.error("SAR data extraction *failed*!")
                 q[sa_filename] = (None, "Invalid", None)
                 return
