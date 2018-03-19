@@ -63,7 +63,6 @@ def extract(sessionID, target, sa_filename):
     #FIXME: check if call_indexer works everytime. And if it handles errors
     try:
         #FIXME: bad XML ExpatError
-        raise
         state, beg, end = index_sar.call_indexer(file_path=SAR_XML_FILEPATH,
                                _nodename=NODENAME,
                                cfg_name=app.config.get('CFG_PATH'),
@@ -75,7 +74,6 @@ def extract(sessionID, target, sa_filename):
             TSTAMPS['grafana_range_begin'] = beg
             TSTAMPS['grafana_range_end'] = end
     except Exception as E:
-        #FIXME: remove if we use the try: approach in future.
         app.logger.warn(E)
         app.logger.warn("=====Running alternate ES indexing script======")
         CMD_INDEXING = ['scripts/vos/analysis/bin/index-sar',
