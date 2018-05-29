@@ -70,7 +70,7 @@ def gen_action(index, rec, nodename, ts):
         "_index": index,
         "_type": DOCTYPE,
         "_id": md5.hexdigest(),
-        "_timestamp": ts,
+        "timestamp": ts,
         "_source": rec
         }
     return action

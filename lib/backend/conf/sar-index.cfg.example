@@ -2,6 +2,10 @@
 host =
 port = 9200
 
+[Server]
+host = datasource
+port = 9200
+
 [Settings]
 index_prefix = sarjitsu
 index_version = 1
