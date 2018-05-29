@@ -9,7 +9,10 @@ RUN sed -i -r s#^.*listen.*\ 80.*##g /etc/nginx/nginx.conf && \
     sed -i -r s#^user.*##g /etc/nginx/nginx.conf && \
     sed -i -r s#'^.*types_hash_max_size.*'#'    types_hash_max_size 4096;'#g /etc/nginx/nginx.conf
 
+ARG SERVERENDPOINT=web
 COPY conf/sarjitsu_nginx.conf.example /etc/nginx/conf.d/sarjitsu_nginx.conf
+
+RUN sed -i -e "s/%%SERVERENDPOINT%%/$SERVERENDPOINT/g" /etc/nginx/conf.d/sarjitsu_nginx.conf
 
 VOLUME ["/var/cache/nginx"]
 
