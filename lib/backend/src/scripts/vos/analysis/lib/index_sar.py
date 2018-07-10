@@ -334,6 +334,7 @@ class SysStatParse(object):
         try:
             timestamp = record['timestamp']
             ts = timestamp['date'] + 'T' + timestamp['time']
+            record['ts'] = ts
         except KeyError:
             msg = """Seems to be an invalid sar XML file, where a
                 '%s' element does not have date and time attributes""" % name
@@ -899,7 +900,7 @@ def call_indexer(file_path=None, _nodename=None, TS_ALL=TS_ALL,
                                     end - beg))
     if sparse.exceptions + sparse.errors > 0:
         msg = """ERROR(%s) errors encountered during indexing""" % (_NAME_)
-        if sparse.successes + sparse.duplicates == 0:
+        if sparse.successes + sparse.duplicates != 0:
             # Only return a total failure if no records were actually indexed
             # successfully
             app.logger.error(msg)
