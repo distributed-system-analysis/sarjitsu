@@ -13,8 +13,8 @@ sar_template_version=02
 
 [Grafana]
 ds_name = elastic
-pattern = [sarjitsu.sar-]YYYYMMDD
-timeField = recorded_on
+pattern = [sarjitsu.sar-]*
+timeField = ts
 templates_path = /opt/api_server/lib/mappings/
 
 [Api]
