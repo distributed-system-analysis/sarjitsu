@@ -62,6 +62,12 @@ restart: `docker-compose restart`
 kill: `docker-compose kill`
 ```
 
+- List all docker service logs for limited lines:
+
+```
+./utils/list_services.sh  | xargs -L1 docker-compose logs --tail 5
+```
+
 ## Option 2: Through Openshift
 
 - To deploy on OpenShift, you could use [kompose](https://github.com/kubernetes-incubator/kompose):
